@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/Homework/v16
+/.vs
+/CS260/assn1/.vs/assn1/v16
+/CS260/assn1/Debug
