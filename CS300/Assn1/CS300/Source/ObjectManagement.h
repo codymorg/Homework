@@ -38,8 +38,8 @@ public:
 
     void loadOBJ(std::string fileLocation);
     void loadCube();
-    void loadSphere();
-    void loadcircle();
+	void loadSphere(float radius, int divisions);
+    void loadcircle(float radius, int divisions);
 
     void translate(glm::vec3 translation);
     void addRotation(float degrees, glm::vec3 axis);
@@ -58,6 +58,7 @@ public:
     bool fillPolygons = true;                   // wiremode: false
     glm::vec3 objectColor;                      // the color of this object
     glm::mat4 transform;
+    bool background = false;                    // draw background stuff
 
 private:
     void initBuffers();
