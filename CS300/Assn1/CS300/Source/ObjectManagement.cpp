@@ -209,13 +209,95 @@ void Object::loadOBJ(string fileLocation)
         vertices.push_back(Vertex(vertData, normalData));
     }
 
-    //vec3 translate((vMax.x + vMin.x) / 2, (vMax.y + vMin.y) / 2, (vMax.z + vMin.z) / 2);
-    //addTransform(translate);
-
     vec3 scale(1 / (vMax.x - vMin.x), 1 / (vMax.y - vMin.y), 1 / (vMax.z - vMin.z));
     addScale(scale);
 
+    vec3 translation((vMax.x + vMin.x) / 2, (vMax.y + vMin.y) / 2, (vMax.z + vMin.z) / 2);
+    translate(-translation);
+
     initBuffers();
+}
+
+void Object::loadSphere(float radius, int divisions)
+{
+	vertices.clear();
+	indices.clear();
+
+	vec3 position;
+	vec3 norm;
+	float pi = glm::pi<float>();
+	float sectorStep = 2.0f * pi / divisions;
+	float stackStep = pi / divisions;
+	float theta = 0;
+	float phi = 0;
+	float length = 1.0f / radius;
+
+	// generate vertices
+	for (int i = 0; i <= divisions; ++i)
+	{
+		theta = pi / 2 - i * stackStep;      
+		float xy = radius * cosf(theta);           
+		position.z = radius * sinf(theta);            
+
+		for (int j = 0; j <= divisions; ++j)
+		{
+			phi = j * sectorStep;        
+			position.x = xy * cosf(phi);           
+			position.y = xy * sinf(phi);        
+
+			// normalized vertex normal (nx, ny, nz)
+			norm.x = position.x / radius;
+			norm.y = position.y / radius;
+			norm.z = position.z / radius;
+
+			vertices.push_back(Vertex(position, norm));
+		}
+	}
+
+	// generate indices
+	unsigned k1;
+	unsigned k2;
+	for (int i = 0; i < divisions; ++i)
+	{
+		k1 = i * (divisions + 1);     // beginning of current stack
+		k2 = k1 + divisions + 1;      // beginning of next stack
+
+		for (int j = 0; j < divisions; ++j, ++k1, ++k2)
+		{
+			if (i != 0)
+			{
+				indices.push_back(k1);
+				indices.push_back(k2);
+				indices.push_back(k1 + 1);
+			}
+
+			// k1+1 => k2 => k2+1
+			if (i != (divisions - 1))
+			{
+				indices.push_back(k1 + 1);
+				indices.push_back(k2);
+				indices.push_back(k2 + 1);
+			}
+		}
+	}
+
+	initBuffers();
+}
+
+void Object::loadcircle(float radius, int divisions)
+{
+	vertices.clear();
+	indices.clear();
+    renderMode = GL_LINE_LOOP;
+
+	// generate vertices
+	for (int i = 0; i < divisions; i++)
+	{
+		vertices.push_back(Vertex(vec3(radius * glm::sin(glm::radians(360.0f / divisions * i)), 0, radius * glm::cos(glm::radians(360.0f / divisions * i))),vec3(0,1,0)));
+        indices.push_back(i);
+	}
+
+	initBuffers();
 }
 
 
@@ -245,10 +327,10 @@ void Object::initBuffers()
     // bind with default data
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_DYNAMIC_DRAW);
 
     // send vert info
     glEnableVertexAttribArray(0);

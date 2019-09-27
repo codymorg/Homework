@@ -201,15 +201,52 @@ void GLAPIENTRY MessageCallback(GLenum source,
     const GLchar* message,
     const void* userParam)
 {
-    fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n\n",
-        (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-        type, severity, message);
+
+#ifndef DEBUG_SEVERITY_HIGH
+#define DEBUG_SEVERITY_HIGH         0x9146
+#define DEBUG_SEVERITY_MEDIUM       0x9147
+#define DEBUG_SEVERITY_LOW          0x9148
+#define DEBUG_SEVERITY_NOTIFICATION 0x826B
+
+#define DEBUG_TYPE_ERROR               0x824C
+#define DEBUG_TYPE_DEPRECATED_BEHAVIOR 0x824D
+#define DEBUG_TYPE_UNDEFINED_BEHAVIOR  0x824E
+#define DEBUG_TYPE_PORTABILITY         0x824F
+#define DEBUG_TYPE_PERFORMANCE         0x8250
+#define DEBUG_TYPE_OTHER               0x8251
+#define DEBUG_TYPE_MARKER              0x8268
+#endif
+
+    if (severity != DEBUG_SEVERITY_NOTIFICATION)
+    {
+        string debugTypes[] =
+        {
+            "DEBUG_TYPE_ERROR",
+            "DEBUG_TYPE_DEPRECATED_BEHAVIOR",
+            "DEBUG_TYPE_UNDEFINED_BEHAVIOR",
+            "DEBUG_TYPE_PORTABILITY",
+            "DEBUG_TYPE_PERFORMANCE",
+            "DEBUG_TYPE_OTHER",
+            "DEBUG_TYPE_MARKER"
+        };
+        string severityTypes[] =
+        {
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+        };
+
+        string typeString = debugTypes[(type - DEBUG_TYPE_ERROR) % 7];
+        string severityString = severityTypes[(severity - DEBUG_SEVERITY_HIGH) % 3];
+
+        fprintf(stderr, "Error\n     Severity: %s     Type: %s\n     \n     %s\n\n", severityString.c_str(), typeString.c_str(), message);
+    }
 }
 
 
 bool inFront(Object& A, Object& B)
 {
-    return A.transform[3].z < A.transform[3].z;
+    return A.transform[3].z < B.transform[3].z;
 }
 
 void Render(GLFWwindow* window, Camera& camera)
@@ -229,15 +266,25 @@ void Render(GLFWwindow* window, Camera& camera)
 
 void GenerateScene(unsigned shaderProgram)
 {
-    Object test(shaderProgram, "test");
-    test.addScale(vec3(100));
-    test.translate(vec3(0, 0, -5));
-    objects.push_back(test);
+    Object center(shaderProgram, "center");
+    center.loadOBJ("Common/models/cube.obj");
+    center.addScale(vec3(0.5f));
+    objects.push_back(center);
 
-    Object test2(shaderProgram, "test2");
-    test2.loadOBJ("Common/models/cube.obj");
-    test2.translate(vec3(0, 0, -2));
-    objects.push_back(test2);
+    int ballCount = 15;
+    int circleRadius = 5;
+    for (int i = 0; i < ballCount; i++)
+    {
+        Object ball(shaderProgram, "ball" + std::to_string(i));
+        ball.loadSphere(.1, 30);
+        ball.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius *  glm::sin(glm::radians(360.0f / ballCount * i))));
+        objects.push_back(ball);
+    }
+
+    Object circle(shaderProgram, "circle");
+    circle.loadcircle(5,45);
+    circle.background = true;
+    objects.push_back(circle);
 }
 
 int FindObject(string name)
@@ -257,7 +304,7 @@ int main()
 {
     // make a window
     GLFWwindow* window = nullptr;
-    if (WindowInit(3200, 2400, 4, 0, &window) == false)
+    if (WindowInit(3200 / 4, 2400 / 4, 4, 0, &window) == false)
         return -1;
 
     // GL state setting
@@ -275,8 +322,6 @@ int main()
 
     Camera camera(vec3(0,-2,-10), 0.0f, vec3(1,0,0), shaderProgram);
 
-    //view = glm::rotate(view, glm::radians(y), glm::vec3(0, 1, 0));
-
     GenerateScene(shaderProgram);
 
     // loop
@@ -284,18 +329,31 @@ int main()
     {
         ProcessInput(window);
         
-        //objects[FindObject("test")].addRotation(1, vec3(1,0,0));
-        //objects[FindObject("test2")].addRotation(1, vec3(0, 1, 0));
-
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             camera.view = glm::rotate(camera.view, 0.01f, vec3(1, 0, 0));
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        {
+            for (size_t i = 0; i < 8; i++)
+            {
 
+                objects[FindObject("ball" + std::to_string(i))].addRotation(1.0f, vec3(0, 1, 0));
+            }
+        }
+        if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+        {
+        static float y = 3;
+            objects.pop_back();
+            Object circle(shaderProgram, "circle");
+            circle.loadcircle(5, y+=0.1);
+            objects.push_back(circle);
+        }
 
 
         Render(window, camera);
         glfwPollEvents();
 
     }
+
 
     return 0;
 }
