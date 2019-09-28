@@ -9,6 +9,9 @@
 
 #include "ObjectManagement.h"
 using glm::vec3;
+using glm::vec4;
+using glm::mat4;
+
 using std::string;
 using std::getline;
 
@@ -66,7 +69,7 @@ void Object::translate(glm::vec3 translation)
     transform = glm::translate(transform, translation);
 }
 
-void Object::addRotation(float degrees, glm::vec3 axis)
+void Object::spin(float degrees, glm::vec3 axis)
 {
     // safeguard rotation
     while (degrees > 360.0f)
@@ -78,6 +81,46 @@ void Object::addRotation(float degrees, glm::vec3 axis)
 void Object::addScale(glm::vec3 scale)
 {
     transform = glm::scale(transform, scale);
+}
+
+void Object::printTransform()
+{
+    for (size_t r = 0; r < 4; r++)
+    {
+        for (size_t c = 0; c < 4; c++)
+        {
+            std::cout.setf(std::ios::fixed, std::ios::floatfield);
+            std::cout.precision(1);
+            cout << transform[c][r] << "\t";
+        }
+        cout << "\n";
+    }
+    cout << '\n';
+}
+
+void PrintMatrix(mat4 mat)
+{
+    for (size_t r = 0; r < 4; r++)
+    {
+        for (size_t c = 0; c < 4; c++)
+        {
+            std::cout.setf(std::ios::fixed, std::ios::floatfield);
+            std::cout.precision(1);
+            cout << mat[c][r] << "\t";
+        }
+        cout << "\n";
+    }
+    cout << '\n';
+}
+
+void Object::rotateY(float degrees, glm::vec3 point)
+{
+    glm::vec3 pos(transform[3][0], transform[3][1], transform[3][2]);
+    mat4 rotM(1.0f);
+    rotM = glm::translate(rotM, -pos);
+    rotM = glm::rotate(rotM, glm::radians(degrees), vec3(0,1,0));
+    rotM = glm::translate(rotM, pos);
+    transform = rotM * transform;
 }
 
 

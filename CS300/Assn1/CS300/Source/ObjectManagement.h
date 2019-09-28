@@ -42,12 +42,13 @@ public:
     void loadcircle(float radius, int divisions);
 
     void translate(glm::vec3 translation);
-    void addRotation(float degrees, glm::vec3 axis);
+    void spin(float degrees, glm::vec3 axis);
+    void rotateY(float degrees, glm::vec3 point);
 
     void addScale(glm::vec3 scale);
 
     void draw();
-
+    void printTransform();
 
     std::string name;                           // name of objectec
     unsigned shaderProgram;                     // compiled shader program

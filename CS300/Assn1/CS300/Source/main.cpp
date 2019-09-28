@@ -272,17 +272,17 @@ void GenerateScene(unsigned shaderProgram)
     objects.push_back(center);
 
     int ballCount = 15;
-    int circleRadius = 5;
+    int circleRadius = 4;
     for (int i = 0; i < ballCount; i++)
     {
         Object ball(shaderProgram, "ball" + std::to_string(i));
-        ball.loadSphere(.1, 30);
+        ball.loadSphere(.5, 30);
         ball.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius *  glm::sin(glm::radians(360.0f / ballCount * i))));
         objects.push_back(ball);
     }
 
     Object circle(shaderProgram, "circle");
-    circle.loadcircle(5,45);
+    circle.loadcircle(circleRadius,45);
     circle.background = true;
     objects.push_back(circle);
 }
@@ -304,7 +304,7 @@ int main()
 {
     // make a window
     GLFWwindow* window = nullptr;
-    if (WindowInit(3200 / 4, 2400 / 4, 4, 0, &window) == false)
+    if (WindowInit(1600 , 1200 , 4, 0, &window) == false)
         return -1;
 
     // GL state setting
@@ -331,12 +331,14 @@ int main()
         
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             camera.view = glm::rotate(camera.view, 0.01f, vec3(1, 0, 0));
-        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_RELEASE)
         {
-            for (size_t i = 0; i < 8; i++)
+            for (size_t i = 0; i < objects.size(); i++)
             {
-
-                objects[FindObject("ball" + std::to_string(i))].addRotation(1.0f, vec3(0, 1, 0));
+                if (objects[i].name.find("ball") != string::npos)
+                {
+                    objects[i].rotateY(0.1, vec3(0, 0, 0));
+                }
             }
         }
         if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
