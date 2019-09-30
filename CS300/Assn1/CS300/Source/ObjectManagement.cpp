@@ -113,9 +113,12 @@ void PrintMatrix(mat4 mat)
     cout << '\n';
 }
 
-void Object::rotateY(float degrees, glm::vec3 point)
+void Object::rotateY(float degrees, float radius)
 {
     glm::vec3 pos(transform[3][0], transform[3][1], transform[3][2]);
+    if (pos.x > radius)
+        transform[3][0] = radius;
+
     mat4 rotM(1.0f);
     rotM = glm::translate(rotM, -pos);
     rotM = glm::rotate(rotM, glm::radians(degrees), vec3(0,1,0));
@@ -265,7 +268,6 @@ void Object::loadSphere(float radius, int divisions)
 {
 	vertices.clear();
 	indices.clear();
-
 	vec3 position;
 	vec3 norm;
 	float pi = glm::pi<float>();

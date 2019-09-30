@@ -7,7 +7,7 @@ uniform mat4 model;
 
 void main()
 {
-    normal = aNormal;
+  normal = aNormal;
 
-    gl_Position = model * vec4(aPos,1.0f);
+  gl_Position = model * vec4(aPos,1.0f);
 }

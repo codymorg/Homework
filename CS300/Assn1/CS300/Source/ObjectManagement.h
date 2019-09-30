@@ -43,7 +43,7 @@ public:
 
     void translate(glm::vec3 translation);
     void spin(float degrees, glm::vec3 axis);
-    void rotateY(float degrees, glm::vec3 point);
+    void rotateY(float degrees, float radius);
 
     void addScale(glm::vec3 scale);
 
@@ -59,7 +59,9 @@ public:
     bool fillPolygons = true;                   // wiremode: false
     glm::vec3 objectColor;                      // the color of this object
     glm::mat4 transform;
-    bool background = false;                    // draw background stuff
+    glm::vec3 minPos;
+    glm::vec3 maxPos;
+    float orbitRadius;
 
 private:
     void initBuffers();

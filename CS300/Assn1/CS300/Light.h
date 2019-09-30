@@ -2,31 +2,29 @@
   Name : Cody Morgan
   Class: CS 300
   Assn : 01
-  Brief: Manages Camera
+  Brief: Manages Lights
   Date:  4 OCT 2019
 
 ******************************************************************************/
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef LIGHT_H
+#define LIGHT_H
 #pragma once
 
 #include <glm/glm.hpp>
+#include "ObjectManagement.h"
 
+#include <string>
 
-class Camera
+class Light : public Object
 {
 public:
-  Camera(glm::vec3 position, float angle, glm::vec3 axis, unsigned shader);
+    Light(int shaderProgram = -1, std::string ID = "anon");
 
-  void update();
-
-  glm::mat4 view = glm::mat4(1.0f);
-  glm::mat4 projection;
-  unsigned shaderProgram = 0;
 
 private:
+    glm::vec3 color;
+    glm::mat4 transform;
 };
 
 #endif
-

@@ -268,7 +268,7 @@ void GenerateScene(unsigned shaderProgram)
 {
     Object center(shaderProgram, "center");
     center.loadOBJ("Common/models/cube.obj");
-    center.addScale(vec3(0.5f));
+    center.addScale(vec3(1.5f,3.0,1));
     objects.push_back(center);
 
     int ballCount = 15;
@@ -278,12 +278,12 @@ void GenerateScene(unsigned shaderProgram)
         Object ball(shaderProgram, "ball" + std::to_string(i));
         ball.loadSphere(.5, 30);
         ball.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius *  glm::sin(glm::radians(360.0f / ballCount * i))));
+        ball.orbitRadius = circleRadius;
         objects.push_back(ball);
     }
 
     Object circle(shaderProgram, "circle");
     circle.loadcircle(circleRadius,45);
-    circle.background = true;
     objects.push_back(circle);
 }
 
@@ -337,7 +337,14 @@ int main()
             {
                 if (objects[i].name.find("ball") != string::npos)
                 {
-                    objects[i].rotateY(0.1, vec3(0, 0, 0));
+                    float angularV = 0.5f;
+                    float radius = objects[i].orbitRadius;
+                    objects[i].rotateY(angularV, radius);
+                    vec4 position = objects[i].transform[3];
+                    vec3 axis(position.x, 0, -position.z);
+                    float spinAmount = angularV * radius;
+                    objects[i].spin(spinAmount,-axis);
+
                 }
             }
         }
