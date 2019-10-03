@@ -31,6 +31,7 @@ using std::cout;
 using std::max;
 using std::min;
 
+/////***** Vertex Class *****/////
 
 Vertex::Vertex(float x, float y, float z, float nx, float ny, float nz)
 {
@@ -47,9 +48,18 @@ Vertex::Vertex(vec3 pos, vec3 norm ) : position(pos), normal(pos)
 }
 
 
+/////***** Line Class *****/////
+
+
+Line::Line(vec3 pointA, vec3 pointB) : centroid(pointA), normDir(pointB)
+{}
+
+
+
 /////***** Object Class *****/////
 
-Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram(shaderPgm), objectColor(0,128,128)
+
+Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram(shaderPgm)
 {
     transform = glm::mat4(1.0f);
 
@@ -59,6 +69,7 @@ Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram(shaderPgm), o
     glGenBuffers(1, &ebo);
 
     initBuffers();
+
 }
 
 Object::~Object()
@@ -66,7 +77,8 @@ Object::~Object()
 
 void Object::translate(glm::vec3 translation)
 {
-    transform = glm::translate(transform, translation);
+    vec3 trans = translation / scale;
+    transform = glm::translate(transform, trans);
 }
 
 void Object::spin(float degrees, glm::vec3 axis)
@@ -119,6 +131,7 @@ void Object::rotateY(float degrees, float radius)
     if (pos.x > radius)
         transform[3][0] = radius;
 
+    // rotate verts
     mat4 rotM(1.0f);
     rotM = glm::translate(rotM, -pos);
     rotM = glm::rotate(rotM, glm::radians(degrees), vec3(0,1,0));
@@ -126,6 +139,87 @@ void Object::rotateY(float degrees, float radius)
     transform = rotM * transform;
 }
 
+void Object::initLineBuffers()
+{
+    if(faceNormDrawingMode == DrawNormalMode::InvalidDrawMode)
+    {
+        // init openGL buffers
+        glGenVertexArrays(1, &lineVAO);
+        glGenBuffers(1, &lineVBO);
+
+        // bind with default data
+        glBindVertexArray(lineVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+        glBufferData(GL_ARRAY_BUFFER, faceNorms.size() * sizeof(vec3), faceNorms.data(), GL_DYNAMIC_DRAW);
+
+        // send vert info
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), nullptr);
+
+        // unbind
+        glBindVertexArray(0);
+    }
+
+    faceNormDrawingMode = DrawNormalMode::FaceNormalsOn;
+}
+
+void Object::genFaceNormals()
+{
+    if (faceNormDrawingMode == DrawNormalMode::InvalidDrawMode)
+    {
+        faceNorms.clear();
+
+        for (int i = 0; i < indices.size(); i += 3)
+        {
+            const vec3& A = vertices[indices[i]].position;
+            const vec3& B = vertices[indices[i + 1]].position;
+            const vec3& C = vertices[indices[i + 2]].position;
+
+            vec3 center = 
+            {
+                (A.x + B.x + C.x) / 3,
+                (A.y + B.y + C.y) / 3,
+                (A.z + B.z + C.z) / 3,
+            };
+
+            vec3 vectorAB = vec3(B - A);
+            vec3 vectorBC = vec3(C - B);
+            vec3 norm = glm::normalize(glm::cross(vectorAB, vectorBC)) * vectorScale / scale;
+            norm = center + norm;
+            faceNorms.push_back(center);
+            faceNorms.push_back(norm);
+        }
+
+        initLineBuffers();
+    }
+}
+
+void Object::toggleFaceNormals()
+{
+    if (faceNormDrawingMode == DrawNormalMode::FaceNormalsOn)
+    {
+        faceNormDrawingMode = DrawNormalMode::FaceNormalsOff;
+    }
+    else
+    {
+        faceNormDrawingMode = DrawNormalMode::InvalidDrawMode;
+        genFaceNormals();
+
+    }
+}
+
+
+void Object::drawFaceNorms()
+{
+    glBindVertexArray(lineVAO);
+    vec3 red (1,0,0);
+    glUniform3fv(colorLoc, 1, glm::value_ptr(red));
+
+    glDrawArrays(GL_LINES, 0, faceNorms.size());
+
+    glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+    glBindVertexArray(0);
+}
 
 void Object::loadCube()
 {
@@ -202,17 +296,49 @@ void Object::loadOBJ(string fileLocation)
             }
             else if (line.substr(0, 2) == "f ")
             {
-                std::istringstream objData(line);
+                std::istringstream objData(line.substr(2));
                 std::string token;
+                int faceCount = 0;
+                vector<unsigned> fanIndices;
+
+                // if you have '//' delimiters you monster
+                if (line.find("//") != string::npos)
+                {
+                    while (getline(objData, token, '/'))
+                    {
+                        int index;
+                        std::istringstream substring(token);
+                        substring >> index;
+
+                        // add this face to the fan list if you have more than 3 faces
+                        fanIndices.push_back(index - 1);
+                        indices.push_back(index - 1);
+
+                        faceCount++;
+
+                        // skip uv stuff
+                        objData.get();
+                        char peek = '\0';
+                        while (peek != ' ' && peek != -1)
+                        {
+                            peek = objData.peek();
+                            objData.get();
+                        }
+                    }
+                }
 
                 // if you have '\\' delimiters
-                if (line.find("\\") != string::npos)
+                else if (line.find("\\") != string::npos && line.find("\\par") == string::npos)
                 {
                     while (getline(objData, token, '\\'))
                     {
                         int index;
                         std::istringstream substring(token);
                         substring >> index;
+
+                        fanIndices.push_back(index - 1);
+                        faceCount++;
+
                         char peek = '\0';
                         while (peek != ' ' && peek != -1)
                         {
@@ -229,8 +355,34 @@ void Object::loadOBJ(string fileLocation)
                     while (getline(objData, token, ' '))
                     {
                         int index;
-                        objData >> index;
+                        std::istringstream substring(token);
+                        substring >> index;
                         indices.push_back(index - 1);
+                        fanIndices.push_back(index - 1);
+
+                        faceCount++;
+
+                    }
+                }
+
+                if (faceCount > 3)
+                {
+                    // shear off those fan faces
+                    while (faceCount > 3)
+                    {
+                        indices.pop_back();
+                        faceCount--;
+                    }
+
+                    // convert fan to gl tris
+                    unsigned triA = fanIndices[0];
+                    for (int i = 0; i < fanIndices.size() - 3; i++)
+                    {
+                        unsigned triB = fanIndices[2 + i];
+                        unsigned triC = fanIndices[3 + i];
+                        indices.push_back(triA);
+                        indices.push_back(triB);
+                        indices.push_back(triC);
                     }
                 }
 
@@ -255,11 +407,11 @@ void Object::loadOBJ(string fileLocation)
         vertices.push_back(Vertex(vertData, normalData));
     }
 
-    vec3 scale(1 / (vMax.x - vMin.x), 1 / (vMax.y - vMin.y), 1 / (vMax.z - vMin.z));
+    scale = {1 / (vMax.x - vMin.x), 1 / (vMax.y - vMin.y), 1 / (vMax.z - vMin.z)};
     addScale(scale);
 
     vec3 translation((vMax.x + vMin.x) / 2, (vMax.y + vMin.y) / 2, (vMax.z + vMin.z) / 2);
-    translate(-translation);
+    transform = glm::translate(transform, -translation);
 
     initBuffers();
 }
@@ -348,6 +500,7 @@ void Object::loadcircle(float radius, int divisions)
 
 void Object::draw()
 {
+
     if (fillPolygons)
     {
         glPolygonMode(GL_FRONT, GL_FILL);
@@ -357,11 +510,17 @@ void Object::draw()
 
     glBindVertexArray(vao);
 
-    int modelLoc = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &transform[0][0]);
+    glUniform3fv(colorLoc, 1, glm::value_ptr(color));
 
     glDrawElements(renderMode, indices.size() , GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    if (faceNormDrawingMode == FaceNormalsOn)
+    {
+        genFaceNormals();
+        drawFaceNorms();
+    }
 }
 
 
@@ -387,4 +546,12 @@ void Object::initBuffers()
 
     // unbind
     glBindVertexArray(0);
+
+
+    modelLoc = glGetUniformLocation(shaderProgram, "model");
+    colorLoc = glGetUniformLocation(shaderProgram, "objColor");
+
+    //assert(modelLoc >= 0 );
+    //assert(colorLoc >= 0);
+
 }

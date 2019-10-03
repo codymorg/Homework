@@ -16,15 +16,24 @@
 
 #include <string>
 
-class Light : public Object
+class Light
 {
 public:
     Light(int shaderProgram = -1, std::string ID = "anon");
 
+    void update();
+    glm::vec3 getPosition();
+    void translate(glm::vec3 translation);
+
+    Object emitter;
+    glm::vec3 color = {1.0f, 1.0f, 1.0f};
+    float ambientStrength = 0.5f;
 
 private:
-    glm::vec3 color;
     glm::mat4 transform;
+    int colorLoc = -1;  // shader loaction of color 
+    int posLoc = -1;    // shader location of position
+    int strengthLoc = -1;
 };
 
 #endif

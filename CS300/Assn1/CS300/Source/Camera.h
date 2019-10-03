@@ -23,9 +23,12 @@ public:
 
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection;
-  unsigned shaderProgram = 0;
 
 private:
+
+  unsigned shaderProgram = 0;
+  int viewLoc;           // view matrix shader location
+  int projectionLoc;     // projection matrix shader locaiton
 };
 
 #endif

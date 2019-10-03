@@ -16,6 +16,9 @@
     <Filter Include="Source Files\shaders">
       <UniqueIdentifier>{a6e50aa2-ef30-4fed-90ea-1cb3a5309f45}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\imGUI">
+      <UniqueIdentifier>{e08ef7b1-ba35-404f-b4fd-b9ac0e7c76d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\fragmentShader.frag">
@@ -41,8 +44,23 @@
     <ClCompile Include="Source\ObjectManagement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
+    <ClCompile Include="Source\Light.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\imGui\imgui.cpp">
+      <Filter>Source Files\imGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\imGui\imgui_draw.cpp">
+      <Filter>Source Files\imGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\imGui\imgui_widgets.cpp">
+      <Filter>Source Files\imGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\imGui\imgui_impl_glfw.cpp">
+      <Filter>Source Files\imGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\imGui\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\imGUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -52,8 +70,32 @@
     <ClInclude Include="Source\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
+    <ClInclude Include="Source\Light.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imGui\imconfig.h">
+      <Filter>Source Files\imGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imGui\imgui.h">
+      <Filter>Source Files\imGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imGui\imgui_internal.h">
+      <Filter>Source Files\imGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imGui\imstb_rectpack.h">
+      <Filter>Source Files\imGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imGui\imstb_textedit.h">
+      <Filter>Source Files\imGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imGui\imstb_truetype.h">
+      <Filter>Source Files\imGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imGui\imgui_impl_glfw.h">
+      <Filter>Source Files\imGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\imGui\imgui_impl_opengl3.h">
+      <Filter>Source Files\imGUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

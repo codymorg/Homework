@@ -26,14 +26,26 @@ using std::string;
 #include <vector>
 using std::vector;
 
-#include <algorithm>
-using std::sort;
+#include "imGui/imgui.h"
+#include "imGui/imgui_impl_glfw.h"
+#include "imGui/imgui_impl_opengl3.h"
 
 #include "ObjectManagement.h"
 #include "Camera.h"
+#include "Light.h"
 
 static vector<Object> objects;
+static vec3 up(0, 1, 0);
+static vec3 right(1, 0, 0);
+static vec3 down(0, -1, 0);
+static vec3 left(-1, 0, 0);
+static vec3 back(0, 0, -1);
+static vec3 forward(0, 0, 1);
 
+static int selectedObject = 0;
+
+
+int FindObject(string name);
 
 /******************************************************************************
     brief : creates a window
@@ -89,11 +101,13 @@ bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window
     brief : cleans up program
 
 ******************************************************************************/
-void Terminate(int vertexShader, int fragmentShader)
+void Terminate()
 {
     glfwTerminate();
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 /******************************************************************************
@@ -249,29 +263,29 @@ bool inFront(Object& A, Object& B)
     return A.transform[3].z < B.transform[3].z;
 }
 
-void Render(GLFWwindow* window, Camera& camera)
+void Render(GLFWwindow* window, Camera& camera, Light& light)
 {
-    sort(objects.begin(), objects.end(), inFront);
-
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    light.update();
+    camera.update();
     for (int i = 0; i < objects.size(); i++)
     {
-        camera.update();
         objects[i].draw();
     }
-    glfwSwapBuffers(window);
 }
 
 void GenerateScene(unsigned shaderProgram)
 {
-    Object center(shaderProgram, "center");
-    center.loadOBJ("Common/models/cube.obj");
-    center.addScale(vec3(1.5f,3.0,1));
+    Object center(shaderProgram, "OBJ model");
+    center.loadOBJ("Common/models/bunny.obj");
+    center.addScale(vec3(2));
+    center.color = vec3(0,0,.7);
+    center.genFaceNormals();
     objects.push_back(center);
 
-    int ballCount = 15;
+    int ballCount = 8;
     int circleRadius = 4;
     for (int i = 0; i < ballCount; i++)
     {
@@ -279,9 +293,10 @@ void GenerateScene(unsigned shaderProgram)
         ball.loadSphere(.5, 30);
         ball.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius *  glm::sin(glm::radians(360.0f / ballCount * i))));
         ball.orbitRadius = circleRadius;
+        ball.color = vec3(0, 0.7f, 0);
+
         objects.push_back(ball);
     }
-
     Object circle(shaderProgram, "circle");
     circle.loadcircle(circleRadius,45);
     objects.push_back(circle);
@@ -300,6 +315,46 @@ int FindObject(string name)
     return -1;
 }
 
+void InitGUI(GLFWwindow* window)
+{
+    // context 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+
+    // open GL
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+
+    // setup stuff
+    ImGui::StyleColorsDark();
+}
+void UpdateGUI()
+{
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Welcome to CS300 Assignment 1!");
+
+    // normal stuff
+    ImGui::Text("Selected Object");
+    ImGui::SliderInt(objects[selectedObject].name.c_str(), &selectedObject, 0, objects.size() - 1);
+    bool toggleFN = ImGui::Button("Toggle selected object's Face Normal");
+    bool changeNormalLength = ImGui::SliderFloat("Normal Display Scale", &objects[selectedObject].vectorScale, 0, 2.0);
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
+
+    if (toggleFN || changeNormalLength)
+    {
+        objects[selectedObject].toggleFaceNormals();
+
+        if(changeNormalLength)
+            objects[selectedObject].toggleFaceNormals();
+    }
+}
+
 int main()
 {
     // make a window
@@ -314,55 +369,99 @@ int main()
 #endif
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glEnable(GL_DEPTH_TEST);
 
-    // Camera setup
+    InitGUI(window);
 
     //make a test object
-    int shaderProgram = InitShaderProgram("Source/vertexShader.vert", "Source/normalShader.frag");
+    int shaderProgram = InitShaderProgram("Source/vertexShader.vert", "Source/fragmentShader.frag");
 
     Camera camera(vec3(0,-2,-10), 0.0f, vec3(1,0,0), shaderProgram);
+    Light light(shaderProgram, "light");
+    light.color = vec3(1);
+    light.emitter.color = light.color;
+    light.ambientStrength = 0.75f;
+    light.translate(vec3(0,5,0));
 
     GenerateScene(shaderProgram);
 
     // loop
     while (!glfwWindowShouldClose(window))
     {
+        double time = glfwGetTime();
         ProcessInput(window);
-        
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera.view = glm::rotate(camera.view, 0.01f, vec3(1, 0, 0));
-        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_RELEASE)
+        UpdateGUI();
+
         {
+            float moveStr = 0.1f;
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            {
+                light.translate(moveStr * up);
+            }
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            {
+                light.translate(moveStr * down);
+            }
+            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+            {
+                light.translate(moveStr * back);
+            }
+            if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+            {
+                light.translate(moveStr * forward);
+            }
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            {
+                light.translate(moveStr * left);
+            }
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            {
+                light.translate(moveStr * right);
+            }
+            if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+            {
+                objects[0].spin(.5, up);
+            }
+        }
+
+        // rotate balls
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+        {
+
             for (size_t i = 0; i < objects.size(); i++)
             {
                 if (objects[i].name.find("ball") != string::npos)
                 {
-                    float angularV = 0.5f;
+                    float angularV = -0.05f;
                     float radius = objects[i].orbitRadius;
                     objects[i].rotateY(angularV, radius);
-                    vec4 position = objects[i].transform[3];
-                    vec3 axis(position.x, 0, -position.z);
-                    float spinAmount = angularV * radius;
-                    objects[i].spin(spinAmount,-axis);
-
                 }
             }
         }
-        if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
-        {
-        static float y = 3;
-            objects.pop_back();
-            Object circle(shaderProgram, "circle");
-            circle.loadcircle(5, y+=0.1);
-            objects.push_back(circle);
-        }
 
+        //maintain viewport
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
 
-        Render(window, camera);
+        // render scene and GUI window
+        Render(window, camera, light);
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwSwapBuffers(window);
+
         glfwPollEvents();
 
+        // maintain a max of 120hertz
+        double dt = glfwGetTime() - time;
+        while (dt < 1 / 120.0)
+        {
+            dt = glfwGetTime() - time;
+        }
     }
 
+    Terminate();
 
     return 0;
 }

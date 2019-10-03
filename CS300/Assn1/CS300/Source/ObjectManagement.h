@@ -29,6 +29,13 @@ struct Vertex
     glm::vec3 normal;
 };
 
+struct Line
+{
+    Line(glm::vec3 pointA, glm::vec3 pointB);
+
+    glm::vec3 centroid;
+    glm::vec3 normDir;
+};
 
 class Object
 {
@@ -36,37 +43,60 @@ public:
     Object(int shaderPgm, std::string ID = "anon");
     ~Object();
 
+    // loading meshes
     void loadOBJ(std::string fileLocation);
     void loadCube();
 	void loadSphere(float radius, int divisions);
     void loadcircle(float radius, int divisions);
 
+    // manipulation
     void translate(glm::vec3 translation);
     void spin(float degrees, glm::vec3 axis);
     void rotateY(float degrees, float radius);
-
     void addScale(glm::vec3 scale);
 
+    // face normal stuff
+    void initLineBuffers();
+    void genFaceNormals();
+    void drawFaceNorms();
+
+    // misc functionality
     void draw();
     void printTransform();
+    void toggleFaceNormals();
 
     std::string name;                           // name of objectec
-    unsigned shaderProgram;                     // compiled shader program
-    unsigned vbo;                               // vertex buffer
-    unsigned vao;                               // attributes
-    unsigned ebo;                               // indices
     unsigned renderMode = GL_TRIANGLES;         // the method to interpret the vertex data
     bool fillPolygons = true;                   // wiremode: false
-    glm::vec3 objectColor;                      // the color of this object
     glm::mat4 transform;
     glm::vec3 minPos;
     glm::vec3 maxPos;
     float orbitRadius;
+    glm::vec3 color = {0, 0.25, 0.5};
+    float vectorScale = 1 / 50.0f;
+
+    // face normal management
+    enum DrawNormalMode
+    {
+        InvalidDrawMode = -1,
+        FaceNormalsOff,
+        FaceNormalsOn
+    };
+    int faceNormDrawingMode = InvalidDrawMode;
+
 
 private:
     void initBuffers();
 
-    std::vector<Vertex> vertices =              // vertex info of object
+    unsigned shaderProgram;   // compiled shader program
+    unsigned vbo;             // vertex buffer
+    unsigned vao;             // attributes
+    unsigned ebo;             // indices
+    int modelLoc;             // shader location of model matrix
+    int colorLoc;             // shader location of color
+    glm::vec3 scale = {1,1,1};
+
+    std::vector<Vertex> vertices =  // vertex info of object
     {
         Vertex(-0.5f, -0.5f, 0.0f),
         Vertex( 0.5f, -0.5f, 0.0f),
@@ -79,6 +109,10 @@ private:
         0, 1, 2,
         0, 2, 3
     };
+
+    std::vector<glm::vec3> faceNorms;
+    unsigned lineVAO;
+    unsigned lineVBO;
 };
 
 

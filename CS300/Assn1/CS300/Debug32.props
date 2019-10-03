@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <LibraryPath>$(SolutionDir)Common\glew\x32\lib\Release\Win32;$(SolutionDir)Common\glfw\x32\lib-vc2019;$(SolutionDir)Common\glfw\x32\lib-mingw;$(SolutionDir)Common\glew\x32\bin\Release\Win32;$(LibraryPath)</LibraryPath>
-    <SourcePath>$(SolutionDir)Source;$(SourcePath)</SourcePath>
+    <SourcePath>$(SolutionDir)Source;$(SolutionDir)Source\imGui;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
