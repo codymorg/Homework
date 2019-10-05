@@ -1,11 +1,16 @@
-/******************************************************************************
-    Name : Cody Morgan
-    Class: CS 300
-    Assn : 01
-    Brief: Creates window and sets up openGL environment
-    Date:  4 OCT 2019
+/* Start Header -------------------------------------------------------
+Copyright (C) 2019 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
 
-******************************************************************************/
+Purpose :   Instructions on how to use this software
+Language:   C++ Visual Studio
+Platform:   Windows 10
+Project :   cody.morgan_CS300_1
+Author  :   Cody Morgan  ID: 180001017
+Date    :   4 OCT 2019
+End Header --------------------------------------------------------*/
+
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -43,6 +48,7 @@ static vec3 back(0, 0, -1);
 static vec3 forward(0, 0, 1);
 
 static int selectedObject = 0;
+static int selectedModel = 0;
 
 
 int FindObject(string name);
@@ -279,7 +285,7 @@ void Render(GLFWwindow* window, Camera& camera, Light& light)
 void GenerateScene(unsigned shaderProgram)
 {
     Object center(shaderProgram, "OBJ model");
-    center.loadOBJ("Common/models/bunny.obj");
+    center.loadOBJ("Common/models/cube2.obj");
     center.addScale(vec3(2));
     center.color = vec3(0,0,.7);
     center.genFaceNormals();
@@ -329,8 +335,23 @@ void InitGUI(GLFWwindow* window)
     // setup stuff
     ImGui::StyleColorsDark();
 }
+
 void UpdateGUI()
 {
+    const char* files[] =
+    {
+        "4Sphere.obj",
+        "bunny.obj",
+        "bunny_high_poly.obj",
+        "cube.obj",
+        "cube2.obj",
+        "cup.obj",
+        "lucy_princeton.obj",
+        "rhino.obj",
+        "sphere.obj",
+        "sphere_modified.obj",
+        "starwars1.obj",
+    };
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -339,19 +360,40 @@ void UpdateGUI()
     ImGui::Begin("Welcome to CS300 Assignment 1!");
 
     // normal stuff
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Text("Selected Object");
     ImGui::SliderInt(objects[selectedObject].name.c_str(), &selectedObject, 0, objects.size() - 1);
     bool toggleFN = ImGui::Button("Toggle selected object's Face Normal");
+    bool toggleVN = ImGui::Button("Toggle selected object's Vertex Normal");
     bool changeNormalLength = ImGui::SliderFloat("Normal Display Scale", &objects[selectedObject].vectorScale, 0, 2.0);
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    bool changeModel = ImGui::ListBox("Model Selection", &selectedModel, files, _countof(files));
     ImGui::End();
 
-    if (toggleFN || changeNormalLength)
+    if (toggleFN)
     {
         objects[selectedObject].toggleFaceNormals();
+    }
+    else if (toggleVN)
+    {
+        objects[selectedObject].toggleVertexNormals();
+    }
+    if (changeNormalLength)
+    {
+        if (objects[selectedObject].faceNormDrawingMode == Object::FaceNormalDrawingMode::FaceNormalsOn)
+        {
+            objects[selectedObject].toggleFaceNormals(true,true);
+        }
+        else if (objects[selectedObject].vertexNormalDrawingMode == Object::VertexNormalDrawingMode::VertexNormalOn)
+        {
+            objects[selectedObject].toggleVertexNormals(true, true);
+        }
+    }
 
-        if(changeNormalLength)
-            objects[selectedObject].toggleFaceNormals();
+    if (changeModel)
+    {
+        string fileName = "Common/models/";
+        fileName += files[selectedModel];
+        objects[FindObject("OBJ model")].loadOBJ(fileName);
     }
 }
 
@@ -374,9 +416,11 @@ int main()
     InitGUI(window);
 
     //make a test object
+    //int shaderProgram = InitShaderProgram("Source/vertexShader.vert", "Source/fragmentShader.frag");
     int shaderProgram = InitShaderProgram("Source/vertexShader.vert", "Source/fragmentShader.frag");
 
-    Camera camera(vec3(0,-2,-10), 0.0f, vec3(1,0,0), shaderProgram);
+
+    Camera camera(vec3(0,-5,-12), 15.0f, vec3(1,0,0), shaderProgram);
     Light light(shaderProgram, "light");
     light.color = vec3(1);
     light.emitter.color = light.color;

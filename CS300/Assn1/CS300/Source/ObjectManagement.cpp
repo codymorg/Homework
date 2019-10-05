@@ -1,11 +1,16 @@
-/******************************************************************************
-    Name : Cody Morgan
-    Class: CS 300
-    Assn : 01
-    Brief: object related classes
-    Date:  4 OCT 2019
+/* Start Header -------------------------------------------------------
+Copyright (C) 2019 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written
+consent of DigiPen Institute of Technology is prohibited.
 
-******************************************************************************/
+Purpose :   Instructions on how to use this software
+Language:   C++ Visual Studio
+Platform:   Windows 10
+Project :   cody.morgan_CS300_1
+Author  :   Cody Morgan  ID: 180001017
+Date    :   4 OCT 2019
+End Header --------------------------------------------------------*/
+
 
 #include "ObjectManagement.h"
 using glm::vec3;
@@ -141,31 +146,90 @@ void Object::rotateY(float degrees, float radius)
 
 void Object::initLineBuffers()
 {
-    if(faceNormDrawingMode == DrawNormalMode::InvalidDrawMode)
+    // init openGL buffers
+    glGenVertexArrays(1, &lineVAO);
+    glGenBuffers(1, &lineVBO);
+
+    // bind with default data
+    glBindVertexArray(lineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+    glBufferData(GL_ARRAY_BUFFER, faceNorms.size() * sizeof(vec3), faceNorms.data(), GL_DYNAMIC_DRAW);
+
+    // send vert info
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), nullptr);
+
+    // unbind
+    glBindVertexArray(0);
+
+}
+
+void Object::genVertexNormals()
+{
+    // ensure the face normals are generated
+    faceNormDrawingMode = InvalidDrawMode;
+    genFaceNormals();
+
+    // average the face normals for vertex normal
+    for (int i = 0; i < faceNorms.size() / 2; i++)
     {
-        // init openGL buffers
-        glGenVertexArrays(1, &lineVAO);
-        glGenBuffers(1, &lineVBO);
-
-        // bind with default data
-        glBindVertexArray(lineVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-        glBufferData(GL_ARRAY_BUFFER, faceNorms.size() * sizeof(vec3), faceNorms.data(), GL_DYNAMIC_DRAW);
-
-        // send vert info
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), nullptr);
-
-        // unbind
-        glBindVertexArray(0);
+        // apply the normal that affects these vertices
+        vec3 norm = faceNorms[(2 * i + 1)] - faceNorms[2 * i];
+        for (int j = 0; j < 3; j++)
+        {
+            vertices[indices[(3 * i) + j]].normal += norm;
+        }
     }
 
-    faceNormDrawingMode = DrawNormalMode::FaceNormalsOn;
+    // normalize normals
+    faceNorms.clear();
+    for (int i = 0; i < vertices.size(); i++)
+    {
+        vertices[i].normal = vectorScale * glm::normalize(vertices[i].normal);
+        faceNorms.push_back(vertices[i].position);
+        faceNorms.push_back(vertices[i].position + vertices[i].normal);
+    }
+    initLineBuffers();
+
 }
+
+void Object::drawVertexNormals()
+{
+    if (vertexNormalDrawingMode == InvalidDrawMode)
+    {
+        genVertexNormals();
+        toggleFaceNormals(true, false);
+        faceNorms.clear();
+
+        for (int i = 0; i < vertices.size(); i++)
+        {
+            faceNorms.push_back(vertices[i].position);
+            faceNorms.push_back(vertices[i].position + vertices[i].normal);
+        }
+
+        initLineBuffers();
+        vertexNormalDrawingMode = VertexNormalOn;
+    }
+
+    if (vertexNormalDrawingMode == VertexNormalOn)
+    {
+
+        glBindVertexArray(lineVAO);
+        vec3 pink(1.0, 0.078, 0.576);
+        glUniform3fv(colorLoc, 1, glm::value_ptr(pink));
+
+        glDrawArrays(GL_LINES, 0, faceNorms.size());
+
+        glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+        glBindVertexArray(0);
+    }
+}
+
+
 
 void Object::genFaceNormals()
 {
-    if (faceNormDrawingMode == DrawNormalMode::InvalidDrawMode)
+    if (faceNormDrawingMode == FaceNormalDrawingMode::InvalidDrawMode)
     {
         faceNorms.clear();
 
@@ -194,22 +258,50 @@ void Object::genFaceNormals()
     }
 }
 
-void Object::toggleFaceNormals()
+void Object::toggleFaceNormals(bool useHardSet, bool setToThis)
 {
-    if (faceNormDrawingMode == DrawNormalMode::FaceNormalsOn)
+    if ((useHardSet && setToThis))
     {
-        faceNormDrawingMode = DrawNormalMode::FaceNormalsOff;
+        vertexNormalDrawingMode = VertexNormalOff;
+        faceNormDrawingMode = FaceNormalDrawingMode::InvalidDrawMode;
+        genFaceNormals();
+        faceNormDrawingMode = FaceNormalDrawingMode::FaceNormalsOn;
+    }
+    else if ((useHardSet && !setToThis) || faceNormDrawingMode == FaceNormalDrawingMode::FaceNormalsOn)
+    {
+        faceNormDrawingMode = FaceNormalDrawingMode::FaceNormalsOff;
     }
     else
     {
-        faceNormDrawingMode = DrawNormalMode::InvalidDrawMode;
+        vertexNormalDrawingMode = VertexNormalOff;
+        faceNormDrawingMode = FaceNormalDrawingMode::InvalidDrawMode;
         genFaceNormals();
+        faceNormDrawingMode = FaceNormalDrawingMode::FaceNormalsOn;
+    }
+}
 
+void Object::toggleVertexNormals(bool useHardSet, bool setToThis)
+{
+    if ((useHardSet && setToThis))
+    {
+        vertexNormalDrawingMode = VertexNormalOn;
+        genVertexNormals();
+        faceNormDrawingMode = FaceNormalDrawingMode::FaceNormalsOff;
+    }
+    else if ((useHardSet && !setToThis) || vertexNormalDrawingMode == VertexNormalOn)
+    {
+        vertexNormalDrawingMode = VertexNormalOff;
+    }
+    else
+    {
+        vertexNormalDrawingMode = VertexNormalOn;
+        genVertexNormals();
+        faceNormDrawingMode = FaceNormalDrawingMode::FaceNormalsOff;
     }
 }
 
 
-void Object::drawFaceNorms()
+void Object::drawFaceNormals()
 {
     glBindVertexArray(lineVAO);
     vec3 red (1,0,0);
@@ -258,9 +350,10 @@ void Object::loadOBJ(string fileLocation)
 {
     ifstream file(fileLocation);
     vector<float>verts;
-    vector<float>normals;
     glm::vec3 vMax(INT_MIN, INT_MIN, INT_MIN);
     glm::vec3 vMin(INT_MAX, INT_MAX, INT_MAX);
+    scale = vec3(1);
+    transform = glm::mat4();
 
     // load vert data and normal data
     if (file)
@@ -282,16 +375,6 @@ void Object::loadOBJ(string fileLocation)
                     verts.push_back(vertexData);
                     vMin[i] = min(vMin[i], vertexData);
                     vMax[i] = max(vMax[i], vertexData);
-                }
-            }
-            else if (line.substr(0, 2) == "vn")
-            {
-                std::istringstream objData(line.substr(2));
-                float vertexData;
-                for (size_t i = 0; i < 3; i++)
-                {
-                    objData >> vertexData;
-                    normals.push_back(vertexData);
                 }
             }
             else if (line.substr(0, 2) == "f ")
@@ -388,32 +471,31 @@ void Object::loadOBJ(string fileLocation)
 
             }
         }
+
+        // load data into vertex struct
+
+        for (size_t i = 0; i < verts.size(); i += 3)
+        {
+            vec3 normalData(0, 0, 0);
+            vec3 vertData(verts[i], verts[i + 1], verts[i + 2]);
+            vertices.push_back(Vertex(vertData, normalData));
+        }
+        genVertexNormals();
+
+        scale = { 1 / (vMax.x - vMin.x), 1 / (vMax.y - vMin.y), 1 / (vMax.z - vMin.z) };
+        addScale(scale);
+
+        vec3 translation((vMax.x + vMin.x) / 2, (vMax.y + vMin.y) / 2, (vMax.z + vMin.z) / 2);
+        transform = glm::translate(transform, -translation);
+
+        initBuffers();
     }
     else
     {
         cout << "error opening file: " << fileLocation << "\n";
     }
 
-    // load data into vertex struct
 
-    for (size_t i = 0; i < verts.size(); i += 3)
-    {
-        vec3 normalData(0, 0, 0);
-        vec3 vertData(verts[i], verts[i + 1], verts[i + 2]);
-        if (!normals.empty())
-        {
-            normalData = vec3(normals[i], normals[i + 1], normals[i + 2]);
-        }
-        vertices.push_back(Vertex(vertData, normalData));
-    }
-
-    scale = {1 / (vMax.x - vMin.x), 1 / (vMax.y - vMin.y), 1 / (vMax.z - vMin.z)};
-    addScale(scale);
-
-    vec3 translation((vMax.x + vMin.x) / 2, (vMax.y + vMin.y) / 2, (vMax.z + vMin.z) / 2);
-    transform = glm::translate(transform, -translation);
-
-    initBuffers();
 }
 
 void Object::loadSphere(float radius, int divisions)
@@ -519,7 +601,11 @@ void Object::draw()
     if (faceNormDrawingMode == FaceNormalsOn)
     {
         genFaceNormals();
-        drawFaceNorms();
+        drawFaceNormals();
+    }
+    else if (vertexNormalDrawingMode == VertexNormalOn)
+    {
+        drawVertexNormals();
     }
 }
 
