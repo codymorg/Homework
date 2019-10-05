@@ -285,9 +285,9 @@ void Render(GLFWwindow* window, Camera& camera, Light& light)
 void GenerateScene(unsigned shaderProgram)
 {
     Object center(shaderProgram, "OBJ model");
-    center.loadOBJ("Common/models/cube2.obj");
+    center.loadOBJ("Common/models/lucy_princeton.obj");
     center.addScale(vec3(2));
-    center.color = vec3(0,0,.7);
+    center.color = vec3(0.25);
     center.genFaceNormals();
     objects.push_back(center);
 
@@ -397,6 +397,15 @@ void UpdateGUI()
     }
 }
 
+static Camera* camP = nullptr;
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+   camP->projection = glm::perspective(glm::radians(45.0f), float(width) / height, 0.1f, 1000.0f);
+   int display_w, display_h;
+   glfwGetFramebufferSize(window, &display_w, &display_h);
+   glViewport(0, 0, display_w, display_h);
+}
+
 int main()
 {
     // make a window
@@ -413,6 +422,7 @@ int main()
     glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
 
+    
     InitGUI(window);
 
     //make a test object
@@ -420,11 +430,12 @@ int main()
     int shaderProgram = InitShaderProgram("Source/vertexShader.vert", "Source/fragmentShader.frag");
 
 
-    Camera camera(vec3(0,-5,-12), 15.0f, vec3(1,0,0), shaderProgram);
+    Camera camera(vec3(0,0,-12), 0.0f, vec3(1,0,0), shaderProgram);
+    camP = &camera;
     Light light(shaderProgram, "light");
     light.color = vec3(1);
     light.emitter.color = light.color;
-    light.ambientStrength = 0.75f;
+    light.ambientStrength = 0.25f;
     light.translate(vec3(0,5,0));
 
     GenerateScene(shaderProgram);
@@ -484,9 +495,8 @@ int main()
         }
 
         //maintain viewport
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
+
+        glfwSetFramebufferSizeCallback(window, window_size_callback);
 
         // render scene and GUI window
         Render(window, camera, light);
