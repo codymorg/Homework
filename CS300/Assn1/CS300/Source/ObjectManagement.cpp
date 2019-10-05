@@ -43,13 +43,8 @@ Vertex::Vertex(float x, float y, float z, float nx, float ny, float nz)
     *this = Vertex(vec3(x,y,z), vec3(nx, ny, nz));
 }
 
-Vertex::Vertex(vec3 pos, vec3 norm ) : position(pos), normal(pos)
+Vertex::Vertex(vec3 pos, vec3 norm ) : position(pos), normal(norm)
 {
-    position = pos;
-    if (norm.x + norm.y + norm.z > 0.0f)
-    {
-        normal = norm;
-    }
 }
 
 
@@ -99,6 +94,8 @@ void Object::addScale(glm::vec3 scale)
 {
     transform = glm::scale(transform, scale);
 }
+
+
 
 void Object::printTransform()
 {
@@ -185,9 +182,9 @@ void Object::genVertexNormals()
     faceNorms.clear();
     for (int i = 0; i < vertices.size(); i++)
     {
-        vertices[i].normal = vectorScale * glm::normalize(vertices[i].normal);
+        vertices[i].normal = glm::normalize(vertices[i].normal);
         faceNorms.push_back(vertices[i].position);
-        faceNorms.push_back(vertices[i].position + vertices[i].normal);
+        faceNorms.push_back(vertices[i].position + (vectorScale * glm::normalize(vertices[i].normal) / scale));
     }
     initLineBuffers();
 
@@ -480,10 +477,11 @@ void Object::loadOBJ(string fileLocation)
             vec3 vertData(verts[i], verts[i + 1], verts[i + 2]);
             vertices.push_back(Vertex(vertData, normalData));
         }
-        genVertexNormals();
 
         scale = { 1 / (vMax.x - vMin.x), 1 / (vMax.y - vMin.y), 1 / (vMax.z - vMin.z) };
         addScale(scale);
+
+        genVertexNormals();
 
         vec3 translation((vMax.x + vMin.x) / 2, (vMax.y + vMin.y) / 2, (vMax.z + vMin.z) / 2);
         transform = glm::translate(transform, -translation);

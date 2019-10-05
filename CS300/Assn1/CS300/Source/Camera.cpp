@@ -29,8 +29,8 @@ Camera::Camera(vec3 position,float angle, vec3 axis, unsigned shader) : shaderPr
     // get the shader locations for these matrices
     viewLoc = glGetUniformLocation(shaderProgram, "view");
     projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-    assert(viewLoc >= 0);
-    assert(projectionLoc >= 0);
+    //assert(viewLoc >= 0);
+    //assert(projectionLoc >= 0);
 }
 
 void Camera::update()
