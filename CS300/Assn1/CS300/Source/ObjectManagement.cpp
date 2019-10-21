@@ -350,6 +350,7 @@ void Object::loadOBJ(string fileLocation)
     glm::vec3 vMax(INT_MIN, INT_MIN, INT_MIN);
     glm::vec3 vMin(INT_MAX, INT_MAX, INT_MAX);
     scale = vec3(1);
+    vectorScale = 1;
     transform = glm::mat4();
 
     // load vert data and normal data

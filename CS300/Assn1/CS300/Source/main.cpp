@@ -39,7 +39,12 @@ using std::vector;
 #include "Camera.h"
 #include "Light.h"
 
+// scene relates
 static vector<Object> objects;
+static vector<Light> lights;
+static Camera* camera;
+
+// common vectors
 static vec3 up(0, 1, 0);
 static vec3 right(1, 0, 0);
 static vec3 down(0, -1, 0);
@@ -47,6 +52,7 @@ static vec3 left(-1, 0, 0);
 static vec3 back(0, 0, -1);
 static vec3 forward(0, 0, 1);
 
+// gui related
 static int selectedObject = 0;
 static int selectedModel = 0;
 
@@ -126,6 +132,62 @@ void ProcessInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+      float moveStr = 0.1f;
+      if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+      {
+        lights[0].translate(moveStr * up);
+      }
+      if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+      {
+        lights[0].translate(moveStr * down);
+      }
+      if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+      {
+        lights[0].translate(moveStr * back);
+      }
+      if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+      {
+        lights[0].translate(moveStr * forward);
+      }
+      if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+      {
+        lights[0].translate(moveStr * left);
+      }
+      if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+      {
+        lights[0].translate(moveStr * right);
+      }
+      if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+      {
+        objects[0].spin(.5, up);
+      }
+
+      float cameraScale = 0.1;
+      if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+      {
+        camera->translate(cameraScale * forward);
+      }
+      if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+      {
+        camera->translate(cameraScale * left);
+      }
+      if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+      {
+        camera->translate(cameraScale * back);
+      }
+      if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+      {
+        camera->translate(cameraScale * right);
+      }
+      if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+      {
+        camera->translate(cameraScale * down);
+      }
+      if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+      {
+        camera->translate(cameraScale * up);
+      }
 }
 
 /******************************************************************************
@@ -282,8 +344,15 @@ void Render(GLFWwindow* window, Camera& camera, Light& light)
     }
 }
 
-void GenerateScene(unsigned shaderProgram)
+void GenerateScene1(unsigned shaderProgram)
 {
+    Light light(shaderProgram, "light");
+    light.color = vec3(1);
+    light.emitter.color = light.color;
+    light.ambientStrength = 0.25f;
+    light.translate(vec3(0, 5, 0));
+    lights.push_back(light);
+
     Object center(shaderProgram, "OBJ model");
     center.loadOBJ("Common/models/lucy_princeton.obj");
     center.addScale(vec3(2));
@@ -305,6 +374,7 @@ void GenerateScene(unsigned shaderProgram)
     }
     Object circle(shaderProgram, "circle");
     circle.loadcircle(circleRadius,45);
+    circle.color = vec3(0, 0, 0);
     objects.push_back(circle);
 }
 
@@ -421,63 +491,24 @@ int main()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
-
     
     InitGUI(window);
 
-    //make a test object
     //int shaderProgram = InitShaderProgram("Source/vertexShader.vert", "Source/fragmentShader.frag");
     int shaderProgram = InitShaderProgram("Source/vertexShader.vert", "Source/fragmentShader.frag");
 
+    camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), shaderProgram);
 
-    Camera camera(vec3(0,0,-12), 0.0f, vec3(1,0,0), shaderProgram);
-    camP = &camera;
-    Light light(shaderProgram, "light");
-    light.color = vec3(1);
-    light.emitter.color = light.color;
-    light.ambientStrength = 0.25f;
-    light.translate(vec3(0,5,0));
 
-    GenerateScene(shaderProgram);
+    GenerateScene1(shaderProgram);
 
-    // loop
     while (!glfwWindowShouldClose(window))
     {
         double time = glfwGetTime();
         ProcessInput(window);
         UpdateGUI();
 
-        {
-            float moveStr = 0.1f;
-            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            {
-                light.translate(moveStr * up);
-            }
-            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            {
-                light.translate(moveStr * down);
-            }
-            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            {
-                light.translate(moveStr * back);
-            }
-            if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-            {
-                light.translate(moveStr * forward);
-            }
-            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            {
-                light.translate(moveStr * left);
-            }
-            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            {
-                light.translate(moveStr * right);
-            }
-            if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-            {
-                objects[0].spin(.5, up);
-            }
-        }
+
 
         // rotate balls
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
@@ -499,7 +530,7 @@ int main()
         glfwSetFramebufferSizeCallback(window, window_size_callback);
 
         // render scene and GUI window
-        Render(window, camera, light);
+        Render(window, *camera, lights[0]);
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

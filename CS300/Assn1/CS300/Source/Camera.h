@@ -18,13 +18,13 @@ End Header --------------------------------------------------------*/
 
 #include <glm/glm.hpp>
 
-
 class Camera
 {
 public:
   Camera(glm::vec3 position, float angle, glm::vec3 axis, unsigned shader);
 
   void update();
+  void translate(glm::vec3 translation);
 
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection;

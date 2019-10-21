@@ -33,6 +33,12 @@ Camera::Camera(vec3 position,float angle, vec3 axis, unsigned shader) : shaderPr
     //assert(projectionLoc >= 0);
 }
 
+void Camera::translate(glm::vec3 translation)
+{
+    view = glm::translate(view, translation);
+}
+
+
 void Camera::update()
 {
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
