@@ -33,6 +33,12 @@
     <None Include="Source\passthroughShader.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="Source\PhongLighting.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="Source\PhongLighting.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Camera.cpp">

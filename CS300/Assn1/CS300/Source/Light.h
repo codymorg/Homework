@@ -8,7 +8,7 @@ Language:   C++ Visual Studio
 Platform:   Windows 10
 Project :   cody.morgan_CS300_1
 Author  :   Cody Morgan  ID: 180001017
-Date    :   4 OCT 2019
+Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
 
@@ -16,29 +16,48 @@ End Header --------------------------------------------------------*/
 #define LIGHT_H
 #pragma once
 
-#include <glm/glm.hpp>
 #include "ObjectManagement.h"
 
+#include <glm/glm.hpp>
 #include <string>
 
 class Light
 {
 public:
-    Light(int shaderProgram = -1, std::string ID = "anon");
+  Light(int shaderProgram = -1, std::string ID = "anon");
 
-    void update();
-    glm::vec3 getPosition();
-    void translate(glm::vec3 translation);
+  //***** Light functionality *****//
+  void update();
+  glm::vec3 getPosition();
+  void translate(glm::vec3 translation);
+  void setShader(int shaderProgram);
+  void rotateY(float degrees, float radius);
+  void setColor(glm::vec3 color);
 
-    Object emitter;
-    glm::vec3 color = {1.0f, 1.0f, 1.0f};
-    float ambientStrength = 0.5f;
+
+  //***** Light qualities *****//
+  Object emitter;
+  glm::vec3 color = {1.0f, 1.0f, 1.0f};
+  float ambientStrength = 0.5f;
+
+  struct LightData
+  {
+    glm::vec4 ambient;
+    glm::vec4 diffuse;
+    glm::vec4 specular;
+    float emissive;
+  }lightData;
 
 private:
-    glm::mat4 transform;
-    int colorLoc = -1;  // shader loaction of color 
-    int posLoc = -1;    // shader location of position
-    int strengthLoc = -1;
+  glm::mat4 transform;
+  int shaderProgram = -1;
+  int colorLoc = -1;  // shader loaction of color 
+  int posLoc = -1;  // shader location of position
+  int strengthLoc = -1;
 };
+
+typedef struct LightManagement LightManagement;
+LightManagement* getLightManager();
+
 
 #endif

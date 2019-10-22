@@ -22,6 +22,8 @@
     <None Include="Source\fragmentShader.frag" />
     <None Include="Source\normalShader.frag" />
     <None Include="Source\passthroughShader.vert" />
+    <None Include="Source\PhongLighting.frag" />
+    <None Include="Source\PhongLighting.vert" />
     <None Include="Source\vertexShader.vert" />
   </ItemGroup>
   <ItemGroup>

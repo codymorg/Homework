@@ -6,6 +6,14 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+// vertex shader phong lighting
+layout (std140) uniform lightData
+{
+  vec4 ambient;
+  vec4 diffuse;
+  vec4 specular;
+  float emissive;
+};
 
 
 out vec3 fragPos;

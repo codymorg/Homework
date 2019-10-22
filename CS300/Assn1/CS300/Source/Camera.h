@@ -8,7 +8,7 @@ Language:   C++ Visual Studio
 Platform:   Windows 10
 Project :   cody.morgan_CS300_1
 Author  :   Cody Morgan  ID: 180001017
-Date    :   4 OCT 2019
+Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
 
@@ -25,15 +25,17 @@ public:
 
   void update();
   void translate(glm::vec3 translation);
+  void reset();
 
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection;
 
 private:
+  glm::vec4 initialPos;
 
   unsigned shaderProgram = 0;
-  int viewLoc;           // view matrix shader location
-  int projectionLoc;     // projection matrix shader locaiton
+  int viewLoc;       // view matrix shader location
+  int projectionLoc;   // projection matrix shader locaiton
 };
 
 #endif

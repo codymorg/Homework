@@ -8,7 +8,7 @@ Language:   C++ Visual Studio
 Platform:   Windows 10
 Project :   cody.morgan_CS300_1
 Author  :   Cody Morgan  ID: 180001017
-Date    :   4 OCT 2019
+Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
 
@@ -22,26 +22,32 @@ using glm::vec3;
 
 Camera::Camera(vec3 position,float angle, vec3 axis, unsigned shader) : shaderProgram(shader)
 {
-    view = glm::rotate(view, glm::radians(angle), axis);
-    view = glm::translate(view, position);
-    projection = glm::perspective(glm::radians(45.0f), 4 / 3.0f, 0.1f, 1000.0f);
+  view = glm::rotate(view, glm::radians(angle), axis);
+  view = glm::translate(view, position);
+  projection = glm::perspective(glm::radians(45.0f), 4 / 3.0f, 0.1f, 1000.0f);
 
-    // get the shader locations for these matrices
-    viewLoc = glGetUniformLocation(shaderProgram, "view");
-    projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-    //assert(viewLoc >= 0);
-    //assert(projectionLoc >= 0);
+  // get the shader locations for these matrices
+  viewLoc = glGetUniformLocation(shaderProgram, "view");
+  projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+  //assert(viewLoc >= 0);
+  //assert(projectionLoc >= 0);
+  initialPos = view[3];
 }
 
 void Camera::translate(glm::vec3 translation)
 {
-    view = glm::translate(view, translation);
+  view = glm::translate(view, translation);
+}
+
+void Camera::reset()
+{
+  view[3] = initialPos;
 }
 
 
 void Camera::update()
 {
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+  glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
