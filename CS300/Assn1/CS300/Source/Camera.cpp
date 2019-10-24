@@ -24,24 +24,28 @@ Camera::Camera(vec3 position,float angle, vec3 axis, unsigned shader) : shaderPr
 {
   view = glm::rotate(view, glm::radians(angle), axis);
   view = glm::translate(view, position);
+  this->position = position;
+  initialPos = position;
   projection = glm::perspective(glm::radians(45.0f), 4 / 3.0f, 0.1f, 1000.0f);
 
   // get the shader locations for these matrices
   viewLoc = glGetUniformLocation(shaderProgram, "view");
   projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+  cameraPosLoc = glGetUniformLocation(shader, "cameraPos");
   //assert(viewLoc >= 0);
   //assert(projectionLoc >= 0);
-  initialPos = view[3];
 }
 
 void Camera::translate(glm::vec3 translation)
 {
   view = glm::translate(view, translation);
+  position += translation;
 }
 
 void Camera::reset()
 {
-  view[3] = initialPos;
+  translate(initialPos - position);
+
 }
 
 
@@ -49,5 +53,6 @@ void Camera::update()
 {
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
   glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+  glUniform3fv(cameraPosLoc, 1, glm::value_ptr(this->position));
 }
 

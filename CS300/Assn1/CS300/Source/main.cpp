@@ -138,6 +138,7 @@ void ProcessInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
     lights[selectedLight].translate(moveStr * up);
+    camera->reset();
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
@@ -358,13 +359,13 @@ void GenerateScene(unsigned shaderProgram)
   int circleRadius = 4;
   for (int i = 0; i < ballCount; i++)
   {
-  Light light(shaderProgram, "light");
-  light.emitter.loadSphere(0.5, 30);
-  light.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius * glm::sin(glm::radians(360.0f / ballCount * i))));
-  light.emitter.orbitRadius = circleRadius;
-  light.setColor(vec3(i / float(ballCount), 0.7f, 0));
+    Light light(shaderProgram, "light");
+    light.emitter.loadSphere(0.5, 30);
+    light.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius * glm::sin(glm::radians(360.0f / ballCount * i))));
+    light.emitter.orbitRadius = circleRadius;
+    light.setColor(vec3(i / float(ballCount), 0.7f, 0));
 
-  lights.push_back(light);
+    lights.push_back(light);
   }
   
   // keep the orbit tracker
@@ -398,6 +399,8 @@ void UpdateScene(GLFWwindow* window)
       }
     }
   }
+
+  GetLightManager()->updateUBO(lights);
 }
 
 void ShutdownScene()
@@ -522,8 +525,9 @@ int main()
   
   // initialization of generic scene
   InitGUI(window);
-  int shaderProgram = InitShaderProgram("Source/vertexShader.vert", "Source/fragmentShader.frag");
+  int shaderProgram = InitShaderProgram("Source/PhongLighting.vert", "Source/PhongLighting.frag");
   camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), shaderProgram);
+  GetLightManager()->genUBO(shaderProgram);
 
   // generate the scene for this homework - someday have scene switching?
   GenerateScene(shaderProgram);

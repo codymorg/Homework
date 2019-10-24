@@ -18,36 +18,9 @@ using glm::vec3;
 using glm::vec4;
 using std::vector;
 
-struct LightManagement
-{
-  const unsigned lightMax = 16;
-  void genUBO(unsigned shaderProgram)
-  {
-    glGenBuffers(1, &ubo);
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * lightMax, nullptr, GL_DYNAMIC_DRAW);
+static LightManagement lightManagement;
 
-    blockIndex = glGetUniformBlockIndex(shaderProgram, "lightData");
-
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  }
-
-  void updateUBO(const vector<Light>& lights)
-  {
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    for (unsigned i = 0; i < lights.size(); i++)
-    {
-      glBufferSubData(ubo, i * sizeof(Light::LightData), sizeof(Light::LightData), &lights[i].lightData);
-    }
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  }
-
-  unsigned ubo = 0;
-  unsigned blockIndex = 0;
-
-}lightManagement;
-
-LightManagement* getLightManager()
+LightManagement* GetLightManager()
 {
   return &lightManagement;
 }
@@ -64,6 +37,7 @@ vec3 Light::getPosition()
 {
   return vec3(transform[3]);
 }
+
 void Light::translate(glm::vec3 translation)
 {
   emitter.translate(translation);
@@ -101,10 +75,36 @@ void Light::setColor(glm::vec3 newColor)
 
 void Light::update()
 {
-  glUniform3fv(colorLoc,1, glm::value_ptr(color));
+  //glUniform3fv(colorLoc,1, glm::value_ptr(color));
   glUniform3fv(posLoc, 1, glm::value_ptr(getPosition()));
   glUniform1f(strengthLoc, ambientStrength);
 
   emitter.draw();
 }
 
+void LightManagement::genUBO(unsigned shaderProgram)
+{
+  glGenBuffers(1, &ubo);
+  glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * lightMax, nullptr, GL_DYNAMIC_DRAW);
+
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
+
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void LightManagement::updateUBO(vector<Light>& lights)
+{
+  void* uboBuffer;
+  glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+  uboBuffer = glMapNamedBuffer(ubo, GL_READ_WRITE);
+
+  for (unsigned i = 0; i < lights.size(); i++)
+  {
+    lights[i].lightData.position = vec4(lights[i].getPosition(), 1);
+    memcpy(uboBuffer, &lights[i].lightData, sizeof(lights[i].lightData));
+  }
+
+  glUnmapNamedBuffer(ubo);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}

@@ -42,10 +42,12 @@ public:
 
   struct LightData
   {
-    glm::vec4 ambient;
-    glm::vec4 diffuse;
-    glm::vec4 specular;
-    float emissive;
+    glm::vec4 position = glm::vec4(0);
+    glm::vec4 ambient = glm::vec4(.1, .1, .1, 0);
+    glm::vec4 diffuse = glm::vec4(1, 1, 1, 0);
+    glm::vec3 specular = glm::vec3(1);
+    float ns = 100.0f;
+    glm::vec4 emissive = glm::vec4(0);
   }lightData;
 
 private:
@@ -56,8 +58,19 @@ private:
   int strengthLoc = -1;
 };
 
-typedef struct LightManagement LightManagement;
-LightManagement* getLightManager();
+struct LightManagement
+{
+  const unsigned lightMax = 16;
+  void genUBO(unsigned shaderProgram);
+
+  void updateUBO(std::vector<Light>& lights);
+
+  unsigned ubo = 0;
+  unsigned blockIndex = 0;
+
+};
+
+LightManagement* GetLightManager();
 
 
 #endif

@@ -31,11 +31,13 @@ public:
   glm::mat4 projection;
 
 private:
-  glm::vec4 initialPos;
+  glm::vec3 initialPos;
+  glm::vec3 position;
 
   unsigned shaderProgram = 0;
-  int viewLoc;       // view matrix shader location
+  int viewLoc;         // view matrix shader location
   int projectionLoc;   // projection matrix shader locaiton
+  int cameraPosLoc;    // load where the camera is for lighting
 };
 
 #endif
