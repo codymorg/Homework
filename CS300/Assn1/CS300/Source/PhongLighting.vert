@@ -1,12 +1,14 @@
-#version 420 core
+#version 430 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
+layout (location = 0) in vec3 vertPos;
+layout (location = 1) in vec3 vertNormal;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 cameraPos;
+uniform vec3 objColor;      // for lines
+
 
 // vertex shader phong lighting
 layout (std140, binding = 0) uniform lightData
@@ -24,21 +26,25 @@ out vec3 color;
 
 void main()
 {
-  gl_Position = projection * view * model * vec4(aPos,1.0f);
+  gl_Position = projection * view * model * vec4(vertPos,1.0f);
+  
+  vec3 lightPosView =   (view * vec4(lightPos, 1)).xyz;
+  vec3 vertPosView =    (view * model * vec4(vertPos, 1)).xyz;
+  vec3 vertNormalView = (view * model * vec4(vertNormal, 1)).xyz;
+
 
   // light vector
-  vec3 lightV = lightPos - aPos;
+  vec3 lightV = lightPosView - vertPosView;
   float lightMagnitude = length(lightV);
   lightV = normalize(lightV);
-  color = lightV;
 
   // view vector
-  vec3 viewV = cameraPos - aPos;
+  vec3 viewV = - vertPosView;
   float viewDist = length(viewV);
   viewV = normalize(viewV);
 
   // reflect
-  vec3 normal = normalize(mat3(transpose(inverse(model))) * aNormal);
+  vec3 normal = normalize(mat3(transpose(inverse(view * model))) * vertNormal);
 
   vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
 
@@ -49,18 +55,20 @@ void main()
   vec3 Idiffuse = diffuse * vec3(1) * max(dot(normal,lightV),0);
 
   // specular
-  vec3 Ispecular = specular * vec3(1) * pow(max(dot(reflection, viewV), 0), 1);
+  vec3 Ispecular = specular * vec3(1) * pow(max(dot(reflection, viewV),0), 1.0);
+  //if(length(Idiffuse) == 0)
+    //Ispecular = vec3(0,0,0);
 
   // local color
   vec3 local = (Iambient + Idiffuse + Ispecular) + emissive;
 
   // add fog and att?
   /*
-  color = reflection;
-  color = Iambient;
-  color = Idiffuse;
   color = emissive;
-  color = local;
   */
   color = Ispecular;
+  color = Iambient;
+  color = Idiffuse;
+  color = reflection;
+  color = local;
 }

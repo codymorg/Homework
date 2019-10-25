@@ -111,7 +111,7 @@ private:
   unsigned ebo;       // indices
   int modelLoc;       // shader location of model matrix
   int colorLoc;       // shader location of color
-  glm::vec3 scale = {1,1,1};
+  float modelScale = 1.0f;
 
   std::vector<Vertex> vertices =  // vertex info of object
   {

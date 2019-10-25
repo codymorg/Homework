@@ -348,8 +348,7 @@ void GenerateScene(unsigned shaderProgram)
 {
   // generate out God object
   Object center(shaderProgram, "OBJ model");
-  center.loadOBJ("Common/models/bunny.obj");
-  center.addScale(vec3(2));
+  center.loadOBJ("Common/models/4sphere.obj");
   center.color = vec3(0.25);
   center.genFaceNormals();
   objects.push_back(center);
@@ -380,7 +379,7 @@ void GenerateScene(unsigned shaderProgram)
   floor.translate(vec3(0, -1, -2));
   floor.addScale(vec3(10));
   floor.color = vec3(1, 1, 1);
-  objects.push_back(floor);
+  //objects.push_back(floor);
 
 }
 
@@ -459,7 +458,7 @@ void UpdateGUI()
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  ImGui::Begin("Welcome to CS300 Assignment 1!");
+  ImGui::Begin("Welcome to CS300 Assignment 2!");
 
   // normal stuff
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
