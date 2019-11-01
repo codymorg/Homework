@@ -17,6 +17,7 @@ End Header --------------------------------------------------------*/
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
 
 using glm::vec3;
 
@@ -29,11 +30,12 @@ Camera::Camera(vec3 position,float angle, vec3 axis, unsigned shader) : shaderPr
   projection = glm::perspective(glm::radians(45.0f), 4 / 3.0f, 0.1f, 1000.0f);
 
   // get the shader locations for these matrices
+  glUseProgram(shaderProgram);
   viewLoc = glGetUniformLocation(shaderProgram, "view");
   projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-  cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
-  //assert(viewLoc >= 0);
-  //assert(projectionLoc >= 0);
+  cameraPosLoc =  glGetUniformLocation(shaderProgram, "cameraPos");
+  assert(viewLoc >= 0);
+  assert(projectionLoc >= 0);
 }
 
 void Camera::translate(glm::vec3 translation)
@@ -49,10 +51,22 @@ void Camera::reset()
 }
 
 
-void Camera::update()
+void Camera::update(ShaderManager& shaderManager)
 {
-  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-  glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
-  glUniform3fv(cameraPosLoc, 1, glm::value_ptr(view[3]));
+  std::vector<int> shaders = shaderManager.getAllShaders();
+  for (int shader : shaders)
+  {
+    glUseProgram(shader);
+
+    viewLoc = glGetUniformLocation(shaderProgram, "view");
+    projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+    cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
+    assert(viewLoc >= 0);
+    assert(projectionLoc >= 0);
+
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
+    glUniform3fv(cameraPosLoc, 1, glm::value_ptr(view[3]));
+  }
 }
 

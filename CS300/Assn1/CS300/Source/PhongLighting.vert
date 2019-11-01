@@ -21,6 +21,14 @@ layout (std140, binding = 0) uniform lightData
   vec3 emissive;
 };
 
+// material data
+layout (std140, binding = 1) uniform material
+{
+  vec3 matAmbient;
+  vec3 matDiffuse;
+  vec3 matSpecular;
+};
+
 
 out vec3 color;
 
@@ -49,13 +57,13 @@ void main()
   vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
 
   // ambient
-  vec3 Iambient = ambient * vec3(1); // replace with material attributes
+  vec3 Iambient = ambient * matAmbient; // replace with material attributes
 
   // diffuse
-  vec3 Idiffuse = diffuse * vec3(1) * max(dot(normal,lightV),0);
+  vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
 
   // specular
-  vec3 Ispecular = specular * vec3(1) * pow(max(dot(reflection, viewV),0), 1.0);
+  vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), 1.0);
   //if(length(Idiffuse) == 0)
     //Ispecular = vec3(0,0,0);
 

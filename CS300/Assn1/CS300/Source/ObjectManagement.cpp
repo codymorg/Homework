@@ -36,6 +36,37 @@ using std::cout;
 using std::max;
 using std::min;
 
+
+/////***** Object Material Management *****/////
+
+
+void MaterialManager::genUBO(unsigned shaderProgram)
+{
+  glUseProgram(shaderProgram);
+  glGenBuffers(1, &ubo_);
+  glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialData) * 128, nullptr, GL_DYNAMIC_DRAW);
+
+  glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo_);
+
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void MaterialManager::updateUBO(vector<Object>& objects)
+{
+  void* uboBuffer;
+  glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
+  uboBuffer = glMapNamedBuffer(ubo_, GL_READ_WRITE);
+
+  for (unsigned i = 0; i < objects.size(); i++)
+  {
+    memcpy(uboBuffer, &objects[i].material, sizeof(objects[i].material));
+  }
+
+  glUnmapNamedBuffer(ubo_);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
 /////***** Vertex Class *****/////
 
 Vertex::Vertex(float x, float y, float z, float nx, float ny, float nz)
@@ -213,11 +244,10 @@ void Object::drawVertexNormals()
 
     glBindVertexArray(lineVAO);
     vec3 pink(1.0, 0.078, 0.576);
-    glUniform3fv(colorLoc, 1, glm::value_ptr(pink));
+    glUniform3fv(vectorColorLoc, 1, glm::value_ptr(pink));
 
     glDrawArrays(GL_LINES, 0, faceNorms.size());
 
-    glUniform3fv(colorLoc, 1, glm::value_ptr(color));
     glBindVertexArray(0);
   }
 }
@@ -299,8 +329,13 @@ void Object::toggleVertexNormals(bool useHardSet, bool setToThis)
 
 void Object::setShader(int shaderProgram)
 {
+  glUseProgram(shaderProgram);
   modelLoc = glGetUniformLocation(shaderProgram, "model");
-  colorLoc = glGetUniformLocation(shaderProgram, "objColor");
+
+  glUseProgram(lineShader);
+  vectorColorLoc = glGetUniformLocation(shaderProgram, "objColor");
+
+  glUseProgram(shaderProgram);
 }
 
 
@@ -308,11 +343,10 @@ void Object::drawFaceNormals()
 {
   glBindVertexArray(lineVAO);
   vec3 red (1,0,0);
-  glUniform3fv(colorLoc, 1, glm::value_ptr(red));
+  glUniform3fv(vectorColorLoc, 1, glm::value_ptr(red));
 
   glDrawArrays(GL_LINES, 0, faceNorms.size());
 
-  glUniform3fv(colorLoc, 1, glm::value_ptr(color));
   glBindVertexArray(0);
 }
 
@@ -608,6 +642,7 @@ void Object::loadPlane()
 
 void Object::draw()
 {
+  glUseProgram(shaderProgram);
   if (fillPolygons)
   {
     glPolygonMode(GL_FRONT, GL_FILL);
@@ -618,18 +653,19 @@ void Object::draw()
   glBindVertexArray(vao);
 
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &transform[0][0]);
-  glUniform3fv(colorLoc, 1, glm::value_ptr(color));
 
   glDrawElements(renderMode, indices.size() , GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 
   if (faceNormDrawingMode == FaceNormalsOn)
   {
+    glUseProgram(lineShader);
     genFaceNormals();
     drawFaceNormals();
   }
   else if (vertexNormalDrawingMode == VertexNormalOn)
   {
+    glUseProgram(lineShader);
     drawVertexNormals();
   }
 }
@@ -665,3 +701,4 @@ void Object::initBuffers()
   //assert(colorLoc >= 0);
 
 }
+

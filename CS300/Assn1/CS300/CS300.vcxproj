@@ -22,6 +22,7 @@
     <None Include="Source\fragmentShader.frag" />
     <None Include="Source\normalShader.frag" />
     <None Include="Source\passthroughShader.vert" />
+    <None Include="Source\PhongDiffuse.vert" />
     <None Include="Source\PhongLighting.frag" />
     <None Include="Source\PhongLighting.vert" />
     <None Include="Source\vertexShader.vert" />
@@ -36,6 +37,7 @@
     <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\ObjectManagement.cpp" />
+    <ClCompile Include="Source\ShaderManagement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Camera.h" />
@@ -49,6 +51,7 @@
     <ClInclude Include="Source\imGui\imstb_truetype.h" />
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\ObjectManagement.h" />
+    <ClInclude Include="Source\ShaderManagement.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

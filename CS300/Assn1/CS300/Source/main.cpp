@@ -11,7 +11,7 @@ Author  :   Cody Morgan  ID: 180001017
 Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
-
+#include "ShaderManagement.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -56,6 +56,10 @@ static vec3 forward(0, 0, 1);
 static int selectedObject = 0;
 static int selectedModel = 0;
 static int selectedLight = 0;
+
+// object relates
+static ShaderManager shaderManager;
+static MaterialManager* materials;
 
 
 int FindObject(string name);
@@ -121,6 +125,8 @@ void Terminate()
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
+
+  delete materials;
 }
 
 /******************************************************************************
@@ -192,86 +198,6 @@ void ProcessInput(GLFWwindow* window)
     }
 }
 
-/******************************************************************************
-  brief : compile shader
-
-  input : shaderLocation : file location
-      shader     : GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
-
-******************************************************************************/
-int InitShader(string shaderLocation, unsigned shader)
-{
-  // Read the Vertex Shader code from the file
-  string shaderCode;
-  ifstream stream(shaderLocation, std::ios::in);
-  if (stream.is_open())
-  {
-    string Line;
-    while (getline(stream, Line))
-    {
-      shaderCode += "\n" + Line;
-    }
-    stream.close();
-  }
-  else
-  {
-    printf("Impossible to open << %s >>. Are you in the right directory ? Don't forget to read the FAQ !\n", shaderLocation);
-    return getchar();
-  }
-
-  int shaderNum;
-  shaderNum = glCreateShader(shader);
-  const GLchar* vertShader = shaderCode.c_str();
-  glShaderSource(shaderNum, 1, &vertShader, NULL);
-  glCompileShader(shaderNum);
-
-  // check it's ok
-  int  success;
-  char infoLog[512];
-  glGetShaderiv(shaderNum, GL_COMPILE_STATUS, &success);
-  if (!success)
-  {
-    glGetShaderInfoLog(shaderNum, 512, NULL, infoLog);
-    if (shader == GL_VERTEX_SHADER)
-      std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    else
-      std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-
-    return -1;
-  }
-
-  return shaderNum;
-}
-int InitShaderProgram(string vertShaderLocation, string fragShaderLocation)
-{
-  int vertexShader = InitShader(vertShaderLocation, GL_VERTEX_SHADER);
-  int fragmentShader = InitShader(fragShaderLocation, GL_FRAGMENT_SHADER);
-
-  unsigned int shaderProgram;
-  shaderProgram = glCreateProgram();
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-
-  // check it's ok
-  int  success;
-  char infoLog[512];
-  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-  if (!success)
-  {
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::FAILED\n" << infoLog << std::endl;
-
-    return -1;
-  }
-
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-  glUseProgram(shaderProgram);
-
-  return shaderProgram;
-}
 
 /******************************************************************************
   brief : error callback
@@ -337,50 +263,54 @@ void Render(GLFWwindow* window, Camera& camera, const vector<Light>& lightArray)
   {
     light.update();
   }
-  camera.update();
+  camera.update(shaderManager);
+  materials->updateUBO(objects);
   for (Object object : objects)
   {
     object.draw();
   }
 }
 
-void GenerateScene(unsigned shaderProgram)
+void GenerateScene(ShaderManager& shaderManager)
 {
+  int phongLightingSP = shaderManager.getShader(ShaderType::PhongLighting);
+
   // generate out God object
-  Object center(shaderProgram, "OBJ model");
+  Object center(shaderManager.getShader(ShaderType::Diffuse), "OBJ model");
   center.loadOBJ("Common/models/4sphere.obj");
-  center.color = vec3(0.25);
+  center.material.diffuse = vec3(0.25);
   center.genFaceNormals();
   objects.push_back(center);
 
   // generate a bunch of lights
   int ballCount = 1;
   int circleRadius = 4;
+  int diffuseSP = shaderManager.getShader(ShaderType::Diffuse);
   for (int i = 0; i < ballCount; i++)
   {
-    Light light(shaderProgram, "light");
+    Light light(shaderManager.getShader(ShaderType::Diffuse), diffuseSP, "light");
     light.emitter.loadSphere(0.5, 30);
     light.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius * glm::sin(glm::radians(360.0f / ballCount * i))));
     light.emitter.orbitRadius = circleRadius;
+    light.lightData.emissive = glm::vec4(0.5, 0.5, 0.5,0);
     light.setColor(vec3(i / float(ballCount), 0.7f, 0));
 
     lights.push_back(light);
   }
   
   // keep the orbit tracker
-  Object circle(shaderProgram, "circle");
+  Object circle(shaderManager.getShader(ShaderType::Diffuse), "circle");
   circle.loadcircle(circleRadius, 45);
-  circle.color = vec3(0, 0, 0);
+  circle.material.diffuse = vec3(0, 0, 0);
   objects.push_back(circle);
 
   // load out floor
-  Object floor(shaderProgram, "floor");
+  Object floor(diffuseSP, "floor");
   floor.loadPlane();
   floor.translate(vec3(0, -1, -2));
   floor.addScale(vec3(10));
-  floor.color = vec3(1, 1, 1);
-  //objects.push_back(floor);
-
+  floor.material.diffuse = vec3(1, 1, 1);
+  objects.push_back(floor);
 }
 
 void UpdateScene(GLFWwindow* window)
@@ -524,12 +454,16 @@ int main()
   
   // initialization of generic scene
   InitGUI(window);
-  int shaderProgram = InitShaderProgram("Source/PhongLighting.vert", "Source/PhongLighting.frag");
-  camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), shaderProgram);
-  GetLightManager()->genUBO(shaderProgram);
+
+  int phongLightingSP = shaderManager.addShader("Source/PhongLighting.vert", "Source/PhongLighting.frag", ShaderType::PhongLighting);
+  shaderManager.addShader("Source/PhongDiffuse.vert", "Source/PhongLighting.frag", ShaderType::Diffuse);
+  camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), phongLightingSP);
+  GetLightManager()->genUBO(shaderManager.getShader(ShaderType::Diffuse));
+  materials = new MaterialManager;
+  materials->genUBO(phongLightingSP);
 
   // generate the scene for this homework - someday have scene switching?
-  GenerateScene(shaderProgram);
+  GenerateScene(shaderManager);
 
   while (!glfwWindowShouldClose(window))
   {

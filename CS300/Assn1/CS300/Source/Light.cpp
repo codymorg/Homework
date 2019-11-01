@@ -25,12 +25,14 @@ LightManagement* GetLightManager()
   return &lightManagement;
 }
 
-Light::Light(int shaderProgram, string ID) : emitter(shaderProgram, ID)
+Light::Light(int shaderProgram, int emitterShader, string ID) : emitter(emitterShader, ID)
 {
-  emitter.loadSphere(1,50);
-  emitter.color = vec3(1,1,0);
-  setShader(shaderProgram);
+  if (shaderProgram >= 0 && emitterShader == -1)
+    emitter.setShader(emitterShader);
 
+  emitter.loadSphere(1,50);
+  emitter.material.diffuse = vec3(1,1,0);
+  setShader(shaderProgram);
 }
 
 vec3 Light::getPosition()
@@ -46,9 +48,8 @@ void Light::translate(glm::vec3 translation)
 
 void Light::setShader(int shaderProgram)
 {
-  colorLoc = glGetUniformLocation(shaderProgram, "lightColor");
-  posLoc = glGetUniformLocation(shaderProgram, "lightPos");
-  strengthLoc = glGetUniformLocation(shaderProgram, "lightStrength");
+  shaderProgram_ = shaderProgram;
+  glUseProgram(shaderProgram_);
 }
 
 void Light::rotateY(float degrees, float radius)
@@ -68,22 +69,20 @@ void Light::rotateY(float degrees, float radius)
 
 void Light::setColor(glm::vec3 newColor)
 {
-  color = newColor;
-  emitter.color = newColor;
+  lightData.diffuse = glm::vec4(newColor, 1);
+  emitter.material.diffuse = newColor;
 }
 
 
 void Light::update()
 {
-  //glUniform3fv(colorLoc,1, glm::value_ptr(color));
-  glUniform3fv(posLoc, 1, glm::value_ptr(getPosition()));
-  glUniform1f(strengthLoc, ambientStrength);
 
   emitter.draw();
 }
 
 void LightManagement::genUBO(unsigned shaderProgram)
 {
+  glUseProgram(shaderProgram);
   glGenBuffers(1, &ubo);
   glBindBuffer(GL_UNIFORM_BUFFER, ubo);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * lightMax, nullptr, GL_DYNAMIC_DRAW);

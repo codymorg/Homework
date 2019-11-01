@@ -24,7 +24,7 @@ End Header --------------------------------------------------------*/
 class Light
 {
 public:
-  Light(int shaderProgram = -1, std::string ID = "anon");
+  Light(int shaderProgram = -1, int emitterShader = -1, std::string ID = "anon");
 
   //***** Light functionality *****//
   void update();
@@ -52,10 +52,7 @@ public:
 
 private:
   glm::mat4 transform;
-  int shaderProgram = -1;
-  int colorLoc = -1;  // shader loaction of color 
-  int posLoc = -1;  // shader location of position
-  int strengthLoc = -1;
+  int shaderProgram_ = -1;
 };
 
 struct LightManagement

@@ -46,21 +46,10 @@ void main()
   // reflect
   vec3 normal = normalize(mat3(transpose(inverse(view * model))) * vertNormal);
 
-  vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
-
-  // ambient
   vec3 Iambient = ambient * vec3(1); // replace with material attributes
 
   // diffuse
   vec3 Idiffuse = diffuse * vec3(1) * max(dot(normal,lightV),0);
 
-  // specular
-  vec3 Ispecular = specular * vec3(1) * pow(max(dot(reflection, viewV),0), 1.0);
-  //if(length(Idiffuse) == 0)
-    //Ispecular = vec3(0,0,0);
-
-  // local color
-  vec3 local = (Iambient + Idiffuse + Ispecular) + emissive;
-
-  color = reflection;
+  color = Iambient + Idiffuse + emissive;
 }

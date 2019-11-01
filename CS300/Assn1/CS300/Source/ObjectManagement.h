@@ -42,6 +42,16 @@ struct Line
   glm::vec3 normDir;
 };
 
+struct MaterialData
+{
+  glm::vec3 ambient = glm::vec3(1);
+  float padding_I = 0.123f;
+  glm::vec3 diffuse = glm::vec3(1);
+  float padding_II = 0.123f;
+  glm::vec3 specular = glm::vec3(1);
+  float padding_III = 0.123f;
+};
+
 class Object
 {
 public:
@@ -51,7 +61,7 @@ public:
   // loading meshes
   void loadOBJ(std::string fileLocation);
   void loadCube();
-	  void loadSphere(float radius, int divisions);
+  void loadSphere(float radius, int divisions);
   void loadcircle(float radius, int divisions);
   void loadPlane();
 
@@ -83,8 +93,9 @@ public:
   glm::vec3 minPos;
   glm::vec3 maxPos;
   float orbitRadius;
-  glm::vec3 color = {0, 0.25, 0.5};
   float vectorScale = 1 / 50.0f;
+  MaterialData material;
+
 
   // face normal management
   enum FaceNormalDrawingMode
@@ -110,14 +121,13 @@ private:
   unsigned vao;       // attributes
   unsigned ebo;       // indices
   int modelLoc;       // shader location of model matrix
-  int colorLoc;       // shader location of color
   float modelScale = 1.0f;
 
   std::vector<Vertex> vertices =  // vertex info of object
   {
     Vertex(-0.5f, -0.5f, 0.0f),
-    Vertex( 0.5f, -0.5f, 0.0f),
-    Vertex( 0.5f,  0.5f, 0.0f),
+    Vertex(0.5f, -0.5f, 0.0f),
+    Vertex(0.5f,  0.5f, 0.0f),
     Vertex(-0.5f,  0.5f, 0.0f),
   };
 
@@ -128,9 +138,24 @@ private:
   };
 
   std::vector<glm::vec3> faceNorms;
+  unsigned lineShader;
   unsigned lineVAO;
   unsigned lineVBO;
+  int vectorColorLoc = -1;       // shader location of color
 };
+
+class MaterialManager
+{
+public:
+  void genUBO(unsigned shaderProgram);
+
+  void updateUBO(std::vector<Object>& objects);
+
+private:
+  unsigned ubo_ = -1;
+};
+
+
 
 
 #endif

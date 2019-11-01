@@ -17,13 +17,14 @@ End Header --------------------------------------------------------*/
 #pragma once
 
 #include <glm/glm.hpp>
+#include "ShaderManagement.h"
 
 class Camera
 {
 public:
   Camera(glm::vec3 position, float angle, glm::vec3 axis, unsigned shader);
 
-  void update();
+  void update(ShaderManager& shaderManager);
   void translate(glm::vec3 translation);
   void reset();
 
