@@ -43,55 +43,66 @@ out vec3 color;
 void main()
 {
   gl_Position = projection * view * model * vec4(vertPos,1.0f);
-  color = vec3(0);
 
-  for(int i = 0; i < MAX_LIGHTS; i++)
+  // full phong illumination
+  if(length(objColor) == 0)
   {
-    // grab light data for this light
-    vec3 lightPos = lights[i].lightPos_;
-    vec3 ambient = lights[i].ambient_;
-    vec3 diffuse = lights[i].diffuse_;
-    vec3 specular = lights[i].specular_;
-    float ns = lights[i].ns_; 
-    vec3 emissive = lights[i].emissive_;
-    vec3 attenuation = lights[i].attenuation_;
+    color = vec3(0);
 
-    // view space conversion
-    vec3 lightPosView =   (view * vec4(lightPos, 1)).xyz;
-    vec3 vertPosView =    (view * model * vec4(vertPos, 1)).xyz;
-    vec3 vertNormalView = (view * model * vec4(vertNormal, 1)).xyz;
+    for(int i = 0; i < MAX_LIGHTS; i++)
+    {
+      // grab light data for this light
+      vec3 lightPos = lights[i].lightPos_;
+      vec3 ambient = lights[i].ambient_;
+      vec3 diffuse = lights[i].diffuse_;
+      vec3 specular = lights[i].specular_;
+      float ns = lights[i].ns_; 
+      vec3 emissive = lights[i].emissive_;
+      vec3 attenuation = lights[i].attenuation_;
 
-    // light vector
-    vec3 lightV = lightPosView - vertPosView;
-    float lightMagnitude = length(lightV);
-    lightV = normalize(lightV);
+      // view space conversion
+      vec3 lightPosView =   (view * vec4(lightPos, 1)).xyz;
+      vec3 vertPosView =    (view * model * vec4(vertPos, 1)).xyz;
+      vec3 vertNormalView = (view * model * vec4(vertNormal, 1)).xyz;
 
-    // view vector
-    vec3 viewV = - vertPosView;
-    float viewDist = length(viewV);
-    viewV = normalize(viewV);
+      // light vector
+      vec3 lightV = lightPosView - vertPosView;
+      float lightMagnitude = length(lightV);
+      lightV = normalize(lightV);
 
-    // reflect
-    vec3 normal = normalize(mat3(transpose(inverse(view * model))) * vertNormal);
+      // view vector
+      vec3 viewV = - vertPosView;
+      float viewDist = length(viewV);
+      viewV = normalize(viewV);
 
-    vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
+      // reflect
+      vec3 normal = normalize(mat3(transpose(inverse(view * model))) * vertNormal);
 
-    // ambient
-    vec3 Iambient = ambient * matAmbient; // replace with material attributes
+      vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
 
-    // diffuse
-    vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
+      // ambient
+      vec3 Iambient = ambient * matAmbient; // replace with material attributes
 
-    // specular
-    vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), 10.0);
+      // diffuse
+      vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
+
+      // specular
+      vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), 10.0);
 
   
-    // attenuation
-    float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
+      // attenuation
+      float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
 
-    // local color
-    vec3 local = att * Iambient + att * (Idiffuse + Ispecular);
+      // local color
+      vec3 local = att * Iambient + att * (Idiffuse + Ispecular);
 
-    color += local;
+      color += local;
+    }
+  }
+
+  // just a light orb
+  else
+  {
+  color = objColor;
   }
 }

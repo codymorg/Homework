@@ -35,6 +35,8 @@ using std::cout;
 using std::max;
 using std::min;
 
+vec3 red(1, 0, 0);
+
 
 /////***** Object Material Management *****/////
 
@@ -339,7 +341,6 @@ void Object::setShader(int shaderProgram)
 void Object::drawFaceNormals()
 {
   glBindVertexArray(lineVAO);
-  vec3 red (1,0,0);
   glUniform3fv(vectorColorLoc, 1, glm::value_ptr(red));
 
   glDrawArrays(GL_LINES, 0, faceNorms.size());
@@ -640,12 +641,23 @@ void Object::loadPlane()
 void Object::draw()
 {
   glUseProgram(shaderProgram);
+
   if (fillPolygons)
   {
     glPolygonMode(GL_FRONT, GL_FILL);
   }
   else
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+  // diffuse shade lights
+  if (name.find("light") != string::npos)
+  {
+    glUniform3fv(vectorColorLoc, 1, glm::value_ptr(this->material.ambient));
+  }
+  else
+  {
+    glUniform3fv(vectorColorLoc, 1,glm::value_ptr(vec3(0)));
+  }
 
   glBindVertexArray(vao);
 
