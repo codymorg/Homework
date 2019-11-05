@@ -11,7 +11,6 @@ Author  :   Cody Morgan  ID: 180001017
 Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
-
 #include "ObjectManagement.h"
 using glm::vec3;
 using glm::vec4;
@@ -45,23 +44,20 @@ void MaterialManager::genUBO(unsigned shaderProgram)
   glUseProgram(shaderProgram);
   glGenBuffers(1, &ubo_);
   glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialData) * 128, nullptr, GL_DYNAMIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialData), nullptr, GL_DYNAMIC_DRAW);
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo_);
 
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void MaterialManager::updateUBO(vector<Object>& objects)
+void MaterialManager::updateUBO(MaterialData& material)
 {
   void* uboBuffer;
   glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
   uboBuffer = glMapNamedBuffer(ubo_, GL_READ_WRITE);
 
-  for (unsigned i = 0; i < objects.size(); i++)
-  {
-    memcpy(uboBuffer, &objects[i].material, sizeof(objects[i].material));
-  }
+  memcpy(uboBuffer, &material, sizeof(MaterialData));
 
   glUnmapNamedBuffer(ubo_);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -630,8 +626,8 @@ void Object::loadPlane()
 
   indices =
   {
-    0,1,2, 
-    0,2,3,
+    //0,1,2, 
+    //0,2,3,
     0,3,2,
     0,2,1
   };

@@ -264,9 +264,9 @@ void Render(GLFWwindow* window, Camera& camera, const vector<Light>& lightArray)
     light.update();
   }
   camera.update(shaderManager);
-  materials->updateUBO(objects);
   for (Object object : objects)
   {
+    materials->updateUBO(object.material);
     object.draw();
   }
 }
@@ -276,36 +276,43 @@ void GenerateScene(ShaderManager& shaderManager)
   int phongLightingSP = shaderManager.getShader(ShaderType::PhongLighting);
 
   // generate out God object
-  Object center(shaderManager.getShader(ShaderType::Diffuse), "OBJ model");
+  Object center(phongLightingSP, "OBJ model");
   center.loadOBJ("Common/models/4sphere.obj");
-  center.material.diffuse = vec3(0.25);
+  center.material.diffuse = vec3(0,1,0);
+  center.material.ambient = vec3(0, .1, 0);
   center.genFaceNormals();
   objects.push_back(center);
 
   // generate a bunch of lights
-  int ballCount = 1;
+  int ballCount = 4;
   int circleRadius = 4;
   int diffuseSP = shaderManager.getShader(ShaderType::Diffuse);
   for (int i = 0; i < ballCount; i++)
   {
-    Light light(shaderManager.getShader(ShaderType::Diffuse), diffuseSP, "light");
+    Light light(phongLightingSP, diffuseSP, "light");
     light.emitter.loadSphere(0.5, 30);
     light.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius * glm::sin(glm::radians(360.0f / ballCount * i))));
     light.emitter.orbitRadius = circleRadius;
-    light.lightData.emissive = glm::vec4(0.5, 0.5, 0.5,0);
-    light.setColor(vec3(i / float(ballCount), 0.7f, 0));
+    light.lightData.emissive = glm::vec4(0.3);
+    light.lightData.ambient = glm::vec4(0.3);
+    vec3 color;
+    color.x = float(i) / ballCount;
+    color.y = float(ballCount - i) / ballCount;
+    //color = vec3(0.1f * i, 0, 0);
+    light.setColor(color);
+    light.lightData.attenuation = vec4(0.1);
 
     lights.push_back(light);
   }
   
   // keep the orbit tracker
-  Object circle(shaderManager.getShader(ShaderType::Diffuse), "circle");
+  Object circle(diffuseSP, "circle");
   circle.loadcircle(circleRadius, 45);
-  circle.material.diffuse = vec3(0, 0, 0);
+  circle.material.diffuse = vec3(1, 0, 0);
   objects.push_back(circle);
 
   // load out floor
-  Object floor(diffuseSP, "floor");
+  Object floor(phongLightingSP, "floor");
   floor.loadPlane();
   floor.translate(vec3(0, -1, -2));
   floor.addScale(vec3(10));
@@ -471,12 +478,12 @@ int main()
     double time = glfwGetTime();
     ProcessInput(window);
     UpdateGUI();
-    UpdateScene(window);
 
     //maintain viewport
     glfwSetFramebufferSizeCallback(window, window_size_callback);
 
     // render scene and GUI window
+    UpdateScene(window);
     Render(window, *camera, lights);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

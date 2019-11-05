@@ -149,7 +149,7 @@ class MaterialManager
 public:
   void genUBO(unsigned shaderProgram);
 
-  void updateUBO(std::vector<Object>& objects);
+  void updateUBO(MaterialData& material);
 
 private:
   unsigned ubo_ = -1;

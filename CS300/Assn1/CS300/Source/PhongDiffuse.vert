@@ -22,6 +22,8 @@ layout (std140, binding = 0) uniform lightData
 };
 
 
+
+
 out vec3 color;
 
 void main()
@@ -46,10 +48,12 @@ void main()
   // reflect
   vec3 normal = normalize(mat3(transpose(inverse(view * model))) * vertNormal);
 
-  vec3 Iambient = ambient * vec3(1); // replace with material attributes
+  vec3 Iambient = ambient; // replace with material attributes
 
   // diffuse
-  vec3 Idiffuse = diffuse * vec3(1) * max(dot(normal,lightV),0);
+  vec3 Idiffuse = diffuse * abs(dot(normal,lightV));
 
+  color = Iambient;
+  color = emissive;
   color = Iambient + Idiffuse + emissive;
 }

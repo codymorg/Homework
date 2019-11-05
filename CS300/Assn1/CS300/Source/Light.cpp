@@ -101,7 +101,10 @@ void LightManagement::updateUBO(vector<Light>& lights)
   for (unsigned i = 0; i < lights.size(); i++)
   {
     lights[i].lightData.position = vec4(lights[i].getPosition(), 1);
-    memcpy(uboBuffer, &lights[i].lightData, sizeof(lights[i].lightData));
+
+    // fill each light member
+    Light::LightData* nextMember = static_cast<Light::LightData*>(uboBuffer) + i;
+    memcpy(static_cast<void*>(nextMember), &lights[i].lightData, sizeof(Light::LightData));
   }
 
   glUnmapNamedBuffer(ubo);
