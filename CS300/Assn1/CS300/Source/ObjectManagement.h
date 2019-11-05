@@ -120,7 +120,7 @@ private:
   unsigned vbo;       // vertex buffer
   unsigned vao;       // attributes
   unsigned ebo;       // indices
-  int modelLoc;       // shader location of model matrix
+  int modelLoc = -1;       // shader location of model matrix
   float modelScale = 1.0f;
 
   std::vector<Vertex> vertices =  // vertex info of object

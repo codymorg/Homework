@@ -69,8 +69,10 @@ void Light::rotateY(float degrees, float radius)
 
 void Light::setColor(glm::vec3 newColor)
 {
+  lightData.ambient = glm::vec4(newColor, 1);
   lightData.diffuse = glm::vec4(newColor, 1);
   emitter.material.diffuse = newColor;
+  emitter.material.ambient = newColor;
 }
 
 
@@ -86,10 +88,12 @@ void LightManagement::genUBO(unsigned shaderProgram)
   glGenBuffers(1, &ubo);
   glBindBuffer(GL_UNIFORM_BUFFER, ubo);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * lightMax, nullptr, GL_DYNAMIC_DRAW);
-
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
 
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+  
+
 }
 
 void LightManagement::updateUBO(vector<Light>& lights)

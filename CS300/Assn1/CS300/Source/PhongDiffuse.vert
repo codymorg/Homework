@@ -51,9 +51,11 @@ void main()
   vec3 Iambient = ambient; // replace with material attributes
 
   // diffuse
-  vec3 Idiffuse = diffuse * abs(dot(normal,lightV));
+  vec3 Idiffuse = diffuse * max(dot(normal,lightV),0);
+
 
   color = Iambient;
   color = emissive;
   color = Iambient + Idiffuse + emissive;
+  color = objColor;
 }

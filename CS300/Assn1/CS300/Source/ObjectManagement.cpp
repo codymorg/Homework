@@ -328,10 +328,11 @@ void Object::setShader(int shaderProgram)
   glUseProgram(shaderProgram);
   modelLoc = glGetUniformLocation(shaderProgram, "model");
 
-  glUseProgram(lineShader);
+  //glUseProgram(lineShader);
+  
   vectorColorLoc = glGetUniformLocation(shaderProgram, "objColor");
 
-  glUseProgram(shaderProgram);
+  //glUseProgram(shaderProgram);
 }
 
 

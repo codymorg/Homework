@@ -56,6 +56,7 @@ static vec3 forward(0, 0, 1);
 static int selectedObject = 0;
 static int selectedModel = 0;
 static int selectedLight = 0;
+static float selectedColor[3];
 
 // object relates
 static ShaderManager shaderManager;
@@ -144,7 +145,6 @@ void ProcessInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
     lights[selectedLight].translate(moveStr * up);
-    camera->reset();
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
@@ -254,12 +254,14 @@ void GLAPIENTRY MessageCallback(GLenum source,
 }
 
 
-void Render(GLFWwindow* window, Camera& camera, const vector<Light>& lightArray)
+void Render(GLFWwindow* window, Camera& camera)
 {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  for (Light light : lightArray)
+  GetLightManager()->updateUBO(lights);
+
+  for (Light light : lights)
   {
     light.update();
   }
@@ -278,8 +280,8 @@ void GenerateScene(ShaderManager& shaderManager)
   // generate out God object
   Object center(phongLightingSP, "OBJ model");
   center.loadOBJ("Common/models/4sphere.obj");
-  center.material.diffuse = vec3(0,1,0);
-  center.material.ambient = vec3(0, .1, 0);
+  center.material.diffuse = vec3(.6f);
+  center.material.ambient = vec3(.6f);
   center.genFaceNormals();
   objects.push_back(center);
 
@@ -289,7 +291,7 @@ void GenerateScene(ShaderManager& shaderManager)
   int diffuseSP = shaderManager.getShader(ShaderType::Diffuse);
   for (int i = 0; i < ballCount; i++)
   {
-    Light light(phongLightingSP, diffuseSP, "light");
+    Light light(phongLightingSP, phongLightingSP, "light");
     light.emitter.loadSphere(0.5, 30);
     light.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius * glm::sin(glm::radians(360.0f / ballCount * i))));
     light.emitter.orbitRadius = circleRadius;
@@ -299,7 +301,7 @@ void GenerateScene(ShaderManager& shaderManager)
     color.x = float(i) / ballCount;
     color.y = float(ballCount - i) / ballCount;
     //color = vec3(0.1f * i, 0, 0);
-    light.setColor(color);
+    //light.setColor(color);
     light.lightData.attenuation = vec4(0.1);
 
     lights.push_back(light);
@@ -316,7 +318,9 @@ void GenerateScene(ShaderManager& shaderManager)
   floor.loadPlane();
   floor.translate(vec3(0, -1, -2));
   floor.addScale(vec3(10));
-  floor.material.diffuse = vec3(1, 1, 1);
+  floor.material.diffuse = vec3(0);
+  floor.material.ambient = vec3(0);
+
   objects.push_back(floor);
 }
 
@@ -336,7 +340,6 @@ void UpdateScene(GLFWwindow* window)
     }
   }
 
-  GetLightManager()->updateUBO(lights);
 }
 
 void ShutdownScene()
@@ -401,10 +404,16 @@ void UpdateGUI()
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
   ImGui::Text("Selected Object");
   ImGui::SliderInt(objects[selectedObject].name.c_str(), &selectedObject, 0, objects.size() - 1);
+  ImGui::SliderInt("Light", &selectedLight, 0, lights.size() - 1);
+
   bool toggleFN = ImGui::Button("Toggle selected object's Face Normal");
   bool toggleVN = ImGui::Button("Toggle selected object's Vertex Normal");
   bool changeNormalLength = ImGui::SliderFloat("Normal Display Scale", &objects[selectedObject].vectorScale, 0, 2.0);
   bool changeModel = ImGui::ListBox("Model Selection", &selectedModel, files, _countof(files));
+  bool changeColor = ImGui::ColorPicker3("Selected Object color", selectedColor);
+  bool changeLightColor = ImGui::ColorPicker3("Selected Light color", selectedColor);
+
+
   ImGui::End();
 
   if (toggleFN)
@@ -432,6 +441,14 @@ void UpdateGUI()
     string fileName = "Common/models/";
     fileName += files[selectedModel];
     objects[FindObject("OBJ model")].loadOBJ(fileName);
+  }
+  if (changeColor)
+  {
+    objects[selectedObject].material.ambient = vec3(selectedColor[0], selectedColor[1], selectedColor[2]);
+  }
+  if (changeLightColor)
+  {
+    lights[selectedLight].setColor(vec3(selectedColor[0], selectedColor[1], selectedColor[2]));
   }
 }
 
@@ -484,7 +501,7 @@ int main()
 
     // render scene and GUI window
     UpdateScene(window);
-    Render(window, *camera, lights);
+    Render(window, *camera);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
