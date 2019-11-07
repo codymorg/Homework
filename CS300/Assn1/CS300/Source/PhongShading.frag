@@ -1,15 +1,7 @@
 #version 430 core
 #define MAX_LIGHTS 16
 
-layout (location = 0) in vec3 vertPos;
-layout (location = 1) in vec3 vertNormal;
-
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-uniform vec3 cameraPos;
 uniform vec3 objColor;      // for lines
-
 
 // material data
 layout (std140, binding = 1) uniform material
@@ -36,17 +28,30 @@ layout (std140, binding = 0) uniform lightData
   Light lights[MAX_LIGHTS];
 };
 
+in mat4 viewModel;
+in mat4 viewTrans;
+in vec3 vertPosView;
+in vec3 normal;
+in vec3 overRideColor;
 
-out vec3 color;
+out vec3 fragColor;
 
 void main()
 {
-  gl_Position = projection * view * model * vec4(vertPos,1.0f);
-
-  // full phong illumination
-  if(length(objColor) == 0)
+  // override for lights
+  if(length(objColor) > 0)
   {
-    color = vec3(0);
+    fragColor = objColor;
+    fragColor = vec3(1,0,0);
+  }
+  // phong shading
+  else
+  {
+    // view vector
+    vec3 viewV = -vertPosView;
+    float viewDist = length(viewV);
+    viewV = normalize(viewV);
+
 
     for(uint i = 0; i < 4; i++)
     {
@@ -60,21 +65,12 @@ void main()
       vec3 attenuation = lights[i].attenuation_;
 
       // view space conversion
-      vec3 lightPosView =   (view * vec4(lightPos, 1)).xyz;
-      vec3 vertPosView =    (view * model * vec4(vertPos, 1)).xyz;
+      vec3 lightPosView =   (viewTrans * vec4(lightPos, 1)).xyz;
 
       // light vector
       vec3 lightV = lightPosView - vertPosView;
       float lightMagnitude = length(lightV);
       lightV = normalize(lightV);
-
-      // view vector
-      vec3 viewV = - vertPosView;
-      float viewDist = length(viewV);
-      viewV = normalize(viewV);
-
-      // reflect
-      vec3 normal = normalize(mat3(transpose(inverse(view * model))) * vertNormal);
 
       vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
 
@@ -86,21 +82,14 @@ void main()
 
       // specular
       vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
-
   
       // attenuation
       float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
-
+      
       // local color
       vec3 local = att * Iambient + att * (Idiffuse + Ispecular);
 
-      color += local;
+      fragColor += local;
     }
-  }
-
-  // just a light orb
-  else
-  {
-  color = objColor;
   }
 }

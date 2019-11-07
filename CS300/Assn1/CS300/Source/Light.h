@@ -25,12 +25,14 @@ class Light
 {
 public:
   Light(int shaderProgram = -1, int emitterShader = -1, std::string ID = "anon");
+  ~Light();
 
   //***** Light functionality *****//
   void update();
   glm::vec3 getPosition();
   void translate(glm::vec3 translation);
   void setShader(int shaderProgram);
+  unsigned getShader();
   void rotateY(float degrees, float radius);
   void setColor(glm::vec3 color);
 

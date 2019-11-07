@@ -113,14 +113,14 @@ public:
   int vertexNormalDrawingMode = InvalidDrawMode;
 
 
-private:
+//private:
   void initBuffers();
 
-  unsigned shaderProgram;   // compiled shader program
-  unsigned vbo;       // vertex buffer
-  unsigned vao;       // attributes
-  unsigned ebo;       // indices
-  int modelLoc = -1;       // shader location of model matrix
+  unsigned shaderProgram_;    // compiled shader program
+  unsigned vbo;               // vertex buffer
+  unsigned vao;               // attributes
+  unsigned ebo;               // indices
+  int modelLoc = -1;          // shader location of model matrix
   float modelScale = 1.0f;
 
   std::vector<Vertex> vertices =  // vertex info of object

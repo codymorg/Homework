@@ -77,6 +77,8 @@ Vertex::Vertex(vec3 pos, vec3 norm ) : position(pos), normal(norm)
 }
 
 
+
+
 /////***** Line Class *****/////
 
 
@@ -88,7 +90,7 @@ Line::Line(vec3 pointA, vec3 pointB) : centroid(pointA), normDir(pointB)
 /////***** Object Class *****/////
 
 
-Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram(shaderPgm)
+Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram_(shaderPgm)
 {
   transform = glm::mat4(1.0f);
 
@@ -102,7 +104,8 @@ Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram(shaderPgm)
 }
 
 Object::~Object()
-{}
+{
+}
 
 void Object::translate(glm::vec3 translation)
 {
@@ -327,12 +330,13 @@ void Object::toggleVertexNormals(bool useHardSet, bool setToThis)
 
 void Object::setShader(int shaderProgram)
 {
+  shaderProgram_ = shaderProgram;
   glUseProgram(shaderProgram);
-  modelLoc = glGetUniformLocation(shaderProgram, "model");
+  modelLoc = glGetUniformLocation(shaderProgram_, "model");
 
   //glUseProgram(lineShader);
   
-  vectorColorLoc = glGetUniformLocation(shaderProgram, "objColor");
+  vectorColorLoc = glGetUniformLocation(shaderProgram_, "objColor");
 
   //glUseProgram(shaderProgram);
 }
@@ -640,7 +644,7 @@ void Object::loadPlane()
 
 void Object::draw()
 {
-  glUseProgram(shaderProgram);
+  glUseProgram(shaderProgram_);
 
   if (fillPolygons)
   {
@@ -704,7 +708,7 @@ void Object::initBuffers()
   glBindVertexArray(0);
 
 
-  setShader(shaderProgram);
+  setShader(shaderProgram_);
 
   //assert(modelLoc >= 0 );
   //assert(colorLoc >= 0);

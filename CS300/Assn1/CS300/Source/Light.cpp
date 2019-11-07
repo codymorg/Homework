@@ -31,8 +31,14 @@ Light::Light(int shaderProgram, int emitterShader, string ID) : emitter(emitterS
     emitter.setShader(emitterShader);
 
   emitter.loadSphere(1,50);
-  emitter.material.diffuse = vec3(1,1,0);
+  emitter.material.diffuse = vec3(1);
   setShader(shaderProgram);
+}
+
+Light::~Light()
+{
+  emitter.~Object();
+
 }
 
 vec3 Light::getPosition()
@@ -50,6 +56,12 @@ void Light::setShader(int shaderProgram)
 {
   shaderProgram_ = shaderProgram;
   glUseProgram(shaderProgram_);
+}
+
+unsigned Light::getShader()
+{
+  assert (shaderProgram_ >= 0);
+  return shaderProgram_;
 }
 
 void Light::rotateY(float degrees, float radius)
@@ -101,7 +113,8 @@ void LightManagement::updateUBO(vector<Light>& lights)
   void* uboBuffer;
   glBindBuffer(GL_UNIFORM_BUFFER, ubo);
   uboBuffer = glMapNamedBuffer(ubo, GL_READ_WRITE);
-
+  if (!uboBuffer)
+    return;
   for (unsigned i = 0; i < lights.size(); i++)
   {
     lights[i].lightData.position = vec4(lights[i].getPosition(), 1);

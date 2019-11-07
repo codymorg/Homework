@@ -25,6 +25,8 @@
     <None Include="Source\PhongDiffuse.vert" />
     <None Include="Source\PhongLighting.frag" />
     <None Include="Source\PhongLighting.vert" />
+    <None Include="Source\PhongShading.frag" />
+    <None Include="Source\PhongShading.vert" />
     <None Include="Source\vertexShader.vert" />
   </ItemGroup>
   <ItemGroup>

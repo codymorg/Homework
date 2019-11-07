@@ -11,6 +11,8 @@ Author  :   Cody Morgan  ID: 180001017
 Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
+#define MAX_LIGHTS 16
+
 #include "ShaderManagement.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -57,6 +59,10 @@ static int selectedObject = 0;
 static int selectedModel = 0;
 static int selectedLight = 0;
 static float selectedColor[3];
+static int selectedShader = 0;
+static int ballCount = 4;
+static int circleRadius = 4;
+
 
 // object relates
 static ShaderManager shaderManager;
@@ -273,24 +279,13 @@ void Render(GLFWwindow* window, Camera& camera)
   }
 }
 
-void GenerateScene(ShaderManager& shaderManager)
+void GenerateLightRing()
 {
+  lights.clear();
   int phongLightingSP = shaderManager.getShader(ShaderType::PhongLighting);
-
-  // generate out God object
-  Object center(phongLightingSP, "OBJ model");
-  center.loadOBJ("Common/models/4sphere.obj");
-  center.material.diffuse = vec3(.6f);
-  center.material.ambient = vec3(.6f);
-  center.genFaceNormals();
-  objects.push_back(center);
-
-  // generate a bunch of lights
-  int ballCount = 4;
-  int circleRadius = 4;
-  int diffuseSP = shaderManager.getShader(ShaderType::Diffuse);
   for (int i = 0; i < ballCount; i++)
   {
+
     Light light(phongLightingSP, phongLightingSP, "light");
     light.emitter.loadSphere(0.5, 30);
     light.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius * glm::sin(glm::radians(360.0f / ballCount * i))));
@@ -300,17 +295,36 @@ void GenerateScene(ShaderManager& shaderManager)
     vec3 color;
     color.x = float(i) / ballCount;
     color.y = float(ballCount - i) / ballCount;
-    //color = vec3(0.1f * i, 0, 0);
-    //light.setColor(color);
     light.lightData.attenuation = vec4(0.1);
 
     lights.push_back(light);
   }
+
+}
+
+void GenerateScene(ShaderManager& shaderManager)
+{
+  int phongLightingSP = shaderManager.getShader(ShaderType::PhongLighting);
+  int phongShadingSP = shaderManager.getShader(ShaderType::PhongShading);
+  
+  // generate out God object
+  Object center(phongShadingSP, "OBJ model");
+  center.loadOBJ("Common/models/4sphere.obj");
+  center.material.diffuse = vec3(6/256.0f);
+  center.material.ambient = vec3(6/256.0f);
+  center.genFaceNormals();
+  objects.push_back(center);
+
+  // generate a bunch of lights
+  int diffuseSP = shaderManager.getShader(ShaderType::Diffuse);
+  GenerateLightRing();
   
   // keep the orbit tracker
-  Object circle(diffuseSP, "circle");
+  Object circle(phongLightingSP, "circle");
   circle.loadcircle(circleRadius, 45);
-  circle.material.diffuse = vec3(1, 0, 0);
+  circle.material.diffuse = vec3(1);
+  circle.material.ambient = vec3(1);
+
   objects.push_back(circle);
 
   // load out floor
@@ -393,6 +407,13 @@ void UpdateGUI()
     "sphere_modified.obj",
     "starwars1.obj",
   };
+
+  const char* shaders[] =
+  {
+    "PhongLighting",
+    "PhongShading"
+  };
+
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -408,14 +429,49 @@ void UpdateGUI()
 
   bool toggleFN = ImGui::Button("Toggle selected object's Face Normal");
   bool toggleVN = ImGui::Button("Toggle selected object's Vertex Normal");
-  bool changeNormalLength = ImGui::SliderFloat("Normal Display Scale", &objects[selectedObject].vectorScale, 0, 2.0);
   bool changeModel = ImGui::ListBox("Model Selection", &selectedModel, files, _countof(files));
-  bool changeColor = ImGui::ColorPicker3("Selected Object color", selectedColor);
-  bool changeLightColor = ImGui::ColorPicker3("Selected Light color", selectedColor);
+  bool changeColor = ImGui::ColorEdit3("Selected Object Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
+  bool changeLightColor = ImGui::ColorEdit3("Selected light Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
+  bool changeLightCount = ImGui::SliderInt("Light", &ballCount, 0, MAX_LIGHTS);
+  bool addlight = ImGui::Button("Add light");
+  bool removelight = ImGui::Button("remove light");
+
+
+
+  bool changeShader = ImGui::ListBox("Shader Selection", &selectedShader, shaders, _countof(shaders));
+  bool recompileShader = ImGui::Button("Recompile Shaders");
 
 
   ImGui::End();
 
+  if (addlight)
+  {
+    ballCount = (ballCount + 1) % MAX_LIGHTS;
+    GenerateLightRing();
+  }
+  if (removelight)
+  {
+    ballCount = abs(ballCount - 1);
+    GenerateLightRing();
+  }
+  if (changeLightCount)
+  {
+    GenerateLightRing();
+  }
+
+  if (changeShader)
+  {
+    ShaderType type = ShaderType::PhongLighting;
+    if (selectedShader == 1)
+      type = ShaderType::PhongShading;
+
+    objects[selectedObject].setShader(shaderManager.getShader(type));
+
+  }
+  if (recompileShader)
+  {
+    shaderManager.reCompile(ShaderType::TypeCount);
+  }
   if (toggleFN)
   {
     objects[selectedObject].toggleFaceNormals();
@@ -424,17 +480,17 @@ void UpdateGUI()
   {
     objects[selectedObject].toggleVertexNormals();
   }
-  if (changeNormalLength)
-  {
-    if (objects[selectedObject].faceNormDrawingMode == Object::FaceNormalDrawingMode::FaceNormalsOn)
-    {
-      objects[selectedObject].toggleFaceNormals(true,true);
-    }
-    else if (objects[selectedObject].vertexNormalDrawingMode == Object::VertexNormalDrawingMode::VertexNormalOn)
-    {
-      objects[selectedObject].toggleVertexNormals(true, true);
-    }
-  }
+  //if (changeNormalLength)
+  //{
+  //  if (objects[selectedObject].faceNormDrawingMode == Object::FaceNormalDrawingMode::FaceNormalsOn)
+  //  {
+  //    objects[selectedObject].toggleFaceNormals(true,true);
+  //  }
+  //  else if (objects[selectedObject].vertexNormalDrawingMode == Object::VertexNormalDrawingMode::VertexNormalOn)
+  //  {
+  //    objects[selectedObject].toggleVertexNormals(true, true);
+  //  }
+  //}
 
   if (changeModel)
   {
@@ -479,10 +535,13 @@ int main()
   // initialization of generic scene
   InitGUI(window);
 
+  //setup all shaders
   int phongLightingSP = shaderManager.addShader("Source/PhongLighting.vert", "Source/PhongLighting.frag", ShaderType::PhongLighting);
   shaderManager.addShader("Source/PhongDiffuse.vert", "Source/PhongLighting.frag", ShaderType::Diffuse);
+  shaderManager.addShader("Source/PhongShading.vert", "Source/PhongShading.frag", ShaderType::PhongShading);
+
   camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), phongLightingSP);
-  GetLightManager()->genUBO(shaderManager.getShader(ShaderType::Diffuse));
+  GetLightManager()->genUBO(phongLightingSP);
   materials = new MaterialManager;
   materials->genUBO(phongLightingSP);
 

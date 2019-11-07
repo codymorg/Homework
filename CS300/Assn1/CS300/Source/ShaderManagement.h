@@ -39,6 +39,7 @@ public:
 
   unsigned addShader(std::string vertexShader, std::string fragShader, ShaderType shaderType);
   unsigned getShader(ShaderType shaderType);
+
   unsigned reCompile(ShaderType shaderType);
   unsigned getCurrentBound();
   std::vector<int> getAllShaders();

@@ -33,7 +33,7 @@ public:
   {
     shaderProgram_ = InitShaderProgram(vertexShader, fragShader);
     vertShader_ = vertexShader;
-    fragShader_ = fragShader_;
+    fragShader_ = fragShader;
   }
 
   ~Shader()
@@ -191,7 +191,16 @@ unsigned ShaderManager::getShader(ShaderType shaderType)
 
 unsigned ShaderManager::reCompile(ShaderType shaderType)
 {
-  return compiledShaders_[int(shaderType)].reloadProgram();
+  if(shaderType < ShaderType::TypeCount)
+    return compiledShaders_[int(shaderType)].reloadProgram();
+  else
+  {
+    for (int i = 0; i < int(ShaderType::TypeCount); i++)
+    {
+      if (compiledShaders_[i].getProgram() != -1)
+        compiledShaders_[i].reloadProgram();
+    }
+  }
 }
 
 unsigned ShaderManager::getCurrentBound()
