@@ -333,8 +333,8 @@ void GenerateScene(ShaderManager& shaderManager)
   floor.loadPlane();
   floor.translate(vec3(0, -1, -2));
   floor.addScale(vec3(10));
-  floor.material.diffuse = vec3(0);
-  floor.material.ambient = vec3(0);
+  floor.material.diffuse = vec3(1);
+  floor.material.ambient = vec3(1);
 
   objects.push_back(floor);
 }

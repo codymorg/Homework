@@ -19,6 +19,7 @@ End Header --------------------------------------------------------*/
 #include "ObjectManagement.h"
 
 #include <glm/glm.hpp>
+#include <glm/trigonometric.hpp>
 #include <string>
 
 class Light
@@ -42,6 +43,13 @@ public:
   glm::vec3 color = {1.0f, 1.0f, 1.0f};
   float ambientStrength = 0.5f;
 
+  enum class LightType
+  {
+    Point = 0,
+    Directional = 1,
+    Spot = 2
+  }lightType;
+
   struct LightData
   {
     glm::vec4 position = glm::vec4(0);
@@ -51,7 +59,11 @@ public:
     float ns = 100.0f;
     glm::vec4 emissive = glm::vec4(0);
     glm::vec3 attenuation = glm::vec3(1);
-    float number = 0;
+    int number = 0;
+    glm::vec3 direction = glm::vec3(0,0.1,-1);
+    int type = 0;
+    glm::vec2 spot = glm::vec2(glm::cos(glm::pi<float>()/8), glm::cos(glm::pi<float>()/4));
+    float padding[2];
   }lightData;
 
 private:

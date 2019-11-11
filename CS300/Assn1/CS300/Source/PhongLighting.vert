@@ -9,7 +9,7 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 cameraPos;
 uniform vec3 objColor;      // for lines
-uniform int lightCount;
+
 
 
 // material data
@@ -29,7 +29,7 @@ struct Light
   float ns_; 
   vec3 emissive_;
   vec3 attenuation_;
-  float number;
+  int number;
 };
 
 // vertex shader phong lighting
@@ -52,7 +52,7 @@ void main()
     {
       if(lights[i].number == 0)
         break;
-
+      
       // grab light data for this light
       vec3 lightPos = lights[i].lightPos_;
       vec3 ambient = lights[i].ambient_;
