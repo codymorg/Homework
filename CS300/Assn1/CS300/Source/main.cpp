@@ -150,31 +150,31 @@ void ProcessInput(GLFWwindow* window)
     float moveStr = 0.1f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-    lights[selectedLight].translate(moveStr * up);
+      lights[selectedLight].translate(moveStr * up);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-    lights[selectedLight].translate(moveStr * down);
+      lights[selectedLight].translate(moveStr * down);
     }
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
     {
-    lights[selectedLight].translate(moveStr * back);
+      lights[selectedLight].translate(moveStr * back);
     }
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
-    lights[selectedLight].translate(moveStr * forward);
+      lights[selectedLight].translate(moveStr * forward);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-    lights[selectedLight].translate(moveStr * left);
+      lights[selectedLight].translate(moveStr * left);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-    lights[selectedLight].translate(moveStr * right);
+      lights[selectedLight].translate(moveStr * right);
     }
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
     {
-    objects[0].spin(.5, up);
+      objects[0].spin(.5, up);
     }
 
     float cameraScale = 0.1;
