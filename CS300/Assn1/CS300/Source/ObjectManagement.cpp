@@ -55,6 +55,7 @@ void MaterialManager::genUBO(unsigned shaderProgram)
 
 void MaterialManager::updateUBO(MaterialData& material)
 {
+
   void* uboBuffer;
   glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
   uboBuffer = glMapNamedBuffer(ubo_, GL_READ_WRITE);

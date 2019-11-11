@@ -20,6 +20,7 @@ struct Light
   float ns_; 
   vec3 emissive_;
   vec3 attenuation_;
+  float number;
 };
 
 // vertex shader phong lighting
@@ -52,9 +53,14 @@ void main()
     float viewDist = length(viewV);
     viewV = normalize(viewV);
 
+    //fragColor = matDiffuse; 
+    //return;
 
-    for(uint i = 0; i < 4; i++)
+    for(uint i = 0; i < MAX_LIGHTS; i++)
     {
+      if(lights[i].number == 0)
+        break;
+
       // grab light data for this light
       vec3 lightPos = lights[i].lightPos_;
       vec3 ambient = lights[i].ambient_;

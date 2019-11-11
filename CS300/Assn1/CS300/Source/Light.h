@@ -50,7 +50,8 @@ public:
     glm::vec3 specular = glm::vec3(1);
     float ns = 100.0f;
     glm::vec4 emissive = glm::vec4(0);
-    glm::vec4 attenuation = glm::vec4(1);
+    glm::vec3 attenuation = glm::vec3(1);
+    float number = 0;
   }lightData;
 
 private:

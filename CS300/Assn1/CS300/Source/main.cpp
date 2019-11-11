@@ -266,7 +266,6 @@ void Render(GLFWwindow* window, Camera& camera)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   GetLightManager()->updateUBO(lights);
-
   for (Light light : lights)
   {
     light.update();
@@ -274,6 +273,8 @@ void Render(GLFWwindow* window, Camera& camera)
   camera.update(shaderManager);
   for (Object object : objects)
   {
+    int s = shaderManager.getCurrentBound();
+    glUseProgram(object.shaderProgram_);
     materials->updateUBO(object.material);
     object.draw();
   }
@@ -285,19 +286,19 @@ void GenerateLightRing()
   int phongLightingSP = shaderManager.getShader(ShaderType::PhongLighting);
   for (int i = 0; i < ballCount; i++)
   {
-
     Light light(phongLightingSP, phongLightingSP, "light");
     light.emitter.loadSphere(0.5, 30);
     light.translate(vec3(circleRadius * glm::cos(glm::radians(360.0f / ballCount * i)), 0, circleRadius * glm::sin(glm::radians(360.0f / ballCount * i))));
     light.emitter.orbitRadius = circleRadius;
-    light.lightData.emissive = glm::vec4(0.3);
-    light.lightData.ambient = glm::vec4(0.3);
+    light.lightData.emissive = glm::vec4(0.1);
+    light.lightData.ambient = glm::vec4(0.1);
     vec3 color;
     color.x = float(i) / ballCount;
     color.y = float(ballCount - i) / ballCount;
-    light.lightData.attenuation = vec4(0.1);
+    light.lightData.attenuation = vec3(0.1);
 
     lights.push_back(light);
+    lights.back().lightData.number = int(lights.size());
   }
 
 }
@@ -310,7 +311,7 @@ void GenerateScene(ShaderManager& shaderManager)
   // generate out God object
   Object center(phongShadingSP, "OBJ model");
   center.loadOBJ("Common/models/4sphere.obj");
-  center.material.diffuse = vec3(6/256.0f);
+  center.material.diffuse = vec3(.9f);
   center.material.ambient = vec3(6/256.0f);
   center.genFaceNormals();
   objects.push_back(center);
@@ -427,8 +428,6 @@ void UpdateGUI()
   ImGui::SliderInt(objects[selectedObject].name.c_str(), &selectedObject, 0, objects.size() - 1);
   ImGui::SliderInt("Light", &selectedLight, 0, lights.size() - 1);
 
-  bool toggleFN = ImGui::Button("Toggle selected object's Face Normal");
-  bool toggleVN = ImGui::Button("Toggle selected object's Vertex Normal");
   bool changeModel = ImGui::ListBox("Model Selection", &selectedModel, files, _countof(files));
   bool changeColor = ImGui::ColorEdit3("Selected Object Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
   bool changeLightColor = ImGui::ColorEdit3("Selected light Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
@@ -472,25 +471,7 @@ void UpdateGUI()
   {
     shaderManager.reCompile(ShaderType::TypeCount);
   }
-  if (toggleFN)
-  {
-    objects[selectedObject].toggleFaceNormals();
-  }
-  else if (toggleVN)
-  {
-    objects[selectedObject].toggleVertexNormals();
-  }
-  //if (changeNormalLength)
-  //{
-  //  if (objects[selectedObject].faceNormDrawingMode == Object::FaceNormalDrawingMode::FaceNormalsOn)
-  //  {
-  //    objects[selectedObject].toggleFaceNormals(true,true);
-  //  }
-  //  else if (objects[selectedObject].vertexNormalDrawingMode == Object::VertexNormalDrawingMode::VertexNormalOn)
-  //  {
-  //    objects[selectedObject].toggleVertexNormals(true, true);
-  //  }
-  //}
+
 
   if (changeModel)
   {
@@ -501,6 +482,8 @@ void UpdateGUI()
   if (changeColor)
   {
     objects[selectedObject].material.ambient = vec3(selectedColor[0], selectedColor[1], selectedColor[2]);
+    objects[selectedObject].material.diffuse = vec3(selectedColor[0], selectedColor[1], selectedColor[2]);
+
   }
   if (changeLightColor)
   {
@@ -538,14 +521,15 @@ int main()
   //setup all shaders
   int phongLightingSP = shaderManager.addShader("Source/PhongLighting.vert", "Source/PhongLighting.frag", ShaderType::PhongLighting);
   shaderManager.addShader("Source/PhongDiffuse.vert", "Source/PhongLighting.frag", ShaderType::Diffuse);
-  shaderManager.addShader("Source/PhongShading.vert", "Source/PhongShading.frag", ShaderType::PhongShading);
+  int phongShadingSP = shaderManager.addShader("Source/PhongShading.vert", "Source/PhongShading.frag", ShaderType::PhongShading);
 
   camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), phongLightingSP);
   GetLightManager()->genUBO(phongLightingSP);
   materials = new MaterialManager;
   materials->genUBO(phongLightingSP);
 
-  // generate the scene for this homework - someday have scene switching?
+
+
   GenerateScene(shaderManager);
 
   while (!glfwWindowShouldClose(window))
