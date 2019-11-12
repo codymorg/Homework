@@ -135,9 +135,23 @@ vec3 SpotLight(Light currentLight, vec3 viewV)
   // diffuse
   vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
 
-  // in the light 100%
-  float cosOut;
-  if(InsideSpot(currentLight, currentLight.spot.x, cosOut))
+  float cosInner;
+  float cosOuter;
+  bool inInner = InsideSpot(currentLight, currentLight.spot.x, cosInner);
+  bool inOuter= InsideSpot(currentLight, currentLight.spot.y, cosOuter);
+
+
+  if(inInner == false && inOuter == true)
+  {
+    vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
+  
+    // attenuation
+    float intensity = (cosInner - cosOuter) / (currentLight.spot.x - currentLight.spot.y);
+    float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
+    local = att * Iambient + (intensity * att * (Idiffuse + Ispecular));
+  }
+
+  else if(inInner)
   {
     vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
   
@@ -145,18 +159,7 @@ vec3 SpotLight(Light currentLight, vec3 viewV)
     float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
   
     // local color
-    local =att * Iambient + att * (Idiffuse + Ispecular);
-  }
-  
-  // we're inside the outer limits
-  else if(InsideSpot(currentLight, currentLight.spot.y, cosOut))
-  {
-    vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
-  
-    // attenuation
-    float intensity = (cosOut - currentLight.spot.y) / (currentLight.spot.x - currentLight.spot.y);
-    float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
-    local = att * Iambient + (intensity * att * (Idiffuse + Ispecular));
+    local = att * Iambient + att * (Idiffuse + Ispecular);
   }
 
   //outside the light totally

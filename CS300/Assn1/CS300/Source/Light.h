@@ -43,13 +43,6 @@ public:
   glm::vec3 color = {1.0f, 1.0f, 1.0f};
   float ambientStrength = 0.5f;
 
-  enum class LightType
-  {
-    Point = 0,
-    Directional = 1,
-    Spot = 2
-  }lightType;
-
   struct LightData
   {
     glm::vec4 position = glm::vec4(0);

@@ -62,6 +62,9 @@ static float selectedColor[3];
 static int selectedShader = 0;
 static int ballCount = 4;
 static int circleRadius = 4;
+static int selectedType = 0;
+static int selectedSpotAngles[2]; // degrees
+static float selectedDirection[2];
 
 
 // object relates
@@ -415,6 +418,13 @@ void UpdateGUI()
     "PhongShading"
   };
 
+  const char* lightType[] =
+  {
+    "Point",
+    "Directional",
+    "Spot"
+  };
+
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -432,17 +442,31 @@ void UpdateGUI()
   bool changeColor = ImGui::ColorEdit3("Selected Object Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
   bool changeLightColor = ImGui::ColorEdit3("Selected light Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
   bool changeLightCount = ImGui::SliderInt("Light", &ballCount, 0, MAX_LIGHTS);
+  bool changeLightType = ImGui::ListBox("Change type of selected light", &selectedType, lightType, _countof(lightType));
+  bool changeSpotAngle = ImGui::SliderInt2("Inner and Outer angles of spotlight", selectedSpotAngles, 0, 180);
+  bool changeDirectionalLight = ImGui::SliderFloat2("Direction of light for Directional and Spot", selectedDirection, -1, 1, "%.1f");
   bool addlight = ImGui::Button("Add light");
   bool removelight = ImGui::Button("remove light");
-
-
-
   bool changeShader = ImGui::ListBox("Shader Selection", &selectedShader, shaders, _countof(shaders));
   bool recompileShader = ImGui::Button("Recompile Shaders");
 
-
   ImGui::End();
 
+  if (changeDirectionalLight)
+  {
+    lights[selectedLight].lightData.direction = vec3(selectedDirection[0], selectedDirection[1], lights[selectedLight].lightData.direction.z);
+  }
+  if (changeSpotAngle)
+  {
+    float cosInner = glm::cos(glm::radians<float>(selectedSpotAngles[0]));
+    float cosOuter = glm::cos(glm::radians<float>(selectedSpotAngles[1]));
+    lights[selectedLight].lightData.spot = glm::vec2(cosInner, cosOuter);
+    lights[selectedLight].lightData.type = 2; // spot == 2
+  }
+  if (changeLightType)
+  {
+    lights[selectedLight].lightData.type = selectedType;
+  }
   if (addlight)
   {
     ballCount = (ballCount + 1) % MAX_LIGHTS;
