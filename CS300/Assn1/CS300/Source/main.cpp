@@ -441,7 +441,7 @@ void UpdateGUI()
   bool changeModel = ImGui::ListBox("Model Selection", &selectedModel, files, _countof(files));
   bool changeColor = ImGui::ColorEdit3("Selected Object Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
   bool changeLightColor = ImGui::ColorEdit3("Selected light Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
-  bool changeLightCount = ImGui::SliderInt("Light", &ballCount, 0, MAX_LIGHTS);
+  //bool changeLightCount = ImGui::SliderInt("Light", &ballCount, 0, MAX_LIGHTS);
   bool changeLightType = ImGui::ListBox("Change type of selected light", &selectedType, lightType, _countof(lightType));
   bool changeSpotAngle = ImGui::SliderInt2("Inner and Outer angles of spotlight", selectedSpotAngles, 0, 180);
   bool changeDirectionalLight = ImGui::SliderFloat2("Direction of light for Directional and Spot", selectedDirection, -1, 1, "%.1f");
@@ -454,7 +454,7 @@ void UpdateGUI()
 
   if (changeDirectionalLight)
   {
-    lights[selectedLight].lightData.direction = vec3(selectedDirection[0], selectedDirection[1], lights[selectedLight].lightData.direction.z);
+     lights[selectedLight].lightData.direction = vec3(selectedDirection[0], selectedDirection[1], lights[selectedLight].lightData.direction.z);
   }
   if (changeSpotAngle)
   {
@@ -477,10 +477,10 @@ void UpdateGUI()
     ballCount = abs(ballCount - 1);
     GenerateLightRing();
   }
-  if (changeLightCount)
+  /*if (changeLightCount)
   {
     GenerateLightRing();
-  }
+  }*/
 
   if (changeShader)
   {
