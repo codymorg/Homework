@@ -3,11 +3,14 @@
 
 layout (location = 0) in vec3 vertPos;
 layout (location = 1) in vec3 vertNormal;
+layout (location = 2) in vec2 vertUV;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 cameraPos;
+uniform sampler2D texSampler;
+
 
 
 out mat4 viewModel;

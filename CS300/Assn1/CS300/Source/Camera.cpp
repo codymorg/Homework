@@ -58,8 +58,8 @@ void Camera::update(ShaderManager& shaderManager)
   {
     glUseProgram(shader);
 
-    viewLoc = glGetUniformLocation(shaderProgram, "view");
-    projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+    viewLoc = glGetUniformLocation(shader, "view");
+    projectionLoc = glGetUniformLocation(shader, "projection");
     //cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
     assert(viewLoc >= 0);
     assert(projectionLoc >= 0);

@@ -271,18 +271,34 @@ void Render(GLFWwindow* window, Camera& camera)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   GetLightManager()->updateUBO(lights);
-  for (Light light : lights)
+  for (Light& light : lights)
   {
     light.update();
   }
   camera.update(shaderManager);
-  for (Object object : objects)
+  for (Object& object : objects)
   {
-    int s = shaderManager.getCurrentBound();
     glUseProgram(object.shaderProgram_);
     materials->updateUBO(object.material);
+
+    //textured
+    if (object.texture.isValid)
+    {
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, object.texture.getTBO());
+      glUniform1i(object.hasTextureLoc, 1);
+      glUniform1i(object.texture.texSamplerLoc, 0);
+    }
+
+    // turn off texturing stuff in shaders
+    else
+    {
+      glUniform1i(object.hasTextureLoc, 0);
+    }
+
     object.draw();
   }
+  glUseProgram(0);
 }
 
 void GenerateLightRing()
@@ -347,15 +363,16 @@ void GenerateScene(ShaderManager& shaderManager)
   int phongShadingSP = shaderManager.getShader(ShaderType::PhongShading);
   
   // generate out God object
-  Object center(phongShadingSP, "OBJ model");
-  center.loadOBJ("Common/models/4sphere.obj");
+  Object center(phongLightingSP, "OBJ model");
+  center.loadOBJ("Common/models/sphere.obj");
   center.material.diffuse = vec3(.9f);
   center.material.ambient = vec3(6/256.0f);
   center.genFaceNormals();
+  center.loadTexture("Common/textures/metalRoofDiff.png");
+
   objects.push_back(center);
 
   // generate a bunch of lights
-  int diffuseSP = shaderManager.getShader(ShaderType::Diffuse);
   GenerateLightRing();
   
   // keep the orbit tracker
@@ -373,7 +390,6 @@ void GenerateScene(ShaderManager& shaderManager)
   floor.addScale(vec3(10));
   floor.material.diffuse = vec3(1);
   floor.material.ambient = vec3(1);
-
   objects.push_back(floor);
 }
 
@@ -539,7 +555,12 @@ void UpdateGUI()
   {
     string fileName = "Common/models/";
     fileName += files[selectedModel];
-    objects[FindObject("OBJ model")].loadOBJ(fileName);
+    int oID = FindObject("OBJ model");
+    objects[oID].loadOBJ(fileName);
+    if (objects[oID].texture.isValid)
+    {
+      objects[oID].loadTexture(objects[oID].texture.getLocation());
+    }
   }
   if (changeColor)
   {

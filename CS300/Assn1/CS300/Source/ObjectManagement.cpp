@@ -102,12 +102,12 @@ Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram_(shaderPgm)
   glGenBuffers(1, &ebo);
 
   initBuffers();
-
+  hasTextureLoc = glGetUniformLocation(shaderProgram_, "hasTexture");
+  glUniform1i(hasTextureLoc, 0);
 }
 
 Object::~Object()
 {
-  delete texture;
 }
 
 void Object::translate(glm::vec3 translation)
@@ -393,10 +393,11 @@ void Object::loadOBJ(string fileLocation)
   ifstream file(fileLocation);
   vector<float>verts;
 
-  glm::vec3 vMax(INT_MIN, INT_MIN, INT_MIN);
-  glm::vec3 vMin(INT_MAX, INT_MAX, INT_MAX);
+  maxPos = vec3(INT_MIN, INT_MIN, INT_MIN);
+  minPos = vec3(INT_MAX, INT_MAX, INT_MAX);
   vectorScale = 1;
   transform = glm::mat4();
+
 
   // load vert data and normal data
   if (file)
@@ -416,8 +417,8 @@ void Object::loadOBJ(string fileLocation)
         {
           objData >> vertexData;
           verts.push_back(vertexData);
-          vMin[i] = min(vMin[i], vertexData);
-          vMax[i] = max(vMax[i], vertexData);
+          minPos[i] = min(minPos[i], vertexData);
+          maxPos[i] = max(maxPos[i], vertexData);
         }
       }
       else if (line.substr(0, 2) == "f ")
@@ -523,13 +524,13 @@ void Object::loadOBJ(string fileLocation)
       vec3 vertData(verts[i], verts[i + 1], verts[i + 2]);
       vertices.push_back(Vertex(vertData, normalData));
     }
-    vec3 centroid = { (vMax.x + vMin.x) / 2, (vMax.y + vMin.y) / 2, (vMax.z + vMin.z) / 2 };
-    modelScale = 2 / glm::length(vMax - centroid);
+    vec3 centroid = { (maxPos.x + minPos.x) / 2, (maxPos.y + minPos.y) / 2, (maxPos.z + minPos.z) / 2 };
+    modelScale = 2 / glm::length(maxPos - centroid);
     addScale(vec3(modelScale, modelScale, modelScale));
 
     genVertexNormals();
 
-    vec3 translation((vMax.x + vMin.x) / 2, (vMax.y + vMin.y) / 2, (vMax.z + vMin.z) / 2);
+    vec3 translation((maxPos.x + minPos.x) / 2, (maxPos.y + minPos.y) / 2, (maxPos.z + minPos.z) / 2);
     transform = glm::translate(transform, -translation);
 
     initBuffers();
@@ -649,16 +650,15 @@ void Object::loadPlane()
 
 void Object::loadTexture(std::string location, Texture::Projector projector)
 {
-  return;
-  if (texture)
-    texture->changeTexture(location, projector);
-  else
-    texture = new Texture(location, projector);
+  texture = Texture(location, projector);
+  texture.texSamplerLoc = glGetUniformLocation(shaderProgram_, "texSampler");
+  glUniform1i(hasTextureLoc, 1);
 
   for (Vertex& vertex : vertices)
   {
-    vertex.uv = texture->generateUV(minPos, maxPos, vertex.position);
+    vertex.uv = texture.generateUV(minPos, maxPos, vertex.position);
   }
+  initBuffers();
 }
 
 
@@ -685,13 +685,6 @@ void Object::draw()
 
   glBindVertexArray(vao);
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &transform[0][0]);
-
-  // bind the texture
-  if (texture)
-  {
-    texture->bindTbo();
-    glUniform1i(glGetUniformLocation(shaderProgram_, "texSampler"), 0);
-  }
 
   glDrawElements(renderMode, indices.size() , GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
@@ -745,71 +738,14 @@ void Object::initBuffers()
 
 }
 
-Texture::Texture(std::string location, Projector projector) : projector_(projector)
+Texture::Texture(): location_("none")
 {
-  buffer_ = SOIL_load_image(location.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
-
-  initBuffer();
 }
 
-Texture::~Texture()
+Texture::Texture(std::string location, Projector projector) : projector_(projector), location_(location)
 {
-  glDeleteBuffers(1, &tbo_);
-}
-
-void Texture::changeTexture(std::string location, Projector projector)
-{
-  glDeleteBuffers(1, &tbo_);
-
-  buffer_ = SOIL_load_image(location.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
-
-  initBuffer();
-}
-
-void Texture::bindTbo()
-{
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, tbo_);
-}
-
-glm::vec2 Texture::generateUV(glm::vec3 lower, glm::vec3 upper, glm::vec3 point)
-{
-  glm::vec2 uv;
-  vec3 centroid = vec3(lower + upper) / 2.0f;
-
-  // translate centroid to the origin (and everyhting else by that amount)
-  point -= centroid;
-  lower -= centroid;
-  upper -= centroid;
-
-
-  if (projector_ == Projector::Cylindrical)
-  {
-    float theta = atan2f(point.x, point.y);
-    float z = (point.z - lower.z) / (upper.z - lower.z);
-    uv.x = theta / (2 * glm::pi<float>());
-    uv.y = z;
-  }
-
-  if (projector_ == Projector::Sphere)
-  {
-    float theta = atan2f(point.y, point.x);
-    float r = sqrtf(point.x * point.x + point.y * point.y + point.z * point.z);
-    float phi = acosf(point.z / r);
-    uv.x = theta / (2 * glm::pi<float>());
-    uv.y = (glm::pi<float>() - phi) / glm::pi<float>();
-  }
-
-  if (projector_ == Projector::Cube)
-  {
-  }
-
-  return uv;
-}
-
-void Texture::initBuffer()
-{
-  assert(buffer_ != nullptr);
+  isValid = true;
+  unsigned char* buffer = SOIL_load_image(location.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
 
   glGenTextures(1, &tbo_);
   glActiveTexture(GL_TEXTURE0);
@@ -827,10 +763,59 @@ void Texture::initBuffer()
     format = GL_RGB;
   else if (channels_ == 4)
     format = GL_RGBA;
-  glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format, GL_UNSIGNED_BYTE, buffer_);
+  glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format, GL_UNSIGNED_BYTE, buffer);
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  SOIL_free_image_data(buffer_);
-  buffer_ = nullptr;
+  SOIL_free_image_data(buffer);
 }
+
+Texture::~Texture()
+{
+  //glDeleteBuffers(1, &tbo_);
+  cout << "deleting\n";
+}
+
+
+glm::vec2 Texture::generateUV(glm::vec3 lower, glm::vec3 upper, glm::vec3 point)
+{
+  glm::vec2 uv;
+  vec3 centroid = vec3(lower + upper) / 2.0f;
+
+  // translate centroid to the origin (and everyhting else by that amount)
+  vec3 point2 = point - centroid;
+  vec3 lower2 = lower - centroid;
+  vec3 upper2 = upper - centroid;
+
+
+  if (projector_ == Projector::Cylindrical)
+  {
+    float theta = atan2(point2.y, point2.x);
+    if (theta < 0)
+      theta = 2 * glm::pi<float>() - theta;
+
+    float z = (point2.z - lower2.z) / (upper2.z - lower2.z);
+    uv.x = theta / (2 * glm::pi<float>());
+    uv.y = z;
+  }
+
+  if (projector_ == Projector::Sphere)
+  {
+    // you promised this would be positive... but it's not always
+    float theta =  atan2 (point2.y, point2.x);
+    if (theta < 0)
+      theta = 2 * glm::pi<float>() - theta;
+
+    float r = sqrtf(point2.x * point2.x + point2.y * point2.y + point2.z * point2.z);
+    float phi = acosf(point2.z / r);
+    uv.x = (theta / (2 * glm::pi<float>()));
+    uv.y = ((glm::pi<float>() - phi) / glm::pi<float>());
+  }
+
+  if (projector_ == Projector::Cube)
+  {
+  }
+
+  return uv;
+}
+

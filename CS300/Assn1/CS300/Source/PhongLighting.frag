@@ -11,12 +11,23 @@ Author  :   Cody Morgan  ID: 180001017
 Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/ 
 
-#version 400 core
+#version 430 core
+
+uniform sampler2D texSampler;
 
 in vec3 color;
+in vec2 texCoord;
+
 out vec3 fragColor;
 
 void main()
 {
-  fragColor = color;
+  if(texCoord.x >= 0)
+  {
+    fragColor = texture( texSampler, texCoord ).rgb;
+  }
+  else
+  {
+    fragColor = color;
+  }
 } 

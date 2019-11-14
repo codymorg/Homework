@@ -64,23 +64,25 @@ public:
     Cylindrical
   };
   
+  Texture();
   Texture(std::string location, Projector projector = Projector::Sphere);
   ~Texture();
-  void changeTexture(std::string location, Projector projector = Projector::Sphere);
-  void bindTbo();
+
+  std::string getLocation() { return location_; };
+  unsigned getTBO() { return tbo_; };
+
   glm::vec2 generateUV(glm::vec3 boundingBoxLower, glm::vec3 boundingBoxUpper, glm::vec3 point);
 
+  int texSamplerLoc = -1;
+  bool isValid = false;
 private:
 
   Projector projector_;
-  unsigned char* buffer_;
   unsigned tbo_ = 0;
   int width_;
   int height_;
   int channels_;
   std::string location_;
-
-  void initBuffer();
 
 };
 
@@ -175,7 +177,9 @@ public:
   unsigned lineVAO;
   unsigned lineVBO;
   int vectorColorLoc = -1;       // shader location of color
-  Texture* texture = nullptr;
+  Texture texture;
+  int hasTextureLoc = -1;
+
 };
 
 class MaterialManager

@@ -11,6 +11,8 @@ uniform mat4 projection;
 uniform vec3 cameraPos;
 uniform vec3 objColor;      // for lines 
 
+uniform int hasTexture = 0;
+
 // material data
 layout (std140, binding = 1) uniform material
 {
@@ -42,16 +44,28 @@ layout (std140, binding = 0) uniform lightData
 
 
 out vec3 color;
+out vec2 texCoord;
 
 void main()
 {
+  if(hasTexture == 1)
+  {
+    texCoord = vertUV;
+  }
+  else
+  {
+    texCoord = vec2(-1);
+  }
+
   gl_Position = projection * view * model * vec4(vertPos,1.0f);
 
   // full phong illumination
   if(length(objColor) == 0)
   {
+    color = vec3(0);
     for(uint i = 0; i < MAX_LIGHTS; i++)
     {
+    // only update valid lights
       if(lights[i].number == 0)
         break;
       
@@ -88,6 +102,7 @@ void main()
 
       // diffuse
       vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
+
 
       // specular
       vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);

@@ -176,11 +176,12 @@ vec3 SpotLight(Light currentLight, vec3 viewV)
 
 void main()
 {
+  fragColor = vec3(0);
+
   // override for lights
   if(length(objColor) > 0)
   {
     fragColor = objColor;
-    fragColor = vec3(1,0,0);
   }
   // phong shading
   else
