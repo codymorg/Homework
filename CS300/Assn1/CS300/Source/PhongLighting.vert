@@ -3,14 +3,13 @@
 
 layout (location = 0) in vec3 vertPos;
 layout (location = 1) in vec3 vertNormal;
+layout (location = 2) in vec2 vertUV;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 cameraPos;
-uniform vec3 objColor;      // for lines
-
-
+uniform vec3 objColor;      // for lines 
 
 // material data
 layout (std140, binding = 1) uniform material
@@ -30,6 +29,9 @@ struct Light
   vec3 emissive_;
   vec3 attenuation_;
   int number;
+  vec3 directional;
+  int type;
+  vec2 spot;
 };
 
 // vertex shader phong lighting
@@ -104,6 +106,6 @@ void main()
   // just a light orb
   else
   {
-  color = objColor;
+    color = objColor;
   }
 }

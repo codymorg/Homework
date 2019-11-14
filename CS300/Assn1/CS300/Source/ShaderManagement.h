@@ -26,6 +26,7 @@ enum class ShaderType
     Reflection,
     Line,
     PhongShading,
+    PhongBlinn,
 
     //***//
     TypeCount

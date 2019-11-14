@@ -35,6 +35,8 @@ using std::cout;
 using std::max;
 using std::min;
 
+#include "../Common/SOIL/SOIL.h"
+
 vec3 red(1, 0, 0);
 
 
@@ -47,23 +49,22 @@ void MaterialManager::genUBO(unsigned shaderProgram)
   glGenBuffers(1, &ubo_);
   glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialData), nullptr, GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo_);
-
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void MaterialManager::updateUBO(MaterialData& material)
 {
 
   void* uboBuffer;
-  glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
-  uboBuffer = glMapNamedBuffer(ubo_, GL_READ_WRITE);
+  //glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
+  uboBuffer = glMapNamedBuffer(ubo_, GL_WRITE_ONLY);
 
   memcpy(uboBuffer, &material, sizeof(MaterialData));
 
   glUnmapNamedBuffer(ubo_);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+  //glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 /////***** Vertex Class *****/////
@@ -73,7 +74,7 @@ Vertex::Vertex(float x, float y, float z, float nx, float ny, float nz)
   *this = Vertex(vec3(x,y,z), vec3(nx, ny, nz));
 }
 
-Vertex::Vertex(vec3 pos, vec3 norm ) : position(pos), normal(norm)
+Vertex::Vertex(vec3 pos, vec3 norm, glm::vec2 uv ) : position(pos), normal(norm), uv(uv)
 {
 }
 
@@ -106,6 +107,7 @@ Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram_(shaderPgm)
 
 Object::~Object()
 {
+  delete texture;
 }
 
 void Object::translate(glm::vec3 translation)
@@ -625,10 +627,10 @@ void Object::loadPlane()
 {
   vertices =
   {
-    Vertex(-0.5f, 0.0f, -0.5f),
-    Vertex( 0.5f, 0.0f, -0.5f),
-    Vertex( 0.5f, 0.0f,  0.5f),
-    Vertex(-0.5f, 0.0f,  0.5f),
+    Vertex(vec3(-0.5f, 0.0f, -0.5f),vec3(0,1,0),glm::vec2(0,0)),
+    Vertex(vec3( 0.5f, 0.0f, -0.5f),vec3(0,1,0),glm::vec2(1,0)),
+    Vertex(vec3( 0.5f, 0.0f,  0.5f),vec3(0,1,0),glm::vec2(1,1)),
+    Vertex(vec3(-0.5f, 0.0f,  0.5f),vec3(0,1,0),glm::vec2(0,1)),
   };
 
   indices =
@@ -639,7 +641,24 @@ void Object::loadPlane()
     0,2,1
   };
 
+  minPos = vec3(-0.5f, 0.0f, -0.5f);
+  maxPos = vec3(0.5f, 0.0f, 0.5f);
+
   initBuffers();
+}
+
+void Object::loadTexture(std::string location, Texture::Projector projector)
+{
+  return;
+  if (texture)
+    texture->changeTexture(location, projector);
+  else
+    texture = new Texture(location, projector);
+
+  for (Vertex& vertex : vertices)
+  {
+    vertex.uv = texture->generateUV(minPos, maxPos, vertex.position);
+  }
 }
 
 
@@ -665,8 +684,14 @@ void Object::draw()
   }
 
   glBindVertexArray(vao);
-
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &transform[0][0]);
+
+  // bind the texture
+  if (texture)
+  {
+    texture->bindTbo();
+    glUniform1i(glGetUniformLocation(shaderProgram_, "texSampler"), 0);
+  }
 
   glDrawElements(renderMode, indices.size() , GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
@@ -705,6 +730,10 @@ void Object::initBuffers()
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(float) * 3));
 
+  // texture
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(float) * 6));
+
   // unbind
   glBindVertexArray(0);
 
@@ -716,3 +745,92 @@ void Object::initBuffers()
 
 }
 
+Texture::Texture(std::string location, Projector projector) : projector_(projector)
+{
+  buffer_ = SOIL_load_image(location.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
+
+  initBuffer();
+}
+
+Texture::~Texture()
+{
+  glDeleteBuffers(1, &tbo_);
+}
+
+void Texture::changeTexture(std::string location, Projector projector)
+{
+  glDeleteBuffers(1, &tbo_);
+
+  buffer_ = SOIL_load_image(location.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
+
+  initBuffer();
+}
+
+void Texture::bindTbo()
+{
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, tbo_);
+}
+
+glm::vec2 Texture::generateUV(glm::vec3 lower, glm::vec3 upper, glm::vec3 point)
+{
+  glm::vec2 uv;
+  vec3 centroid = vec3(lower + upper) / 2.0f;
+
+  // translate centroid to the origin (and everyhting else by that amount)
+  point -= centroid;
+  lower -= centroid;
+  upper -= centroid;
+
+
+  if (projector_ == Projector::Cylindrical)
+  {
+    float theta = atan2f(point.x, point.y);
+    float z = (point.z - lower.z) / (upper.z - lower.z);
+    uv.x = theta / (2 * glm::pi<float>());
+    uv.y = z;
+  }
+
+  if (projector_ == Projector::Sphere)
+  {
+    float theta = atan2f(point.y, point.x);
+    float r = sqrtf(point.x * point.x + point.y * point.y + point.z * point.z);
+    float phi = acosf(point.z / r);
+    uv.x = theta / (2 * glm::pi<float>());
+    uv.y = (glm::pi<float>() - phi) / glm::pi<float>();
+  }
+
+  if (projector_ == Projector::Cube)
+  {
+  }
+
+  return uv;
+}
+
+void Texture::initBuffer()
+{
+  assert(buffer_ != nullptr);
+
+  glGenTextures(1, &tbo_);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, tbo_);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  int format = 0;
+  if (channels_ == 1)
+    format = GL_RED;
+  else if (channels_ == 3)
+    format = GL_RGB;
+  else if (channels_ == 4)
+    format = GL_RGBA;
+  glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format, GL_UNSIGNED_BYTE, buffer_);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  SOIL_free_image_data(buffer_);
+  buffer_ = nullptr;
+}

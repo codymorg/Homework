@@ -22,6 +22,8 @@
     <None Include="Source\fragmentShader.frag" />
     <None Include="Source\normalShader.frag" />
     <None Include="Source\passthroughShader.vert" />
+    <None Include="Source\PhongBlinn.frag" />
+    <None Include="Source\PhongBlinn.vert" />
     <None Include="Source\PhongDiffuse.vert" />
     <None Include="Source\PhongLighting.frag" />
     <None Include="Source\PhongLighting.vert" />
@@ -42,6 +44,7 @@
     <ClCompile Include="Source\ShaderManagement.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\SOIL\SOIL.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\imGui\imconfig.h" />
     <ClInclude Include="Source\imGui\imgui.h" />
@@ -108,7 +111,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>$(SolutionDir)Common\SOIL;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -118,6 +123,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>SOIL_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

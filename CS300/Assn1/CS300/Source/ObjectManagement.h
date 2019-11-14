@@ -28,10 +28,11 @@ End Header --------------------------------------------------------*/
 struct Vertex
 {
   Vertex(float x, float y, float z, float nx = 0, float ny = 0, float nz = 0);
-  Vertex(glm::vec3 pos, glm::vec3 norm);
+  Vertex(glm::vec3 pos, glm::vec3 norm, glm::vec2 uv = glm::vec2(0));
 
   glm::vec3 position;
   glm::vec3 normal;
+  glm::vec2 uv;
 };
 
 struct Line
@@ -52,6 +53,37 @@ struct MaterialData
   float padding_III = 0.123f;
 };
 
+class Texture
+{
+public:
+
+  enum class Projector
+  {
+    Cube,
+    Sphere,
+    Cylindrical
+  };
+  
+  Texture(std::string location, Projector projector = Projector::Sphere);
+  ~Texture();
+  void changeTexture(std::string location, Projector projector = Projector::Sphere);
+  void bindTbo();
+  glm::vec2 generateUV(glm::vec3 boundingBoxLower, glm::vec3 boundingBoxUpper, glm::vec3 point);
+
+private:
+
+  Projector projector_;
+  unsigned char* buffer_;
+  unsigned tbo_ = 0;
+  int width_;
+  int height_;
+  int channels_;
+  std::string location_;
+
+  void initBuffer();
+
+};
+
 class Object
 {
 public:
@@ -64,6 +96,7 @@ public:
   void loadSphere(float radius, int divisions);
   void loadcircle(float radius, int divisions);
   void loadPlane();
+  void loadTexture(std::string location, Texture::Projector projector = Texture::Projector::Sphere);
 
   // manipulation
   void translate(glm::vec3 translation);
@@ -142,6 +175,7 @@ public:
   unsigned lineVAO;
   unsigned lineVBO;
   int vectorColorLoc = -1;       // shader location of color
+  Texture* texture = nullptr;
 };
 
 class MaterialManager

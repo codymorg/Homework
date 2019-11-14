@@ -67,6 +67,8 @@ void Camera::update(ShaderManager& shaderManager)
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
     //glUniform3fv(cameraPosLoc, 1, glm::value_ptr(view[3]));
+    glUseProgram(0);
+
   }
 }
 

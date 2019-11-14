@@ -96,25 +96,20 @@ void Light::update()
 
 void LightManagement::genUBO(unsigned shaderProgram)
 {
-  glUseProgram(shaderProgram);
   glGenBuffers(1, &ubo);
   glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * lightMax, nullptr, GL_DYNAMIC_DRAW);
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
-
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * lightMax, nullptr, GL_STATIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-  
-
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
 }
 
 void LightManagement::updateUBO(vector<Light>& lights)
 {
   void* uboBuffer;
-  glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-  uboBuffer = glMapNamedBuffer(ubo, GL_READ_WRITE);
-  if (!uboBuffer)
-    return;
+  uboBuffer = glMapNamedBuffer(ubo, GL_WRITE_ONLY);
+
+  memset(uboBuffer, 0, sizeof(Light::LightData) * lightMax);
   for (unsigned i = 0; i < lights.size(); i++)
   {
     lights[i].lightData.position = vec4(lights[i].getPosition(), 1);
@@ -125,5 +120,4 @@ void LightManagement::updateUBO(vector<Light>& lights)
   }
 
   glUnmapNamedBuffer(ubo);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

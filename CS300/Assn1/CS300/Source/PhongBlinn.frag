@@ -70,14 +70,13 @@ vec3 PointLight(Light currentLight, vec3 viewV, bool isDirectional)
   float lightMagnitude = length(lightV);
   lightV = normalize(lightV);
 
-  vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
-
+  vec3 halfwayBlinn = (lightV + viewV) / (lightMagnitude + length(viewV));
   // ambient
   vec3 Iambient = ambient * matAmbient; // replace with material attributes
 
   // diffuse
   vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
-  vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
+  vec3 Ispecular = specular * matSpecular * pow(max(dot(normal, halfwayBlinn),0), 100*ns);
   
   // attenuation
   float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
@@ -127,7 +126,7 @@ vec3 SpotLight(Light currentLight, vec3 viewV)
   float lightMagnitude = length(lightV);
   lightV = normalize(lightV);
 
-  vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
+  vec3 halfwayBlinn = (lightV + viewV) / (lightMagnitude + length(viewV));
 
   // ambient
   vec3 Iambient = ambient * matAmbient;
@@ -143,7 +142,7 @@ vec3 SpotLight(Light currentLight, vec3 viewV)
 
   if(inInner == false && inOuter == true)
   {
-    vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
+    vec3 Ispecular = specular * matSpecular * pow(max(dot(normal, halfwayBlinn),0), ns);
   
     // attenuation
     float intensity = (cosOuter - currentLight.spot.y) / (currentLight.spot.x - currentLight.spot.y);
@@ -153,7 +152,7 @@ vec3 SpotLight(Light currentLight, vec3 viewV)
 
   else if(inInner)
   {
-    vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
+    vec3 Ispecular = specular * matSpecular * pow(max(dot(normal, halfwayBlinn),0), ns);
   
     // attenuation
     float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
@@ -180,7 +179,6 @@ void main()
   if(length(objColor) > 0)
   {
     fragColor = objColor;
-    fragColor = vec3(1,0,0);
   }
   // phong shading
   else
@@ -200,6 +198,7 @@ void main()
       {
         bool isDirectional = lights[i].type == 1;
         fragColor += PointLight(lights[i], viewV, isDirectional);
+
       }
 
       //spot

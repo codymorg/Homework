@@ -65,6 +65,8 @@ static int circleRadius = 4;
 static int selectedType = 0;
 static int selectedSpotAngles[2]; // degrees
 static float selectedDirection[2];
+static int selectedScene = 0;
+static int currentScene = 0;
 
 
 // object relates
@@ -306,6 +308,39 @@ void GenerateLightRing()
 
 }
 
+void LoadScene0()
+{
+  GenerateLightRing();
+}
+void LoadScene1()
+{
+  for (Light& light : lights)
+  {
+    vec3 randColor = vec3((rand() % 99 + 1) / 100.0f, (rand() % 99 + 1) / 100.0f, (rand() % 99 + 1) / 100.0f);
+    light.setColor(randColor);
+    light.lightData.type = 2;
+    light.lightData.direction = vec3(0, 0, -1);
+  }
+}
+void LoadScene2()
+{
+  for (Light& light : lights)
+  {
+    vec3 randColor = vec3((rand() % 99 + 1) / 100.0f, (rand() % 99 + 1) / 100.0f, (rand() % 99 + 1) / 100.0f);
+    light.setColor(randColor);
+    light.lightData.type = rand() % 3;
+    light.lightData.direction = vec3(0, 0, -1);
+  }
+}
+
+typedef void(*Scenario)();
+Scenario scenes[] =
+{
+  LoadScene0,
+  LoadScene1,
+  LoadScene2
+};
+
 void GenerateScene(ShaderManager& shaderManager)
 {
   int phongLightingSP = shaderManager.getShader(ShaderType::PhongLighting);
@@ -332,7 +367,7 @@ void GenerateScene(ShaderManager& shaderManager)
   objects.push_back(circle);
 
   // load out floor
-  Object floor(phongLightingSP, "floor");
+  Object floor(phongShadingSP, "floor");
   floor.loadPlane();
   floor.translate(vec3(0, -1, -2));
   floor.addScale(vec3(10));
@@ -415,7 +450,8 @@ void UpdateGUI()
   const char* shaders[] =
   {
     "PhongLighting",
-    "PhongShading"
+    "PhongShading",
+    "PhongBlinn"
   };
 
   const char* lightType[] =
@@ -437,21 +473,28 @@ void UpdateGUI()
   ImGui::Text("Selected Object");
   ImGui::SliderInt(objects[selectedObject].name.c_str(), &selectedObject, 0, objects.size() - 1);
   ImGui::SliderInt("Light", &selectedLight, 0, lights.size() - 1);
+  ImGui::RadioButton("Scene 1", &selectedScene, 0); ImGui::SameLine();
+  ImGui::RadioButton("Scene 2", &selectedScene, 1); ImGui::SameLine();
+  ImGui::RadioButton("Scene 3", &selectedScene, 2);
+
 
   bool changeModel = ImGui::ListBox("Model Selection", &selectedModel, files, _countof(files));
   bool changeColor = ImGui::ColorEdit3("Selected Object Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
   bool changeLightColor = ImGui::ColorEdit3("Selected light Color", selectedColor, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB);
-  //bool changeLightCount = ImGui::SliderInt("Light", &ballCount, 0, MAX_LIGHTS);
+  bool changeLightCount = ImGui::SliderInt("Light", &ballCount, 1, MAX_LIGHTS);
   bool changeLightType = ImGui::ListBox("Change type of selected light", &selectedType, lightType, _countof(lightType));
   bool changeSpotAngle = ImGui::SliderInt2("Inner and Outer angles of spotlight", selectedSpotAngles, 0, 180);
   bool changeDirectionalLight = ImGui::SliderFloat2("Direction of light for Directional and Spot", selectedDirection, -1, 1, "%.1f");
-  bool addlight = ImGui::Button("Add light");
-  bool removelight = ImGui::Button("remove light");
   bool changeShader = ImGui::ListBox("Shader Selection", &selectedShader, shaders, _countof(shaders));
   bool recompileShader = ImGui::Button("Recompile Shaders");
 
   ImGui::End();
 
+  if (currentScene != selectedScene)
+  {
+    scenes[selectedScene]();
+    currentScene = selectedScene;
+  }
   if (changeDirectionalLight)
   {
      lights[selectedLight].lightData.direction = vec3(selectedDirection[0], selectedDirection[1], lights[selectedLight].lightData.direction.z);
@@ -467,26 +510,21 @@ void UpdateGUI()
   {
     lights[selectedLight].lightData.type = selectedType;
   }
-  if (addlight)
+  if (changeLightCount)
   {
-    ballCount = (ballCount + 1) % MAX_LIGHTS;
     GenerateLightRing();
   }
-  if (removelight)
-  {
-    ballCount = abs(ballCount - 1);
-    GenerateLightRing();
-  }
-  /*if (changeLightCount)
-  {
-    GenerateLightRing();
-  }*/
 
   if (changeShader)
   {
-    ShaderType type = ShaderType::PhongLighting;
-    if (selectedShader == 1)
+    ShaderType type = ShaderType::TypeCount;
+
+    if (selectedShader == 0)
+      type = ShaderType::PhongLighting;
+    else if (selectedShader == 1)
       type = ShaderType::PhongShading;
+    else if (selectedShader == 2)
+      type = ShaderType::PhongBlinn;
 
     objects[selectedObject].setShader(shaderManager.getShader(type));
 
@@ -523,8 +561,13 @@ void window_size_callback(GLFWwindow* window, int width, int height)
    glViewport(0, 0, display_w, display_h);
 }
 
+// Use NVIDIA on laptops
+extern "C" {
+  _declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
+}
 int main()
 {
+
   // make a window
   GLFWwindow* window = nullptr;
   if (WindowInit(1600 , 1200 , 4, 0, &window) == false)
@@ -546,13 +589,11 @@ int main()
   int phongLightingSP = shaderManager.addShader("Source/PhongLighting.vert", "Source/PhongLighting.frag", ShaderType::PhongLighting);
   shaderManager.addShader("Source/PhongDiffuse.vert", "Source/PhongLighting.frag", ShaderType::Diffuse);
   int phongShadingSP = shaderManager.addShader("Source/PhongShading.vert", "Source/PhongShading.frag", ShaderType::PhongShading);
-
+  shaderManager.addShader("Source/PhongBlinn.vert", "Source/PhongBlinn.frag", ShaderType::PhongBlinn);
   camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), phongLightingSP);
   GetLightManager()->genUBO(phongLightingSP);
   materials = new MaterialManager;
   materials->genUBO(phongLightingSP);
-
-
 
   GenerateScene(shaderManager);
 

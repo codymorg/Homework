@@ -48,6 +48,12 @@
     <None Include="Source\PhongShading.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="Source\PhongBlinn.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="Source\PhongBlinn.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Camera.cpp">
@@ -116,6 +122,9 @@
       <Filter>Source Files\imGUI</Filter>
     </ClInclude>
     <ClInclude Include="Source\ShaderManagement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\SOIL\SOIL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
