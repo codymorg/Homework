@@ -2,6 +2,10 @@
 #define MAX_LIGHTS 16
 
 uniform vec3 objColor;      // for lines
+uniform int hasTexture;
+uniform sampler2D texSampler;
+uniform sampler2D texSampler2;
+
 
 // material data
 layout (std140, binding = 1) uniform material
@@ -37,6 +41,7 @@ in mat4 viewTrans;
 in vec3 vertPosView;
 in vec3 normal;
 in vec3 overRideColor;
+in vec2 texCoord;
 
 out vec3 fragColor;
 
@@ -54,6 +59,20 @@ vec3 PointLight(Light currentLight, vec3 viewV, bool isDirectional)
   float ns         = currentLight.ns_; 
   vec3 emissive    = currentLight.emissive_;
   vec3 attenuation = currentLight.attenuation_;
+
+  vec3 texMatDiff = matDiffuse;
+  vec3 texMatSpec = matSpecular;
+
+  // textured diffuse
+  if(hasTexture == 1)
+    texMatDiff = texture( texSampler, texCoord ).rgb;
+
+  if(hasTexture == 1)
+  {
+    texMatSpec = texture( texSampler2, texCoord ).rgb;
+    texMatSpec.y = texMatSpec.x;
+    texMatSpec.z = texMatSpec.x;
+  }
 
   // view space conversion
   vec3 lightPosView =   (viewTrans * vec4(lightPos, 1)).xyz;
@@ -76,8 +95,8 @@ vec3 PointLight(Light currentLight, vec3 viewV, bool isDirectional)
   vec3 Iambient = ambient * matAmbient; // replace with material attributes
 
   // diffuse
-  vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
-  vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
+  vec3 Idiffuse = diffuse * texMatDiff * max(dot(normal,lightV),0);
+  vec3 Ispecular = specular * texMatSpec * pow(max(dot(reflection, viewV),0), ns);
   
   // attenuation
   float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
@@ -113,6 +132,11 @@ vec3 SpotLight(Light currentLight, vec3 viewV)
   vec3 lightPos    = currentLight.lightPos_;
   vec3 ambient     = currentLight.ambient_;
   vec3 diffuse     = currentLight.diffuse_;
+
+    // textured diffuse
+  if(hasTexture == 1)
+    diffuse = texture( texSampler, texCoord ).rgb;
+
   vec3 specular    = currentLight.specular_;
   float ns         = currentLight.ns_; 
   vec3 emissive    = currentLight.emissive_;

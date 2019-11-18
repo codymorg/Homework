@@ -12,6 +12,8 @@ uniform vec3 cameraPos;
 uniform vec3 objColor;      // for lines 
 
 uniform int hasTexture = 0;
+uniform sampler2D texSampler2;
+
 
 // material data
 layout (std140, binding = 1) uniform material
@@ -48,9 +50,13 @@ out vec2 texCoord;
 
 void main()
 {
+  vec3 texMatSpecular;
   if(hasTexture == 1)
   {
     texCoord = vertUV;
+    texMatSpecular = texture(texSampler2, vertUV).xyz;
+    texMatSpecular.y +=texMatSpecular.x;
+    texMatSpecular.z +=texMatSpecular.x;
   }
   else
   {
@@ -105,7 +111,7 @@ void main()
 
 
       // specular
-      vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
+      vec3 Ispecular = specular * texMatSpecular * pow(max(dot(reflection, viewV),0), ns);
 
   
       // attenuation

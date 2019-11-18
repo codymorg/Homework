@@ -65,24 +65,31 @@ public:
   };
   
   Texture();
-  Texture(std::string location, Projector projector = Projector::Sphere);
+  Texture(std::string location, std::string location2, Projector projector = Projector::Sphere);
   ~Texture();
 
+  
   std::string getLocation() { return location_; };
+  std::string getLocation2() { return location2_; };
+
   unsigned getTBO() { return tbo_; };
 
   glm::vec2 generateUV(glm::vec3 boundingBoxLower, glm::vec3 boundingBoxUpper, glm::vec3 point);
 
   int texSamplerLoc = -1;
+  int texSamplerLoc2 = -1;
   bool isValid = false;
+  unsigned tbo2_ = 0;
 private:
 
   Projector projector_;
   unsigned tbo_ = 0;
+
   int width_;
   int height_;
   int channels_;
   std::string location_;
+  std::string location2_;
 
 };
 
@@ -98,7 +105,7 @@ public:
   void loadSphere(float radius, int divisions);
   void loadcircle(float radius, int divisions);
   void loadPlane();
-  void loadTexture(std::string location, Texture::Projector projector = Texture::Projector::Sphere);
+  void loadTexture(std::string location, std::string location2, Texture::Projector projector = Texture::Projector::Sphere);
 
   // manipulation
   void translate(glm::vec3 translation);

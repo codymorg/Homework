@@ -648,10 +648,12 @@ void Object::loadPlane()
   initBuffers();
 }
 
-void Object::loadTexture(std::string location, Texture::Projector projector)
+void Object::loadTexture(std::string location, string location2, Texture::Projector projector)
 {
-  texture = Texture(location, projector);
+  texture = Texture(location, location2, projector);
   texture.texSamplerLoc = glGetUniformLocation(shaderProgram_, "texSampler");
+  texture.texSamplerLoc2 = glGetUniformLocation(shaderProgram_, "texSampler2");
+
   glUniform1i(hasTextureLoc, 1);
 
   for (Vertex& vertex : vertices)
@@ -742,7 +744,8 @@ Texture::Texture(): location_("none")
 {
 }
 
-Texture::Texture(std::string location, Projector projector) : projector_(projector), location_(location)
+Texture::Texture(std::string location, string location2, Projector projector) : 
+  projector_(projector), location_(location), location2_(location2)
 {
   isValid = true;
   unsigned char* buffer = SOIL_load_image(location.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
@@ -764,6 +767,29 @@ Texture::Texture(std::string location, Projector projector) : projector_(project
   else if (channels_ == 4)
     format = GL_RGBA;
   glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format, GL_UNSIGNED_BYTE, buffer);
+  glGenerateMipmap(GL_TEXTURE_2D);
+  SOIL_free_image_data(buffer);
+
+  // spec image 
+  buffer = SOIL_load_image(location2.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
+
+  glGenTextures(1, &tbo2_);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, tbo2_);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  format = 0;
+  if (channels_ == 1)
+    format = GL_RED;
+  else if (channels_ == 3)
+    format = GL_RGB;
+  else if (channels_ == 4)
+    format = GL_RGBA;
+  glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format, GL_UNSIGNED_BYTE, buffer);
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -772,8 +798,6 @@ Texture::Texture(std::string location, Projector projector) : projector_(project
 
 Texture::~Texture()
 {
-  //glDeleteBuffers(1, &tbo_);
-  cout << "deleting\n";
 }
 
 

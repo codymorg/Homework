@@ -2,6 +2,9 @@
 #define MAX_LIGHTS 16
 
 uniform vec3 objColor;      // for lines
+uniform int hasTexture;
+uniform sampler2D texSampler;
+
 
 // material data
 layout (std140, binding = 1) uniform material
@@ -37,6 +40,7 @@ in mat4 viewTrans;
 in vec3 vertPosView;
 in vec3 normal;
 in vec3 overRideColor;
+in vec2 texCoord;
 
 out vec3 fragColor;
 
@@ -50,6 +54,11 @@ vec3 PointLight(Light currentLight, vec3 viewV, bool isDirectional)
   vec3 lightPos    = currentLight.lightPos_;
   vec3 ambient     = currentLight.ambient_;
   vec3 diffuse     = currentLight.diffuse_;
+
+    // textured diffuse
+  if(hasTexture == 1)
+    diffuse = texture( texSampler, texCoord ).rgb;
+
   vec3 specular    = currentLight.specular_;
   float ns         = currentLight.ns_; 
   vec3 emissive    = currentLight.emissive_;

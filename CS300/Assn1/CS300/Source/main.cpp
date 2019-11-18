@@ -67,6 +67,7 @@ static int selectedSpotAngles[2]; // degrees
 static float selectedDirection[2];
 static int selectedScene = 0;
 static int currentScene = 0;
+static int currentProjector = 0;
 
 
 // object relates
@@ -168,14 +169,6 @@ void ProcessInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
       lights[selectedLight].translate(moveStr * forward);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
-      lights[selectedLight].translate(moveStr * left);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-      lights[selectedLight].translate(moveStr * right);
     }
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
     {
@@ -288,6 +281,10 @@ void Render(GLFWwindow* window, Camera& camera)
       glBindTexture(GL_TEXTURE_2D, object.texture.getTBO());
       glUniform1i(object.hasTextureLoc, 1);
       glUniform1i(object.texture.texSamplerLoc, 0);
+
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, object.texture.tbo2_);
+      glUniform1i(object.texture.texSamplerLoc2, 1);
     }
 
     // turn off texturing stuff in shaders
@@ -368,7 +365,7 @@ void GenerateScene(ShaderManager& shaderManager)
   center.material.diffuse = vec3(.9f);
   center.material.ambient = vec3(6/256.0f);
   center.genFaceNormals();
-  center.loadTexture("Common/textures/metalRoofDiff.png");
+  center.loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
 
   objects.push_back(center);
 
@@ -477,6 +474,13 @@ void UpdateGUI()
     "Spot"
   };
 
+  const char* projectorTypes[] =
+  {
+	"Spherical",
+	"Cylindrical",
+	"Cubic"
+  };
+
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -503,6 +507,7 @@ void UpdateGUI()
   bool changeDirectionalLight = ImGui::SliderFloat2("Direction of light for Directional and Spot", selectedDirection, -1, 1, "%.1f");
   bool changeShader = ImGui::ListBox("Shader Selection", &selectedShader, shaders, _countof(shaders));
   bool recompileShader = ImGui::Button("Recompile Shaders");
+  bool changeProjector = ImGui::ListBox("Projector Type Selection", &currentProjector, projectorTypes, _countof(projectorTypes));
 
   ImGui::End();
 
@@ -551,7 +556,7 @@ void UpdateGUI()
   }
 
 
-  if (changeModel)
+  if (changeModel || changeProjector)
   {
     string fileName = "Common/models/";
     fileName += files[selectedModel];
@@ -559,9 +564,17 @@ void UpdateGUI()
     objects[oID].loadOBJ(fileName);
     if (objects[oID].texture.isValid)
     {
-      objects[oID].loadTexture(objects[oID].texture.getLocation());
+		Texture::Projector project;
+		if (currentProjector == 0)
+			project = Texture::Projector::Sphere;
+
+		if (currentProjector > 0)
+			project = Texture::Projector::Cylindrical;
+
+      objects[oID].loadTexture(objects[oID].texture.getLocation(), objects[oID].texture.getLocation2(), project);
     }
   }
+
   if (changeColor)
   {
     objects[selectedObject].material.ambient = vec3(selectedColor[0], selectedColor[1], selectedColor[2]);
@@ -608,7 +621,6 @@ int main()
 
   //setup all shaders
   int phongLightingSP = shaderManager.addShader("Source/PhongLighting.vert", "Source/PhongLighting.frag", ShaderType::PhongLighting);
-  shaderManager.addShader("Source/PhongDiffuse.vert", "Source/PhongLighting.frag", ShaderType::Diffuse);
   int phongShadingSP = shaderManager.addShader("Source/PhongShading.vert", "Source/PhongShading.frag", ShaderType::PhongShading);
   shaderManager.addShader("Source/PhongBlinn.vert", "Source/PhongBlinn.frag", ShaderType::PhongBlinn);
   camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), phongLightingSP);

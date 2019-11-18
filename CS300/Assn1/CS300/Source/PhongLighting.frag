@@ -14,6 +14,7 @@ End Header --------------------------------------------------------*/
 #version 430 core
 
 uniform sampler2D texSampler;
+uniform int hasTexture;
 
 in vec3 color;
 in vec2 texCoord;
@@ -22,9 +23,9 @@ out vec3 fragColor;
 
 void main()
 {
-  if(texCoord.x >= 0)
+  if(hasTexture == 1)
   {
-    fragColor = texture( texSampler, texCoord ).rgb;
+    fragColor = mix(texture( texSampler, texCoord ).rgb,color,0.5);
   }
   else
   {

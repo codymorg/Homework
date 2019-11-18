@@ -9,14 +9,14 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 cameraPos;
-uniform sampler2D texSampler;
-
+uniform int hasTexture;
 
 
 out mat4 viewModel;
 out mat4 viewTrans;
 out vec3 vertPosView;
 out vec3 normal;
+out vec2 texCoord;
 
 
 void main()
@@ -25,6 +25,15 @@ void main()
   viewTrans = view;
 
   gl_Position = projection * viewModel * vec4(vertPos,1.0f);
+  
+  if(hasTexture == 1)
+  {
+    texCoord = vertUV;
+  }
+  else
+  {
+    texCoord = vec2(-1);
+  }
 
   // view space conversion
   vertPosView =    (viewModel * vec4(vertPos, 1)).xyz;
