@@ -91,7 +91,7 @@ int main(int argc, const char* argv[])
 
 
     // print response
-    for (int i = 0; i < messageSize; i++)
+    for (int i = 0; i < messageSize ; i++)
     {
         cout << buffer[i];
     }
