@@ -26,6 +26,7 @@
   #include <sys/ioctl.h>
   #include <string.h>
   #include <stdio.h>
+  #include <string.h>
 #endif
 
 #ifdef WIN32

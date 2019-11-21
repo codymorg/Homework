@@ -42,3 +42,5 @@
 *.o
 /CS260/assn1/.vs/CS260Solution/v16
 /CS260/assn1/x64
+/CS260/assn2/x64
+/CS260/assn2/CS260

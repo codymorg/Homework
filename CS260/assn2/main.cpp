@@ -18,7 +18,7 @@
   using std::string;
 
 #ifndef _WIN32
-  #define _DEBUG
+ // #define _DEBUG
 #endif
 
 #ifdef _DEBUG
@@ -127,7 +127,7 @@ public:
     int bytes = ReceiveData();
     if (bytes < 0) 
     {
-      cout << ".";
+      COUT << ".";
       fflush(0);
       SleepWrapper(100);
     }
@@ -180,7 +180,7 @@ public:
     }
 
     //connect to address
-    COUT << "[Connecting]\n";
+    COUT << "[Connecting to " << ip <<"]\n";
     #ifdef _WIN32
       do
       {
@@ -195,7 +195,7 @@ public:
       } while (errno == EAGAIN || errno == EWOULDBLOCK);
     #endif
 
-    COUT << "\n[Connected]\n";
+    COUT << "\n[Sucessfully connected to " << ip <<"]\n";
   };
 
   int SendData(const string& data)
@@ -206,6 +206,9 @@ public:
 
     // keep sending until the OS takes it all
     COUT << "\n[Sending]\n...\n";
+    COUT << ">>\n";
+    COUT << data << "\n<<\n";
+
     while (bytesToSend)
     {
       sentBytes = int(send(sock_, currentData, bytesToSend, 0));
@@ -232,7 +235,7 @@ public:
     if (!buffer_)
       buffer_ = (char*)calloc(maxBytes_, 1);
 
-    int bytes = int(recv(sock_, buffer_, 5, 0));
+    int bytes = int(recv(sock_, buffer_, maxBytes_, 0));
     receiveBuffer += buffer_;
     memset(buffer_, 0, maxBytes_);
     
@@ -242,10 +245,11 @@ public:
 
   void EndConnection()
   {
+    COUT << "[Ending Connection]\n";
 #ifdef _WIN32
-      closesocket(sock_);
+    closesocket(sock_);
 #else
-      close(sock_);
+    close(sock_);
 #endif
   };
 
@@ -296,6 +300,18 @@ string ParseAddress(const char* address)
   return hostName;
 }
 
+void Print_HTTP_Page(const string& response)
+{
+  int size = int(response.size());
+  int beginI = int(response.find("Content-Length: ") + strlen("Content-Length: "));
+  int endI = int(response.find("\n", beginI));
+  int messageLength = int(std::stoi(response.substr(beginI, endI)));
+  if (size - messageLength > size || size - messageLength < 0)
+    cout << "[Error : Invalid Message Length]";
+  else
+    cout << response.substr(size - messageLength);
+}
+
 int main(int argc, const char* argv[])
 {
   bool initOK = Init();
@@ -306,16 +322,22 @@ int main(int argc, const char* argv[])
   }
 
   string hostName = ParseAddress(argv[1]);
-  COUT << "Host : " << hostName << " Received\n";
 
   try
   {
-    string arg(argv[0]);
-    TCPconnection tcp(hostName, 80, arg);
+    string data = 
+      "GET / HTTP/1.1\r\n"
+      "host: " + hostName + "\r\n"
+      "\r\n";
 
+    TCPconnection tcp(hostName, 80, data);
+
+    COUT << "[Listening]\n";
     while (tcp.Update());
 
-    cout << "\n" << tcp.receiveBuffer << "\n";
+    //cout << "\n" << tcp.receiveBuffer << "\n";
+    Print_HTTP_Page(tcp.receiveBuffer);
+    tcp.EndConnection();
   }
   catch (TCPconnection::UnrecoverableError exception)
   {
