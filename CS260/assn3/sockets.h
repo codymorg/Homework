@@ -1,7 +1,7 @@
 /******************************************************************************
 *   Name : Cody Morgan
 *   Class: CS260
-*   Assn : 2
+*   Assn : 3
 *   Date : 11 NOV 2019
 *   Brief: hold all the linux babbles
 *
@@ -26,6 +26,7 @@
   #include <sys/ioctl.h>
   #include <string.h>
   #include <stdio.h>
+  #include <string.h>
 #endif
 
 #ifdef WIN32

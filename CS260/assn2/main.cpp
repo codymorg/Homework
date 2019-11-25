@@ -1,13 +1,12 @@
 /******************************************************************************
 *   Name : Cody Morgan
 *   Class: CS260
-*   Assn : 2
+*   Assn : 3
 *   Date : 11 NOV 2019
 *   Brief: send a TCP packet to a known server
 *
 ******************************************************************************/
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "sockets.h"
 
 #include <exception>
@@ -16,10 +15,6 @@
   using std::cout;
 #include <string>
   using std::string;
-
-#ifndef _WIN32
- // #define _DEBUG
-#endif
 
 #ifdef _DEBUG
 #define COUT if(true) cout
@@ -74,16 +69,11 @@ public:
     string errorMessage;
   };
 
-  TCPconnection(const string& hostName, unsigned port, const string& data = "")
+  TCPconnection(const string& ip, unsigned port, const string& data = "")
   {
     CreateTCP();
-
-    // convert name to ip via dna
-    hostent* host = gethostbyname(hostName.c_str());
-    char* ip = inet_ntoa(*((struct in_addr*)host->h_addr_list[0]));
-    
     ConnectRemote(ip, port);
-    
+
     if (!data.empty())
       SendData(data);
   }
@@ -127,7 +117,7 @@ public:
     int bytes = ReceiveData();
     if (bytes < 0) 
     {
-      COUT << ".";
+      cout << ".";
       fflush(0);
       SleepWrapper(100);
     }
@@ -180,7 +170,7 @@ public:
     }
 
     //connect to address
-    COUT << "[Connecting to " << ip <<"]\n";
+    COUT << "[Connecting]\n";
     #ifdef _WIN32
       do
       {
@@ -195,7 +185,7 @@ public:
       } while (errno == EAGAIN || errno == EWOULDBLOCK);
     #endif
 
-    COUT << "\n[Sucessfully connected to " << ip <<"]\n";
+    COUT << "\n[Connected]\n";
   };
 
   int SendData(const string& data)
@@ -206,9 +196,6 @@ public:
 
     // keep sending until the OS takes it all
     COUT << "\n[Sending]\n...\n";
-    COUT << ">>\n";
-    COUT << data << "\n<<\n";
-
     while (bytesToSend)
     {
       sentBytes = int(send(sock_, currentData, bytesToSend, 0));
@@ -235,7 +222,7 @@ public:
     if (!buffer_)
       buffer_ = (char*)calloc(maxBytes_, 1);
 
-    int bytes = int(recv(sock_, buffer_, maxBytes_, 0));
+    int bytes = int(recv(sock_, buffer_, 5, 0));
     receiveBuffer += buffer_;
     memset(buffer_, 0, maxBytes_);
     
@@ -245,11 +232,10 @@ public:
 
   void EndConnection()
   {
-    COUT << "[Ending Connection]\n";
 #ifdef _WIN32
-    closesocket(sock_);
+      closesocket(sock_);
 #else
-    close(sock_);
+      close(sock_);
 #endif
   };
 
@@ -266,78 +252,20 @@ private:
   int ttl_                  = 5000;   // in ms
 };
 
-string ParseAddress(const char* address)
-{
-  volatile unsigned u = 0;
-  string hostName;
-  int slashCount = 0;
-
-  // determine if there is "https:// before the address
-  for (u; u < 8; u++)
-  {
-    if (address[u] == '\0')
-      break;
-
-    // there must be https://
-    if (address[u] == ':')
-    {
-      slashCount+=2;
-      u += 3; // "://"
-      break;
-    }
-  }
-
-  // no prefix found - start copying from the beginning
-  if (slashCount == 0)
-    u = 0;
-
-  // copy all host name
-  while (address[u] != '\0' && address[u] != '/')
-  {
-    hostName += address[u++];
-  }
-
-  return hostName;
-}
-
-void Print_HTTP_Page(const string& response)
-{
-  int size = int(response.size());
-  int beginI = int(response.find("Content-Length: ") + strlen("Content-Length: "));
-  int endI = int(response.find("\n", beginI));
-  int messageLength = int(std::stoi(response.substr(beginI, endI)));
-  if (size - messageLength > size || size - messageLength < 0)
-    cout << "[Error : Invalid Message Length]";
-  else
-    cout << response.substr(size - messageLength);
-}
-
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
   bool initOK = Init();
-  if (!initOK || argc < 2)
-  {
-    cout << "\n ERROR : No host name specified\n\n";
+  if (!initOK || argc > 2)
     return -1;
-  }
-
-  string hostName = ParseAddress(argv[1]);
 
   try
   {
-    string data = 
-      "GET / HTTP/1.1\r\n"
-      "host: " + hostName + "\r\n"
-      "\r\n";
+    string arg(argv[0]);
+    TCPconnection tcp("54.190.216.85", 8888, arg);
 
-    TCPconnection tcp(hostName, 80, data);
-
-    COUT << "[Listening]\n";
     while (tcp.Update());
 
-    //cout << "\n" << tcp.receiveBuffer << "\n";
-    Print_HTTP_Page(tcp.receiveBuffer);
-    tcp.EndConnection();
+    cout << "\n" << tcp.receiveBuffer << "\n";
   }
   catch (TCPconnection::UnrecoverableError exception)
   {
