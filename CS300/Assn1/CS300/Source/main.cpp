@@ -42,7 +42,7 @@ using std::vector;
 #include "Light.h"
 
 // scene relates
-static vector<Object> objects;
+static vector<Object*> objects;
 static vector<Light> lights;
 static Camera* camera;
 
@@ -73,7 +73,6 @@ static int currentProjector = 0;
 // object relates
 static ShaderManager shaderManager;
 static MaterialManager* materials;
-
 
 int FindObject(string name);
 
@@ -156,23 +155,31 @@ void ProcessInput(GLFWwindow* window)
     float moveStr = 0.1f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-      lights[selectedLight].translate(moveStr * up);
+      objects[FindObject("skybox")]->translate(moveStr * up);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+      objects[FindObject("skybox")]->translate(moveStr * right);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+      objects[FindObject("skybox")]->translate(moveStr * left);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-      lights[selectedLight].translate(moveStr * down);
+      objects[FindObject("skybox")]->translate(moveStr * down);
     }
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
     {
-      lights[selectedLight].translate(moveStr * back);
+      objects[FindObject("skybox")]->translate(moveStr * back);
     }
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
-      lights[selectedLight].translate(moveStr * forward);
+      objects[FindObject("skybox")]->translate(moveStr * forward);
     }
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
     {
-      objects[0].spin(.5, up);
+      objects[selectedObject]->spin(.5, up);
     }
 
     float cameraScale = 0.1;
@@ -263,38 +270,69 @@ void Render(GLFWwindow* window, Camera& camera)
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  // draw the skybox
+  Skybox* skybox = dynamic_cast<Skybox*>(objects[2]);
+  if (skybox != nullptr)
+  {
+    int tt = shaderManager.getCurrentBound();
+
+    glUseProgram(skybox->shaderProgram_);
+    int t = shaderManager.getCurrentBound();
+
+    glDisable(GL_DEPTH_TEST);
+
+    int textureNumber = 0;
+    for (Texture& thisTexture : skybox->textures)
+    {
+      glActiveTexture(GL_TEXTURE0 + textureNumber);
+      glBindTexture(GL_TEXTURE_2D, thisTexture.getTBO());
+      glUniform1i(skybox->hasTextureLoc, 1);
+      glUniform1i(thisTexture.texSamplerLoc, textureNumber);
+      textureNumber++;
+
+      objects[2]->draw();
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    glUseProgram(0);
+  }
+  int tt = shaderManager.getCurrentBound();
+
+  glUseProgram(lights[0].getShader());
+  int t = shaderManager.getCurrentBound();
   GetLightManager()->updateUBO(lights);
   for (Light& light : lights)
   {
     light.update();
   }
   camera.update(shaderManager);
-  for (Object& object : objects)
+  for (int i = objects.size()-2; i >= 0; i--)
   {
-    glUseProgram(object.shaderProgram_);
-    materials->updateUBO(object.material);
+    Object* object = objects[i];
+    glUseProgram(object->shaderProgram_);
+    materials->updateUBO(object->material);
+
 
     //textured
-    if (object.texture.isValid)
+    if (object->texture.isValid)
     {
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, object.texture.getTBO());
-      glUniform1i(object.hasTextureLoc, 1);
-      glUniform1i(object.texture.texSamplerLoc, 0);
-
-      glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, object.texture.tbo2_);
-      glUniform1i(object.texture.texSamplerLoc2, 1);
+      glBindTexture(GL_TEXTURE_2D, object->texture.getTBO());
+      glUniform1i(object->hasTextureLoc, 1);
+      glUniform1i(object->texture.texSamplerLoc, 0);
     }
 
     // turn off texturing stuff in shaders
     else
     {
-      glUniform1i(object.hasTextureLoc, 0);
+      glUniform1i(object->hasTextureLoc, 0);
     }
 
-    object.draw();
+    object->draw();
+    //glUniform1i(object->texture.texSamplerLoc, 0);
+    
   }
+
   glUseProgram(0);
 }
 
@@ -360,34 +398,33 @@ void GenerateScene(ShaderManager& shaderManager)
   int phongShadingSP = shaderManager.getShader(ShaderType::PhongShading);
   
   // generate out God object
-  Object center(phongLightingSP, "OBJ model");
-  center.loadOBJ("Common/models/sphere.obj");
-  center.material.diffuse = vec3(.9f);
-  center.material.ambient = vec3(6/256.0f);
-  center.genFaceNormals();
-  center.loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
-
+  Object* center = new Object(phongShadingSP, "OBJ model");
+  center->loadOBJ("Common/models/4sphere.obj");
+  center->material.diffuse = vec3(.9f);
+  center->material.ambient = vec3(6/256.0f);
+  center->genFaceNormals();
+  center->loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
+  center->initReflection(*camera);
+  center->captureReflection();
   objects.push_back(center);
 
   // generate a bunch of lights
   GenerateLightRing();
   
   // keep the orbit tracker
-  Object circle(phongLightingSP, "circle");
-  circle.loadcircle(circleRadius, 45);
-  circle.material.diffuse = vec3(1);
-  circle.material.ambient = vec3(1);
-
+  Object* circle = new Object(phongLightingSP, "circle");
+  circle->loadcircle(circleRadius, 45);
+  circle->material.diffuse = vec3(1);
+  circle->material.ambient = vec3(1);
   objects.push_back(circle);
 
-  // load out floor
-  Object floor(phongShadingSP, "floor");
-  floor.loadPlane();
-  floor.translate(vec3(0, -1, -2));
-  floor.addScale(vec3(10));
-  floor.material.diffuse = vec3(1);
-  floor.material.ambient = vec3(1);
-  objects.push_back(floor);
+  // skybox
+  Skybox* skybox = new Skybox(shaderManager.getShader(ShaderType::Skybox),"Common/textures/skybox/");
+  skybox->material.diffuse = vec3(.9f);
+  skybox->material.ambient = vec3(6 / 256.0f);
+  skybox->genFaceNormals();
+  objects.push_back(skybox);
+
 }
 
 void UpdateScene(GLFWwindow* window)
@@ -410,6 +447,10 @@ void UpdateScene(GLFWwindow* window)
 
 void ShutdownScene()
 {
+  for (Object* obj : objects)
+  {
+    delete obj;
+  }
   lights.clear();
   objects.clear();
   camera->reset();
@@ -419,7 +460,7 @@ int FindObject(string name)
 {
   for (int i = 0; i < objects.size(); i++)
   {
-    if (objects[i].name.find(name) != string::npos)
+    if (objects[i]->name.find(name) != string::npos)
     {
       return i;
     }
@@ -476,9 +517,9 @@ void UpdateGUI()
 
   const char* projectorTypes[] =
   {
+	"Cubic",
 	"Spherical",
 	"Cylindrical",
-	"Cubic"
   };
 
   // Start the Dear ImGui frame
@@ -491,7 +532,7 @@ void UpdateGUI()
   // normal stuff
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
   ImGui::Text("Selected Object");
-  ImGui::SliderInt(objects[selectedObject].name.c_str(), &selectedObject, 0, objects.size() - 1);
+  ImGui::SliderInt(objects[selectedObject]->name.c_str(), &selectedObject, 0, objects.size() - 1);
   ImGui::SliderInt("Light", &selectedLight, 0, lights.size() - 1);
   ImGui::RadioButton("Scene 1", &selectedScene, 0); ImGui::SameLine();
   ImGui::RadioButton("Scene 2", &selectedScene, 1); ImGui::SameLine();
@@ -505,7 +546,7 @@ void UpdateGUI()
   bool changeLightType = ImGui::ListBox("Change type of selected light", &selectedType, lightType, _countof(lightType));
   bool changeSpotAngle = ImGui::SliderInt2("Inner and Outer angles of spotlight", selectedSpotAngles, 0, 180);
   bool changeDirectionalLight = ImGui::SliderFloat2("Direction of light for Directional and Spot", selectedDirection, -1, 1, "%.1f");
-  bool changeShader = ImGui::ListBox("Shader Selection", &selectedShader, shaders, _countof(shaders));
+  //bool changeShader = ImGui::ListBox("Shader Selection", &selectedShader, shaders, _countof(shaders));
   bool recompileShader = ImGui::Button("Recompile Shaders");
   bool changeProjector = ImGui::ListBox("Projector Type Selection", &currentProjector, projectorTypes, _countof(projectorTypes));
 
@@ -536,20 +577,6 @@ void UpdateGUI()
     GenerateLightRing();
   }
 
-  if (changeShader)
-  {
-    ShaderType type = ShaderType::TypeCount;
-
-    if (selectedShader == 0)
-      type = ShaderType::PhongLighting;
-    else if (selectedShader == 1)
-      type = ShaderType::PhongShading;
-    else if (selectedShader == 2)
-      type = ShaderType::PhongBlinn;
-
-    objects[selectedObject].setShader(shaderManager.getShader(type));
-
-  }
   if (recompileShader)
   {
     shaderManager.reCompile(ShaderType::TypeCount);
@@ -561,24 +588,20 @@ void UpdateGUI()
     string fileName = "Common/models/";
     fileName += files[selectedModel];
     int oID = FindObject("OBJ model");
-    objects[oID].loadOBJ(fileName);
-    if (objects[oID].texture.isValid)
+    objects[oID]->loadOBJ(fileName);
+
+    if (objects[oID]->texture.isValid)
     {
-		Texture::Projector project;
-		if (currentProjector == 0)
-			project = Texture::Projector::Sphere;
+		  Texture::Projector project = Texture::Projector(currentProjector);
 
-		if (currentProjector > 0)
-			project = Texture::Projector::Cylindrical;
-
-      objects[oID].loadTexture(objects[oID].texture.getLocation(), objects[oID].texture.getLocation2(), project);
+      objects[oID]->loadTexture(objects[oID]->texture.getLocation(), objects[oID]->texture.getLocation2(), project);
     }
   }
 
   if (changeColor)
   {
-    objects[selectedObject].material.ambient = vec3(selectedColor[0], selectedColor[1], selectedColor[2]);
-    objects[selectedObject].material.diffuse = vec3(selectedColor[0], selectedColor[1], selectedColor[2]);
+    objects[selectedObject]->material.ambient = vec3(selectedColor[0], selectedColor[1], selectedColor[2]);
+    objects[selectedObject]->material.diffuse = vec3(selectedColor[0], selectedColor[1], selectedColor[2]);
 
   }
   if (changeLightColor)
@@ -590,6 +613,7 @@ void UpdateGUI()
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
    camera->projection = glm::perspective(glm::radians(45.0f), float(width) / height, 0.1f, 1000.0f);
+
    int display_w, display_h;
    glfwGetFramebufferSize(window, &display_w, &display_h);
    glViewport(0, 0, display_w, display_h);
@@ -622,6 +646,7 @@ int main()
   //setup all shaders
   int phongLightingSP = shaderManager.addShader("Source/PhongLighting.vert", "Source/PhongLighting.frag", ShaderType::PhongLighting);
   int phongShadingSP = shaderManager.addShader("Source/PhongShading.vert", "Source/PhongShading.frag", ShaderType::PhongShading);
+  shaderManager.addShader("Source/skyboxShader.vert", "Source/skyboxShader.frag", ShaderType::Skybox);
   shaderManager.addShader("Source/PhongBlinn.vert", "Source/PhongBlinn.frag", ShaderType::PhongBlinn);
   camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), phongLightingSP);
   GetLightManager()->genUBO(phongLightingSP);

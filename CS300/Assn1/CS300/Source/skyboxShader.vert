@@ -16,8 +16,6 @@ uniform int useGPUuv;
 out mat4 viewModel;
 out mat4 viewTrans;
 out vec3 vertPosView;
-out vec3 normal;
-out vec2 texCoord;
 
 
 void main()
@@ -25,17 +23,10 @@ void main()
   viewModel = view * model;
   viewTrans = view;
 
-  gl_Position = projection * viewModel * vec4(vertPos,1.0f);
+  viewTrans = mat4(mat3(viewTrans));
+  vec4 pos = vec4(projection * viewTrans * vec4(vertPos,1.0f));
+  pos.w += 1;
+  gl_Position = pos.xyww;
   
-  if(hasTexture == 1)
-  {
-    texCoord = vertUV;
-  }
-  else
-  {
-    texCoord = vec2(-1);
-  }
-  // view space conversion
-  vertPosView =    (viewModel * vec4(vertPos, 1)).xyz;
-  normal = normalize(mat3(transpose(inverse(viewModel))) * vertNormal);
+  vertPosView = (vertPos +0.5f);
 }

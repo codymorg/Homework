@@ -3,9 +3,12 @@
 
 uniform vec3 objColor;      // for lines
 uniform int hasTexture;
-uniform sampler2D texSampler;
-uniform sampler2D texSampler2;
-
+uniform sampler2D texSampler;  // back  00
+uniform sampler2D texSampler2;  // back  00
+uniform int useGPUuv;
+uniform vec3 lower;
+uniform vec3 upper;
+uniform int projectionType;
 
 // material data
 layout (std140, binding = 1) uniform material
@@ -43,11 +46,137 @@ in vec3 normal;
 in vec3 overRideColor;
 in vec2 texCoord;
 
+const float PI = 3.1415926535897932384626433832795;
+
+
 out vec3 fragColor;
 
+vec2 CubeProjection(vec3 point2, vec3 lower2, vec3 upper2, out int face)
+{
+  vec2 uv;
+  float absX = abs(point2.x);
+  float absY = abs(point2.y);
+  float absZ = abs(point2.z);
+  float upperAxis = 1.0f;
+  float lowerAxis = 0.0f;
+
+  // +-X : ([z,-z],y)
+  if (absX >= absY && absX >= absZ)
+  {
+    if (point2.x < 0.0f)
+    {
+      uv.x = point2.z;
+      face = 3;
+    }
+    else
+    {
+      uv.x = -point2.z;
+      face = 4;
+    }
+
+    uv.y = point2.y;
+    upperAxis = upper2.x;
+    lowerAxis = lower2.x;
+  }
+    
+  //+-Y : (x,[z,-z])
+  else if (absY >= absX && absY >= absZ)
+  {
+    uv.x = point2.x;
+
+    if (point2.y < 0.0f)
+    {
+      uv.y = point2.z;
+      face = 1;
+    }
+    else
+    {
+      uv.y = -point2.z;
+      face = 5;
+    }
+
+    upperAxis = upper2.y;
+    lowerAxis = lower2.y;
+  }
+    
+  // +-Z : ([-x,x],y)
+  else if (absZ >= absX && absZ >= absY)
+  {
+    if (point2.z < 0.0f)
+    {
+      uv.x = -point2.x;
+      face = 0;
+    }
+    else
+    {
+      uv.x = point2.x;
+      face = 2;
+    }
+
+    uv.y = point2.y;
+    upperAxis = upper2.z;
+    lowerAxis = lower2.z;
+  }
+
+  uv.x = (uv.x + upperAxis) / (upperAxis - lowerAxis);
+  uv.y = (uv.y + upperAxis) / (upperAxis - lowerAxis);
+
+  return uv;
+}
+
+vec2 SphereProjection(vec3 point2)
+{
+  vec2 uv;
+
+  // glsl's atan returns -pi to pi 
+  float theta =  atan(point2.y, point2.x) + PI;
+
+  float r = sqrt(point2.x * point2.x + point2.y * point2.y + point2.z * point2.z);
+  float phi = acos(point2.z / r);
+  uv.x = theta / (2 * PI);
+  uv.y = (PI - phi) / PI;
+
+  return uv;
+}
+
+vec2 CylinderProjection(vec3 point2, vec3 lower2, vec3 upper2)
+{
+  vec2 uv;
+  float theta = atan(point2.y, point2.x) + PI;
+
+  float z = (point2.z - lower2.z) / (upper2.z - lower2.z);
+  uv.x = theta / (2 * PI);
+  uv.y = z;
+
+  return uv;
+}
+
+vec2 GenerateUV(out int face)
+{
+  vec2 uv = vec2(0,0);
+  vec3 point = vec3(inverse(viewModel) * vec4(vertPosView,1));
+  vec3 center = vec3(lower + upper) / 2.0f;
+  vec3 point2 = point - center;
+  vec3 lower2 = lower - center;
+  vec3 upper2 = upper - center;
+
+  if(projectionType == 0) 
+    uv = CubeProjection(point2, lower2, upper2, face);
+  if(projectionType == 1) 
+  {
+    uv = SphereProjection(point2);
+    face = -1;
+  }
+  if(projectionType == 2) 
+  {
+    uv = CylinderProjection(point2, lower2, upper2);
+    face = -1;
+  }
+
+  return uv;
+}
 
 /////***** Point and Directional *****/////
-
 
 vec3 PointLight(Light currentLight, vec3 viewV, bool isDirectional)
 {
@@ -62,12 +191,25 @@ vec3 PointLight(Light currentLight, vec3 viewV, bool isDirectional)
 
   vec3 texMatDiff = matDiffuse;
   vec3 texMatSpec = matSpecular;
+  int face = -1;
 
   // textured diffuse
-  if(hasTexture == 1)
-    texMatDiff = texture( texSampler, texCoord ).rgb;
+  if(hasTexture >= 1)
+  {
+    vec2 textureUV;
 
-  if(hasTexture == 1)
+    if(useGPUuv == 1)
+    {
+      textureUV = GenerateUV(face);
+    }
+    else
+      textureUV = texCoord;
+
+    texMatDiff = texture( texSampler, textureUV ).rgb;
+
+  }
+
+  if(hasTexture == 1 && face < 0)
   {
     texMatSpec = texture( texSampler2, texCoord ).rgb;
     texMatSpec.y = texMatSpec.x;

@@ -54,6 +54,12 @@
     <None Include="Source\PhongBlinn.vert">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="Source\skyboxShader.frag">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="Source\skyboxShader.vert">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Camera.cpp">

@@ -24,6 +24,9 @@ using std::ifstream;
 #include <string>
 using std::string;
 
+ShaderManager* shaderMgr = nullptr;
+
+
 class Shader
 {
 public:
@@ -156,6 +159,7 @@ private:
 ShaderManager::ShaderManager()
 {
   compiledShaders_ = new Shader[int(ShaderType::TypeCount)];
+  shaderMgr = this;
 }
 
 ShaderManager::~ShaderManager()
@@ -223,4 +227,9 @@ std::vector<int> ShaderManager::getAllShaders()
   }
 
   return allShaders;
+}
+
+ShaderManager* GetShaderManager()
+{
+  return shaderMgr;
 }

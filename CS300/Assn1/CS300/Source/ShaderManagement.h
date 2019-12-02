@@ -11,9 +11,9 @@ Author  :   Cody Morgan  ID: 180001017
 Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
+#pragma once
 #ifndef SHADERMANAGEMENT_H
 #define SHADERMANAGEMENT_H
-#pragma once
 
 #include <string>
 #include <vector>
@@ -27,6 +27,7 @@ enum class ShaderType
     Line,
     PhongShading,
     PhongBlinn,
+    Skybox,
 
     //***//
     TypeCount
@@ -48,5 +49,7 @@ public:
 private:
   Shader* compiledShaders_;
 };
+
+ShaderManager* GetShaderManager();
 
 #endif

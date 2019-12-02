@@ -103,6 +103,10 @@ Object::Object(int shaderPgm, string ID) : name(ID), shaderProgram_(shaderPgm)
 
   initBuffers();
   hasTextureLoc = glGetUniformLocation(shaderProgram_, "hasTexture");
+  useGPUuvLoc = glGetUniformLocation(shaderProgram_, "useGPUuv");
+  lowerLoc = glGetUniformLocation(shaderProgram_, "lower");
+  upperLoc = glGetUniformLocation(shaderProgram_, "upper");
+  projectionLoc = glGetUniformLocation(shaderProgram_, "projectionType");
   glUniform1i(hasTextureLoc, 0);
 }
 
@@ -112,8 +116,10 @@ Object::~Object()
 
 void Object::translate(glm::vec3 translation)
 {
+  static vec3 total = vec3(0);
   vec3 trans = translation / modelScale;
   transform = glm::translate(transform, trans);
+  total += trans;
 }
 
 void Object::spin(float degrees, glm::vec3 axis)
@@ -128,6 +134,7 @@ void Object::spin(float degrees, glm::vec3 axis)
 void Object::addScale(glm::vec3 scale)
 {
   transform = glm::scale(transform, scale);
+  modelScale *= scale.x;
 }
 
 
@@ -342,6 +349,49 @@ void Object::setShader(int shaderProgram)
   vectorColorLoc = glGetUniformLocation(shaderProgram_, "objColor");
 
   //glUseProgram(shaderProgram);
+}
+
+void Object::initReflection(const Camera& camera)
+{
+  glGenFramebuffers(1, &fbo);
+  glGenRenderbuffers(1, &rbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+  double viewport[4];
+  glGetDoublev(GL_VIEWPORT, viewport);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, viewport[2], viewport[3]);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+  GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+    cout << "error FBO is not complete\n";
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  refCamera = new Camera(vec3(transform[3]), 0, glm::vec3(1, 0, 0), GetShaderManager()->getShader(ShaderType::PhongLighting));
+}
+
+void Object::captureReflection()
+{
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+  glPushAttrib(GL_VIEWPORT_BIT);
+  double viewport[4];
+  glGetDoublev(GL_VIEWPORT, viewport);
+  glViewport(0, 0, viewport[2], viewport[3]);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClearColor(0, 0, 0, 1);
+  glActiveTexture(GL_TEXTURE0);
+  glEnable(GL_TEXTURE_2D);
+  GLenum buffers[] =
+  {
+    GL_COLOR_ATTACHMENT0_EXT,
+    GL_COLOR_ATTACHMENT1_EXT,
+    GL_COLOR_ATTACHMENT2_EXT
+  };
+
+  glDrawBuffers(3, buffers);
+
+  //turn off fbo capture
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glPopAttrib();
 }
 
 
@@ -650,7 +700,7 @@ void Object::loadPlane()
 
 void Object::loadTexture(std::string location, string location2, Texture::Projector projector)
 {
-  texture = Texture(location, location2, projector);
+  texture = Texture(location, location2,0, projector);
   texture.texSamplerLoc = glGetUniformLocation(shaderProgram_, "texSampler");
   texture.texSamplerLoc2 = glGetUniformLocation(shaderProgram_, "texSampler2");
 
@@ -662,7 +712,6 @@ void Object::loadTexture(std::string location, string location2, Texture::Projec
   }
   initBuffers();
 }
-
 
 void Object::draw()
 {
@@ -683,6 +732,15 @@ void Object::draw()
   else
   {
     glUniform3fv(vectorColorLoc, 1,glm::value_ptr(vec3(0)));
+    glUniform1i(useGPUuvLoc, useGPUuv);
+
+    // we are only going to use these if we're using gpu for uv's 
+    if (useGPUuv)
+    {
+      glUniform3fv(lowerLoc, 1, glm::value_ptr(minPos));
+      glUniform3fv(upperLoc, 1, glm::value_ptr(maxPos));
+      glUniform1i(projectionLoc, texture.getProjector());
+    }
   }
 
   glBindVertexArray(vao);
@@ -744,20 +802,22 @@ Texture::Texture(): location_("none")
 {
 }
 
-Texture::Texture(std::string location, string location2, Projector projector) : 
+Texture::Texture(std::string location, string location2, int texNum, Projector projector) : 
   projector_(projector), location_(location), location2_(location2)
 {
   isValid = true;
   unsigned char* buffer = SOIL_load_image(location.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
+  if (!buffer)
+    cout << "invalid file " << location << "\n";
 
   glGenTextures(1, &tbo_);
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE0 + texNum);
   glBindTexture(GL_TEXTURE_2D, tbo_);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   int format = 0;
   if (channels_ == 1)
@@ -766,6 +826,7 @@ Texture::Texture(std::string location, string location2, Projector projector) :
     format = GL_RGB;
   else if (channels_ == 4)
     format = GL_RGBA;
+
   glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format, GL_UNSIGNED_BYTE, buffer);
   glGenerateMipmap(GL_TEXTURE_2D);
   SOIL_free_image_data(buffer);
@@ -774,13 +835,13 @@ Texture::Texture(std::string location, string location2, Projector projector) :
   buffer = SOIL_load_image(location2.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
 
   glGenTextures(1, &tbo2_);
-  glActiveTexture(GL_TEXTURE1);
+  glActiveTexture(GL_TEXTURE1 + texNum);
   glBindTexture(GL_TEXTURE_2D, tbo2_);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   format = 0;
   if (channels_ == 1)
@@ -799,6 +860,7 @@ Texture::Texture(std::string location, string location2, Projector projector) :
 Texture::~Texture()
 {
 }
+
 
 
 glm::vec2 Texture::generateUV(glm::vec3 lower, glm::vec3 upper, glm::vec3 point)
@@ -823,7 +885,7 @@ glm::vec2 Texture::generateUV(glm::vec3 lower, glm::vec3 upper, glm::vec3 point)
     uv.y = z;
   }
 
-  if (projector_ == Projector::Sphere)
+  else if (projector_ == Projector::Sphere)
   {
     // you promised this would be positive... but it's not always
     float theta =  atan2 (point2.y, point2.x);
@@ -836,10 +898,101 @@ glm::vec2 Texture::generateUV(glm::vec3 lower, glm::vec3 upper, glm::vec3 point)
     uv.y = ((glm::pi<float>() - phi) / glm::pi<float>());
   }
 
-  if (projector_ == Projector::Cube)
+  else if (projector_ == Projector::Cube)
   {
+    float absX = fabs(point2.x);
+    float absY = fabs(point2.y);
+    float absZ = fabs(point2.z);
+    float upperAxis = 1.0f;
+    float lowerAxis = 0.0f;
+    
+    // +-X : ([z,-z],y)
+    if (absX >= absY && absX >= absZ)
+    {
+      if (point2.x < 0.0f)
+      {
+        uv.x = point2.z;
+      }
+      else
+      {
+        uv.x = -point2.z;
+      }
+
+      uv.y = point2.y;
+      upperAxis = upper2.x;
+      lowerAxis = lower2.x;
+    }
+    
+    //+-Y : (x,[z,-z])
+    else if (absY >= absX && absY >= absZ)
+    {
+      uv.x = point2.x;
+
+      if (point2.y < 0.0f)
+      {
+        uv.y = point2.z;
+      }
+      else
+      {
+        uv.y = -point2.z;
+      }
+
+      upperAxis = upper2.y;
+      lowerAxis = lower2.y;
+    }
+    
+    // +-Z : ([-x,x],y)
+    else if (absZ >= absX && absZ >= absY)
+    {
+      if (point2.z < 0.0f)
+      {
+        uv.x = -point2.x;
+      }
+      else
+      {
+        uv.x = point2.x;
+      }
+
+      uv.y = point2.y;
+      upperAxis = upper2.z;
+      lowerAxis = lower2.z;
+    }
+
+    uv.x = (uv.x + upperAxis) / (upperAxis - lowerAxis);
+    uv.y = (uv.y + upperAxis) / (upperAxis - lowerAxis);
   }
 
   return uv;
+}
+
+Skybox::Skybox(int shaderProgram, std::string folder) : Object(shaderProgram, "skybox")
+{
+  loadOBJ("Common/models/cube.obj");
+  for (Vertex& vert : vertices)
+  {
+    vert.position -= 0.5;
+  }
+  string files[] =
+  {
+    "back.jpg",
+    "down.jpg",
+    "front.png",
+    "left.jpg",
+    "up.png",
+    "up.png",
+  };
+
+  for (int i = 0; i < 6; i++)
+  {
+    string name = folder + files[i];
+    textures[i] = Texture(name, name, i, Texture::Projector::Cube);
+    string texName = "texSampler" + std::to_string(i);
+    textures[i].texSamplerLoc = glGetUniformLocation(shaderProgram_, texName.c_str());
+    textures[i].isValid = true;
+  }
+
+  initBuffers();
+  useGPUuv = 1;
+  glUniform1i(hasTextureLoc, 6);
 }
 

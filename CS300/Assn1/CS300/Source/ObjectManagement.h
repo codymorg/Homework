@@ -24,6 +24,7 @@ End Header --------------------------------------------------------*/
 #include <string>
 #include <istream>
 #include <vector>
+#include <Camera.h>
 
 struct Vertex
 {
@@ -65,13 +66,13 @@ public:
   };
   
   Texture();
-  Texture(std::string location, std::string location2, Projector projector = Projector::Sphere);
+  Texture(std::string location, std::string location2, int textureNum = 0, Projector projector = Projector::Sphere);
   ~Texture();
 
   
   std::string getLocation() { return location_; };
   std::string getLocation2() { return location2_; };
-
+  int getProjector() { return int(projector_); };
   unsigned getTBO() { return tbo_; };
 
   glm::vec2 generateUV(glm::vec3 boundingBoxLower, glm::vec3 boundingBoxUpper, glm::vec3 point);
@@ -97,7 +98,7 @@ class Object
 {
 public:
   Object(int shaderPgm, std::string ID = "anon");
-  ~Object();
+  virtual ~Object();
 
   // loading meshes
   void loadOBJ(std::string fileLocation);
@@ -106,6 +107,7 @@ public:
   void loadcircle(float radius, int divisions);
   void loadPlane();
   void loadTexture(std::string location, std::string location2, Texture::Projector projector = Texture::Projector::Sphere);
+
 
   // manipulation
   void translate(glm::vec3 translation);
@@ -127,6 +129,8 @@ public:
   void toggleVertexNormals(bool useHardSet = false, bool setToThis = false);
   void setShader(int shaderProgram);
 
+  void initReflection(const Camera& camera);
+  void captureReflection();
 
   std::string name;           // name of objectec
   unsigned renderMode = GL_TRIANGLES; // the method to interpret the vertex data
@@ -162,6 +166,9 @@ public:
   unsigned vbo;               // vertex buffer
   unsigned vao;               // attributes
   unsigned ebo;               // indices
+  unsigned fbo;               // for reflection
+  unsigned rbo;
+  Camera* refCamera = nullptr;
   int modelLoc = -1;          // shader location of model matrix
   float modelScale = 1.0f;
 
@@ -183,10 +190,28 @@ public:
   unsigned lineShader;
   unsigned lineVAO;
   unsigned lineVBO;
-  int vectorColorLoc = -1;       // shader location of color
   Texture texture;
-  int hasTextureLoc = -1;
+  int vectorColorLoc = -1;// shader location of color
+  int hasTextureLoc = -1; // do i have texture
+  int useGPUuvLoc = -1;   // use gpu to calculate uv's (better)
+  int lowerLoc = -1;      // used only if GPU UV's are set, lower end of boundin box
+  int upperLoc = -1;      // ditto for upper
+  int projectionLoc = -1;
 
+
+  bool useGPUuv = true;
+  friend class Skybox;
+};
+
+class Skybox : public Object
+{
+public:
+  Skybox(int shaderProgram, std::string folder);
+  Texture textures[6];
+
+
+private:
+  std::string locations[6];
 };
 
 class MaterialManager

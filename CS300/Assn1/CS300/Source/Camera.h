@@ -12,9 +12,9 @@ Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
 
+#pragma once
 #ifndef CAMERA_H
 #define CAMERA_H
-#pragma once
 
 #include <glm/glm.hpp>
 #include "ShaderManagement.h"
@@ -31,9 +31,12 @@ public:
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection;
 
+  int width = 0;
+  int height = 0;
 private:
   glm::vec3 initialPos;
   glm::vec3 position;
+
 
   unsigned shaderProgram = 0;
   int viewLoc;         // view matrix shader location
