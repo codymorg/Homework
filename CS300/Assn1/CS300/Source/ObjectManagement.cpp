@@ -351,26 +351,56 @@ void Object::setShader(int shaderProgram)
   //glUseProgram(shaderProgram);
 }
 
-void Object::initReflection(const Camera& camera)
+void Object::initFrameBuffer()
 {
   glGenFramebuffers(1, &fbo);
-  glGenRenderbuffers(1, &rbo);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-  glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+
   double viewport[4];
   glGetDoublev(GL_VIEWPORT, viewport);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, viewport[2], viewport[3]);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+  int width = viewport[2];
+  int height = viewport[3];
+  hasTextureLoc = glGetUniformLocation(shaderProgram_, "hasTexture");
+
+  // set up textures
+  for (int i = 0; i < 6; i++)
+  {
+    // init texture
+    glActiveTexture(GL_TEXTURE0 + i);
+    glGenTextures(1, &reflTextures[i].tbo_);
+    glBindTexture(GL_TEXTURE_2D, reflTextures[i].tbo_);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+    string texName = "texSampler" + std::to_string(i);
+    reflTextures[i].texSamplerLoc = glGetUniformLocation(shaderProgram_, texName.c_str());
+    glUniform1i(reflTextures[i].texSamplerLoc, i);
+    glUniform1i(hasTextureLoc, 1);
+
+    reflTextures[i].isValid = true;
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
+
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, reflTextures[0].tbo_, 0);
+
+  glGenRenderbuffers(1, &reflTextures[0].rbo);
+  glBindRenderbuffer(GL_RENDERBUFFER, reflTextures[0].rbo);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, reflTextures[0].rbo);
+
   GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
     cout << "error FBO is not complete\n";
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  refCamera = new Camera(vec3(transform[3]), 0, glm::vec3(1, 0, 0), GetShaderManager()->getShader(ShaderType::PhongLighting));
 }
 
 void Object::captureReflection()
 {
+  //glFramebufferTexture2D
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
   glPushAttrib(GL_VIEWPORT_BIT);
   double viewport[4];
@@ -383,12 +413,14 @@ void Object::captureReflection()
   GLenum buffers[] =
   {
     GL_COLOR_ATTACHMENT0_EXT,
-    GL_COLOR_ATTACHMENT1_EXT,
-    GL_COLOR_ATTACHMENT2_EXT
   };
 
-  glDrawBuffers(3, buffers);
+  glDrawBuffers(1, buffers);
 
+}
+
+void Object::endCapture()
+{
   //turn off fbo capture
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   glPopAttrib();
@@ -861,6 +893,20 @@ Texture::~Texture()
 {
 }
 
+void Texture::setTexture(int texNum)
+{
+  glGenTextures(1, &tbo_);
+  glActiveTexture(GL_TEXTURE0 + texNum);
+  glBindTexture(GL_TEXTURE_2D, tbo_);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+}
+
 
 
 glm::vec2 Texture::generateUV(glm::vec3 lower, glm::vec3 upper, glm::vec3 point)
@@ -978,7 +1024,7 @@ Skybox::Skybox(int shaderProgram, std::string folder) : Object(shaderProgram, "s
     "down.jpg",
     "front.png",
     "left.jpg",
-    "up.png",
+    "right.png",
     "up.png",
   };
 

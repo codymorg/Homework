@@ -404,8 +404,6 @@ void GenerateScene(ShaderManager& shaderManager)
   center->material.ambient = vec3(6/256.0f);
   center->genFaceNormals();
   center->loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
-  center->initReflection(*camera);
-  center->captureReflection();
   objects.push_back(center);
 
   // generate a bunch of lights

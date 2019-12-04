@@ -69,7 +69,7 @@ public:
   Texture(std::string location, std::string location2, int textureNum = 0, Projector projector = Projector::Sphere);
   ~Texture();
 
-  
+  void setTexture(int texNum);
   std::string getLocation() { return location_; };
   std::string getLocation2() { return location2_; };
   int getProjector() { return int(projector_); };
@@ -81,10 +81,12 @@ public:
   int texSamplerLoc2 = -1;
   bool isValid = false;
   unsigned tbo2_ = 0;
+  unsigned tbo_ = 0;
+  unsigned rbo;
+
 private:
 
   Projector projector_;
-  unsigned tbo_ = 0;
 
   int width_;
   int height_;
@@ -129,8 +131,9 @@ public:
   void toggleVertexNormals(bool useHardSet = false, bool setToThis = false);
   void setShader(int shaderProgram);
 
-  void initReflection(const Camera& camera);
+  void initFrameBuffer();
   void captureReflection();
+  void endCapture();
 
   std::string name;           // name of objectec
   unsigned renderMode = GL_TRIANGLES; // the method to interpret the vertex data
@@ -167,8 +170,6 @@ public:
   unsigned vao;               // attributes
   unsigned ebo;               // indices
   unsigned fbo;               // for reflection
-  unsigned rbo;
-  Camera* refCamera = nullptr;
   int modelLoc = -1;          // shader location of model matrix
   float modelScale = 1.0f;
 
@@ -191,6 +192,7 @@ public:
   unsigned lineVAO;
   unsigned lineVBO;
   Texture texture;
+  Texture reflTextures[6];
   int vectorColorLoc = -1;// shader location of color
   int hasTextureLoc = -1; // do i have texture
   int useGPUuvLoc = -1;   // use gpu to calculate uv's (better)

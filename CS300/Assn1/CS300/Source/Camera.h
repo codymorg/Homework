@@ -26,6 +26,7 @@ public:
 
   void update(ShaderManager& shaderManager);
   void translate(glm::vec3 translation);
+  void rotate(float degrees, glm::vec3 axis);
   void reset();
 
   glm::mat4 view = glm::mat4(1.0f);
@@ -33,9 +34,10 @@ public:
 
   int width = 0;
   int height = 0;
+  glm::vec3 position;
+  glm::vec3 rotation;
 private:
   glm::vec3 initialPos;
-  glm::vec3 position;
 
 
   unsigned shaderProgram = 0;
