@@ -45,6 +45,7 @@ using std::vector;
 static vector<Object*> objects;
 static vector<Light> lights;
 static Camera* camera;
+static Camera* reflCamera;
 
 // common vectors
 static vec3 up(0, 1, 0);
@@ -53,6 +54,7 @@ static vec3 down(0, -1, 0);
 static vec3 left(-1, 0, 0);
 static vec3 back(0, 0, -1);
 static vec3 forward(0, 0, 1);
+static vec3 zero(0, 0, 0);
 
 // gui related
 static int selectedObject = 0;
@@ -152,10 +154,16 @@ void ProcessInput(GLFWwindow* window)
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
+  static bool Wdown = false;
     float moveStr = 0.1f;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && Wdown)
+    {
+      Wdown = false;
+      camera->rotate(90, right);
+    }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-      objects[FindObject("skybox")]->translate(moveStr * up);
+      Wdown = true;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
@@ -274,30 +282,25 @@ void Render(GLFWwindow* window, Camera& camera)
   Skybox* skybox = dynamic_cast<Skybox*>(objects[2]);
   if (skybox != nullptr)
   {
-    int tt = shaderManager.getCurrentBound();
-
     glUseProgram(skybox->shaderProgram_);
-    int t = shaderManager.getCurrentBound();
 
     glDisable(GL_DEPTH_TEST);
 
     int textureNumber = 0;
     for (Texture& thisTexture : skybox->textures)
     {
-      glActiveTexture(GL_TEXTURE0 + textureNumber);
       glBindTexture(GL_TEXTURE_2D, thisTexture.getTBO());
+      glActiveTexture(GL_TEXTURE0 + textureNumber);
       glUniform1i(skybox->hasTextureLoc, 1);
       glUniform1i(thisTexture.texSamplerLoc, textureNumber);
       textureNumber++;
-
-      objects[2]->draw();
     }
+    objects[2]->draw();
 
     glEnable(GL_DEPTH_TEST);
     glUseProgram(0);
   }
-  int tt = shaderManager.getCurrentBound();
-
+  // lights update
   glUseProgram(lights[0].getShader());
   int t = shaderManager.getCurrentBound();
   GetLightManager()->updateUBO(lights);
@@ -305,13 +308,15 @@ void Render(GLFWwindow* window, Camera& camera)
   {
     light.update();
   }
+  
   camera.update(shaderManager);
+
+  // objects
   for (int i = objects.size()-2; i >= 0; i--)
   {
     Object* object = objects[i];
     glUseProgram(object->shaderProgram_);
     materials->updateUBO(object->material);
-
 
     //textured
     if (object->texture.isValid)
@@ -322,6 +327,20 @@ void Render(GLFWwindow* window, Camera& camera)
       glUniform1i(object->texture.texSamplerLoc, 0);
     }
 
+    // reflections 
+    else if (object->reflTextures[0].isValid)
+    {
+      int textureNumber = 0;
+      for (Texture& reflTex : object->reflTextures)
+      {
+        glActiveTexture(GL_TEXTURE0 + textureNumber);
+        glBindTexture(GL_TEXTURE_2D, reflTex.getTBO());
+        glUniform1i(object->hasTextureLoc, 1);
+        glUniform1i(reflTex.texSamplerLoc, textureNumber);
+        textureNumber++;
+      }
+        object->draw();
+    }
     // turn off texturing stuff in shaders
     else
     {
@@ -334,6 +353,42 @@ void Render(GLFWwindow* window, Camera& camera)
   }
 
   glUseProgram(0);
+}
+
+
+
+// this must be before Render because this generates the textures that render wil then draw
+void RenderRefl(GLFWwindow* window)
+{
+  Object* model = objects[FindObject("model")];
+  model->reflTextures[0].isValid = false; // we're setting this so that the textures are not drawn before they're ready
+  model->captureReflection();
+
+  //                   bk  dn     ft   lt  rt   up
+  float rotation[] = { 0,  90,    180, 90, -90, -90 };
+  vec3 axis[] =      { up, right, up,  up, up,  right };
+
+
+  // generate the textures
+  for (size_t i = 0; i < _countof(rotation); i++)
+  {
+    // move to center of model
+    reflCamera->rotate(rotation[i], axis[i]);
+
+    //snap a pic to ith texture
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + i);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, model->reflTextures[i].tbo_, 0);
+    Render(window, *reflCamera);
+
+    // reset camera
+    reflCamera->rotate(-rotation[i], axis[i]);
+    reflCamera->reset();
+  }
+  model->endCapture();
+
+
+  model->reflTextures[0].isValid = true; // ready for Render
 }
 
 void GenerateLightRing()
@@ -396,14 +451,16 @@ void GenerateScene(ShaderManager& shaderManager)
 {
   int phongLightingSP = shaderManager.getShader(ShaderType::PhongLighting);
   int phongShadingSP = shaderManager.getShader(ShaderType::PhongShading);
+  int reflShadingSP = shaderManager.getShader(ShaderType::Reflection);
   
   // generate out God object
-  Object* center = new Object(phongShadingSP, "OBJ model");
-  center->loadOBJ("Common/models/4sphere.obj");
+  Object* center = new Object(reflShadingSP, "OBJ model");
+  center->loadOBJ("Common/models/sphere.obj");
   center->material.diffuse = vec3(.9f);
   center->material.ambient = vec3(6/256.0f);
   center->genFaceNormals();
-  center->loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
+  //center->loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
+  center->initFrameBuffer();
   objects.push_back(center);
 
   // generate a bunch of lights
@@ -645,8 +702,11 @@ int main()
   int phongLightingSP = shaderManager.addShader("Source/PhongLighting.vert", "Source/PhongLighting.frag", ShaderType::PhongLighting);
   int phongShadingSP = shaderManager.addShader("Source/PhongShading.vert", "Source/PhongShading.frag", ShaderType::PhongShading);
   shaderManager.addShader("Source/skyboxShader.vert", "Source/skyboxShader.frag", ShaderType::Skybox);
-  shaderManager.addShader("Source/PhongBlinn.vert", "Source/PhongBlinn.frag", ShaderType::PhongBlinn);
-  camera = &Camera(vec3(0,-4,-8), 30.0f, vec3(1,0,0), phongLightingSP);
+  int reflShader = shaderManager.addShader("Source/PhongShading.vert", "Source/skyboxShader.frag", ShaderType::Reflection);
+
+  camera = &Camera(vec3(0, -4, -8), 30.0f, right, phongLightingSP);
+  reflCamera = &Camera(zero, 0, right, reflShader);
+
   GetLightManager()->genUBO(phongLightingSP);
   materials = new MaterialManager;
   materials->genUBO(phongLightingSP);
@@ -665,6 +725,7 @@ int main()
 
     // render scene and GUI window
     UpdateScene(window);
+    RenderRefl(window);
     Render(window, *camera);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

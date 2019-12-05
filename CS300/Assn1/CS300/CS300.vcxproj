@@ -29,6 +29,7 @@
     <None Include="Source\PhongLighting.vert" />
     <None Include="Source\PhongShading.frag" />
     <None Include="Source\PhongShading.vert" />
+    <None Include="Source\Reflection.frag" />
     <None Include="Source\skyboxShader.frag" />
     <None Include="Source\skyboxShader.vert" />
     <None Include="Source\vertexShader.vert" />

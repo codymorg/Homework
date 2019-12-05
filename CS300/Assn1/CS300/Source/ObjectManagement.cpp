@@ -351,18 +351,22 @@ void Object::setShader(int shaderProgram)
   //glUseProgram(shaderProgram);
 }
 
+
 void Object::initFrameBuffer()
 {
+  // gen fbo
   glGenFramebuffers(1, &fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-  double viewport[4];
-  glGetDoublev(GL_VIEWPORT, viewport);
-  int width = viewport[2];
-  int height = viewport[3];
-  hasTextureLoc = glGetUniformLocation(shaderProgram_, "hasTexture");
+  // generate rbo
+  int width  = 512;
+  int height = 512;
+  glGenRenderbuffers(1, &rbo);
+  glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 
   // set up textures
+  hasTextureLoc = glGetUniformLocation(shaderProgram_, "hasTexture");
   for (int i = 0; i < 6; i++)
   {
     // init texture
@@ -385,27 +389,28 @@ void Object::initFrameBuffer()
     glBindTexture(GL_TEXTURE_2D, 0);
   }
 
+  // attach
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, reflTextures[0].tbo_, 0);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-  glGenRenderbuffers(1, &reflTextures[0].rbo);
-  glBindRenderbuffer(GL_RENDERBUFFER, reflTextures[0].rbo);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, reflTextures[0].rbo);
-
+  //check status
   GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
     cout << "error FBO is not complete\n";
+
+  // unbind everything
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Object::captureReflection()
 {
   //glFramebufferTexture2D
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
   glPushAttrib(GL_VIEWPORT_BIT);
   double viewport[4];
   glGetDoublev(GL_VIEWPORT, viewport);
-  glViewport(0, 0, viewport[2], viewport[3]);
+  glViewport(0, 0, int(viewport[2]), int(viewport[3]));
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glClearColor(0, 0, 0, 1);
   glActiveTexture(GL_TEXTURE0);
@@ -422,7 +427,7 @@ void Object::captureReflection()
 void Object::endCapture()
 {
   //turn off fbo capture
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
   glPopAttrib();
 }
 

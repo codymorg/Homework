@@ -82,7 +82,6 @@ public:
   bool isValid = false;
   unsigned tbo2_ = 0;
   unsigned tbo_ = 0;
-  unsigned rbo;
 
 private:
 
@@ -170,6 +169,7 @@ public:
   unsigned vao;               // attributes
   unsigned ebo;               // indices
   unsigned fbo;               // for reflection
+  unsigned rbo;
   int modelLoc = -1;          // shader location of model matrix
   float modelScale = 1.0f;
 
