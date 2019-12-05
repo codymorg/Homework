@@ -264,7 +264,6 @@ void GLAPIENTRY MessageCallback(GLenum source,
   }
 }
 
-
 void Render(GLFWwindow* window, Camera& camera)
 {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -274,11 +273,7 @@ void Render(GLFWwindow* window, Camera& camera)
   Skybox* skybox = dynamic_cast<Skybox*>(objects[2]);
   if (skybox != nullptr)
   {
-    int tt = shaderManager.getCurrentBound();
-
     glUseProgram(skybox->shaderProgram_);
-    int t = shaderManager.getCurrentBound();
-
     glDisable(GL_DEPTH_TEST);
 
     int textureNumber = 0;
@@ -289,23 +284,25 @@ void Render(GLFWwindow* window, Camera& camera)
       glUniform1i(skybox->hasTextureLoc, 1);
       glUniform1i(thisTexture.texSamplerLoc, textureNumber);
       textureNumber++;
-
-      objects[2]->draw();
     }
+    objects[2]->draw();
 
     glEnable(GL_DEPTH_TEST);
     glUseProgram(0);
   }
-  int tt = shaderManager.getCurrentBound();
 
+  // lights
   glUseProgram(lights[0].getShader());
-  int t = shaderManager.getCurrentBound();
   GetLightManager()->updateUBO(lights);
   for (Light& light : lights)
   {
     light.update();
   }
+
+  // camera
   camera.update(shaderManager);
+
+  // objects (that are not lights)
   for (int i = objects.size()-2; i >= 0; i--)
   {
     Object* object = objects[i];
@@ -334,6 +331,11 @@ void Render(GLFWwindow* window, Camera& camera)
   }
 
   glUseProgram(0);
+}
+
+void GenerateReflTextures()
+{
+  
 }
 
 void GenerateLightRing()
