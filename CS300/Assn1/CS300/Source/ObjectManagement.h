@@ -74,7 +74,6 @@ public:
   std::string getLocation2() { return location2_; };
   int getProjector() { return int(projector_); };
   unsigned getTBO() { return tbo_; };
-
   glm::vec2 generateUV(glm::vec3 boundingBoxLower, glm::vec3 boundingBoxUpper, glm::vec3 point);
 
   int texSamplerLoc = -1;
@@ -82,7 +81,6 @@ public:
   bool isValid = false;
   unsigned tbo2_ = 0;
   unsigned tbo_ = 0;
-  unsigned rbo;
 
 private:
 
@@ -170,6 +168,7 @@ public:
   unsigned vao;               // attributes
   unsigned ebo;               // indices
   unsigned fbo;               // for reflection
+  unsigned rbo;
   int modelLoc = -1;          // shader location of model matrix
   float modelScale = 1.0f;
 
