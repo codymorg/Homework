@@ -116,4 +116,6 @@ void main()
   if(face == 3) fragColor = texture( texSampler3, uv ).rgb; // left  
   if(face == 4) fragColor = texture( texSampler4, uv ).rgb; // right 
   if(face == 5) fragColor = texture( texSampler5, uv ).rgb; // up    
+
+
 }

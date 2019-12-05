@@ -293,6 +293,8 @@ void Render(GLFWwindow* window, Camera& camera)
       glActiveTexture(GL_TEXTURE0 + textureNumber);
       glUniform1i(skybox->hasTextureLoc, 1);
       glUniform1i(thisTexture.texSamplerLoc, textureNumber);
+      if (textureNumber >= 2)
+      break;
       textureNumber++;
     }
     objects[2]->draw();
@@ -310,7 +312,7 @@ void Render(GLFWwindow* window, Camera& camera)
   }
   
   camera.update(shaderManager);
-
+  return; //TODO(DEBUG)
   // objects
   for (int i = objects.size()-2; i >= 0; i--)
   {
@@ -459,8 +461,8 @@ void GenerateScene(ShaderManager& shaderManager)
   center->material.diffuse = vec3(.9f);
   center->material.ambient = vec3(6/256.0f);
   center->genFaceNormals();
-  //center->loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
-  center->initFrameBuffer();
+  center->loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
+  //center->initFrameBuffer();
   objects.push_back(center);
 
   // generate a bunch of lights
@@ -725,7 +727,7 @@ int main()
 
     // render scene and GUI window
     UpdateScene(window);
-    RenderRefl(window);
+    //RenderRefl(window);
     Render(window, *camera);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

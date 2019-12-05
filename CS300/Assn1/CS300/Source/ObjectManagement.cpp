@@ -417,7 +417,7 @@ void Object::captureReflection()
   glEnable(GL_TEXTURE_2D);
   GLenum buffers[] =
   {
-    GL_COLOR_ATTACHMENT0_EXT,
+    GL_COLOR_ATTACHMENT0,
   };
 
   glDrawBuffers(1, buffers);
@@ -427,7 +427,8 @@ void Object::captureReflection()
 void Object::endCapture()
 {
   //turn off fbo capture
-  glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
   glPopAttrib();
 }
 
@@ -1025,8 +1026,8 @@ Skybox::Skybox(int shaderProgram, std::string folder) : Object(shaderProgram, "s
   }
   string files[] =
   {
-    "back.jpg",
-    "down.jpg",
+    "back.png",
+    "down.png",
     "front.png",
     "left.jpg",
     "right.png",
