@@ -843,7 +843,7 @@ Texture::Texture(std::string location, string location2, int texNum, Projector p
 {
   isValid = true;
   unsigned char* buffer = SOIL_load_image(location.c_str(), &width_, &height_, &channels_, SOIL_LOAD_AUTO);
-  if (!buffer)
+  if (!buffer || width_ < 0)
     cout << "invalid file " << location << "\n";
 
   glGenTextures(1, &tbo_);
@@ -1023,10 +1023,10 @@ Skybox::Skybox(int shaderProgram, std::string folder) : Object(shaderProgram, "s
   }
   string files[] =
   {
-    "back.jpg",
-    "down.jpg",
+    "back.png",
+    "down.png",
     "front.png",
-    "left.jpg",
+    "left.png",
     "right.png",
     "up.png",
   };
