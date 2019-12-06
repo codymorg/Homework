@@ -332,10 +332,23 @@ void Render(GLFWwindow* window, Camera& camera)
 
   glUseProgram(0);
 }
-
-void GenerateReflTextures()
+void GenerateReflTextures(GLFWwindow* window)
 {
-  
+  Object* model = objects[FindObject("model")];
+  Camera bunnyCam(vec3(0), 0, up, shaderManager.getShader(ShaderType::PhongLighting));
+
+  glBindFramebuffer(GL_FRAMEBUFFER, model->fbo);
+  glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+  for (size_t i = 0; i < 1; i++)
+  {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0 + i);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, model->texture.tbo_, 0);
+    Render(window, *camera);
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void GenerateLightRing()
@@ -668,6 +681,7 @@ int main()
 
     // render scene and GUI window
     UpdateScene(window);
+    GenerateReflTextures(window);
     Render(window, *camera);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
