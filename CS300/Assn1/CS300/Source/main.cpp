@@ -68,6 +68,7 @@ static float selectedDirection[2];
 static int selectedScene = 0;
 static int currentScene = 0;
 static int currentProjector = 0;
+static bool reflection = false;
 
 
 // object relates
@@ -563,9 +564,18 @@ void UpdateGUI()
   //bool changeShader = ImGui::ListBox("Shader Selection", &selectedShader, shaders, _countof(shaders));
   bool recompileShader = ImGui::Button("Recompile Shaders");
   bool changeProjector = ImGui::ListBox("Projector Type Selection", &currentProjector, projectorTypes, _countof(projectorTypes));
+  bool toggleRefl = ImGui::Button("Toggle reflection for model ");
+
 
   ImGui::End();
-
+  if (toggleRefl)
+  {
+    reflection = !reflection;
+    if (!reflection)
+    {
+      objects[FindObject("model")]->loadTexture("Common/textures/metalRoofDiff.png", "Common/textures/metalRoof.png");
+    }
+  }
   if (currentScene != selectedScene)
   {
     scenes[selectedScene]();
@@ -681,7 +691,8 @@ int main()
 
     // render scene and GUI window
     UpdateScene(window);
-    GenerateReflTextures(window);
+    if(reflection)
+      GenerateReflTextures(window);
     Render(window, *camera);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
