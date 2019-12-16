@@ -28,19 +28,14 @@
     <None Include="Source\vertexShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\imGui\imgui.cpp" />
     <ClCompile Include="Source\imGui\imgui_draw.cpp" />
     <ClCompile Include="Source\imGui\imgui_impl_glfw.cpp" />
     <ClCompile Include="Source\imGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Source\imGui\imgui_widgets.cpp" />
-    <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\ObjectManagement.cpp" />
-    <ClCompile Include="Source\ShaderManagement.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\imGui\imconfig.h" />
     <ClInclude Include="Source\imGui\imgui.h" />
     <ClInclude Include="Source\imGui\imgui_impl_glfw.h" />
@@ -49,9 +44,6 @@
     <ClInclude Include="Source\imGui\imstb_rectpack.h" />
     <ClInclude Include="Source\imGui\imstb_textedit.h" />
     <ClInclude Include="Source\imGui\imstb_truetype.h" />
-    <ClInclude Include="Source\Light.h" />
-    <ClInclude Include="Source\ObjectManagement.h" />
-    <ClInclude Include="Source\ShaderManagement.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

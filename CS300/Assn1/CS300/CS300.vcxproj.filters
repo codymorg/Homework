@@ -44,16 +44,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ObjectManagement.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\imGui\imgui.cpp">
@@ -71,20 +62,8 @@
     <ClCompile Include="Source\imGui\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imGUI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ShaderManagement.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\ObjectManagement.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\imGui\imconfig.h">
       <Filter>Source Files\imGUI</Filter>
     </ClInclude>
@@ -108,9 +87,6 @@
     </ClInclude>
     <ClInclude Include="Source\imGui\imgui_impl_opengl3.h">
       <Filter>Source Files\imGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ShaderManagement.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
