@@ -1,15 +1,8 @@
-/* Start Header -------------------------------------------------------
-Copyright (C) 2019 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior written
-consent of DigiPen Institute of Technology is prohibited.
-
-Purpose :   Instructions on how to use this software
-Language:   C++ Visual Studio
-Platform:   Windows 10
-Project :   cody.morgan_CS300_1
-Author  :   Cody Morgan  ID: 180001017
-Date  :   4 OCT 2019
-End Header --------------------------------------------------------*/
+/******************************************************************************
+  Project : load, display and manipulate a 3D object
+  Name    : Cody Morgan
+  Date    : 16 DEC 2019
+******************************************************************************/
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -33,6 +26,9 @@ using std::vector;
 #include "imGui/imgui.h"
 #include "imGui/imgui_impl_glfw.h"
 #include "imGui/imgui_impl_opengl3.h"
+
+#include "Object.h"
+
 
 // common vectors
 static vec3 up(0, 1, 0);
@@ -147,6 +143,15 @@ void GLAPIENTRY MessageCallback(GLenum source,
 
 void InitGUI(GLFWwindow* window)
 {
+  // GL state setting
+#ifdef _DEBUG
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(MessageCallback, 0);
+#endif
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glEnable(GL_DEPTH_TEST);
+  
   // context 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -182,23 +187,33 @@ void window_size_callback(GLFWwindow* window, int width, int height)
    glViewport(0, 0, display_w, display_h);
 }
 
+void loopBottom(GLFWwindow* window, float time)
+{
+  //maintain viewport
+  glfwSetFramebufferSizeCallback(window, window_size_callback);
+
+  // render scene and GUI window
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  glfwSwapBuffers(window);
+  glfwPollEvents();
+
+  // maintain a max of 120hertz
+  double dt = glfwGetTime() - time;
+  while (dt < (1 / 120.0))
+  {
+    dt = glfwGetTime() - time;
+  }
+}
+
 int main()
 {
   // make a window
   GLFWwindow* window = nullptr;
   if (WindowInit(1600 , 1200 , 4, 0, &window) == false)
     return -1;
-
-  // GL state setting
-#ifdef _DEBUG
-  glEnable(GL_DEBUG_OUTPUT);
-  glDebugMessageCallback(MessageCallback, 0);
-#endif
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glEnable(GL_DEPTH_TEST);
   
-  // initialization of generic scene
+  // setup GLFW and IMgui
   InitGUI(window);
 
   while (!glfwWindowShouldClose(window))
@@ -207,22 +222,11 @@ int main()
     double time = glfwGetTime();
     UpdateGUI();
 
-    //maintain viewport
-    glfwSetFramebufferSizeCallback(window, window_size_callback);
+    // sim loop
+    ObjectManager::getObjectManager();
 
-    // render scene and GUI window
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-
-    // maintain a max of 120hertz
-    double dt = glfwGetTime() - time;
-    while (dt < 1 / 120.0)
-    {
-      dt = glfwGetTime() - time;
-    }
+    // end of the loop
+    loopBottom(window, time);
   }
 
   Terminate();

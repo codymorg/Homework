@@ -62,6 +62,9 @@
     <ClCompile Include="Source\imGui\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imGUI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\imGui\imconfig.h">
@@ -87,6 +90,9 @@
     </ClInclude>
     <ClInclude Include="Source\imGui\imgui_impl_opengl3.h">
       <Filter>Source Files\imGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
