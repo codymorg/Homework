@@ -29,14 +29,16 @@ using std::vector;
 
 #include "Object.h"
 
-
-// common vectors
+// static stuff
 static vec3 up(0, 1, 0);
 static vec3 right(1, 0, 0);
 static vec3 down(0, -1, 0);
 static vec3 left(-1, 0, 0);
 static vec3 back(0, 0, -1);
 static vec3 forward(0, 0, 1);
+
+// managers
+ObjectManager* objManager = nullptr;
 
 bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window)
 {
@@ -180,17 +182,17 @@ void UpdateGUI()
 
 }
 
-void window_size_callback(GLFWwindow* window, int width, int height)
+void Window_size_callback(GLFWwindow* window, int width, int height)
 {
    int display_w, display_h;
    glfwGetFramebufferSize(window, &display_w, &display_h);
    glViewport(0, 0, display_w, display_h);
 }
 
-void loopBottom(GLFWwindow* window, float time)
+void LoopBottom(GLFWwindow* window, float time)
 {
   //maintain viewport
-  glfwSetFramebufferSizeCallback(window, window_size_callback);
+  glfwSetFramebufferSizeCallback(window, Window_size_callback);
 
   // render scene and GUI window
   ImGui::Render();
@@ -206,6 +208,11 @@ void loopBottom(GLFWwindow* window, float time)
   }
 }
 
+void TriangleScene()
+{
+  Object* tri = objManager->addObject("tri");
+}
+
 int main()
 {
   // make a window
@@ -215,6 +222,12 @@ int main()
   
   // setup GLFW and IMgui
   InitGUI(window);
+  
+  // managers setup
+  objManager = ObjectManager::getObjectManager();
+
+  // scene setup
+  TriangleScene();
 
   while (!glfwWindowShouldClose(window))
   {
@@ -223,10 +236,10 @@ int main()
     UpdateGUI();
 
     // sim loop
-    ObjectManager::getObjectManager();
+    objManager->render();
 
     // end of the loop
-    loopBottom(window, time);
+    LoopBottom(window, time);
   }
 
   Terminate();

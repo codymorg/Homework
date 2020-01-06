@@ -60,14 +60,23 @@ class Object
     // Setters
 
   private:
-
+    
     // object data
-    BoundingBox boundingBox;
-    glm::mat4 pretransform = glm::mat4(1.0f); // used mostly for rotating 
-    glm::mat4 modelToWorld = glm::mat4(1.0f);
-    std::vector<Vertex> vertices;
-    std::vector<glm::vec3> faceNormals;
-    unsigned renderMode = GL_TRIANGLES;
+    glm::vec3 boundingBox_[2];
+    glm::mat4 preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
+    glm::mat4 modelToWorld_ = glm::mat4(1.0f);
+    std::vector<Vertex> vertices_ = 
+    {
+      Vertex(glm::vec3(-0.5,-0.5,0)),
+      Vertex(glm::vec3(0.5,-0.5,0)),
+      Vertex(glm::vec3(0,0.5,0)),
+    };
+    std::vector<unsigned int> indices_ = 
+    {
+      0,1,2
+    };
+    std::vector<glm::vec3> faceNormals_;
+    unsigned renderMode_ = GL_TRIANGLES;
 
     // openGL stuff
     int shaderProgram_ = -1;
@@ -81,21 +90,25 @@ class Object
     void initBuffers();
 
     // uniform locations
-    int textureCountLoc = -1;
-    int modelToWorldLoc = -1;
+    int textureCountLoc_ = -1;
+    int modelToWorldLoc_ = -1;
+    int boundingBoxLoc_ = -1;
 };
 
 class ObjectManager
 {
   public:
-    static ObjectManager getObjectManager();
+    static ObjectManager* getObjectManager();
 
-    void update();
     void render();
+    Object* addObject(std::string ID = "anon");
     std::vector<Object*> getObjectsByName(std::string name);
     
   private:
-    ObjectManager();
+    ObjectManager(){};
+
+    std::vector<Object> objects_;
+    static ObjectManager* objectManager_;
 };
 
 #endif
