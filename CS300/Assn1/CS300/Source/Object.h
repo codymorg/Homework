@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 
+#include "ShaderManager.h"
+
 class Vertex
 {
 public:
@@ -56,8 +58,10 @@ class Object
     bool wiremode = false;
 
     // Getters
+    unsigned getShaderProgram();
 
     // Setters
+    void setShader(std::string vs, std::string fs, ShaderType type);
 
   private:
     
@@ -79,7 +83,7 @@ class Object
     unsigned renderMode_ = GL_TRIANGLES;
 
     // openGL stuff
-    int shaderProgram_ = -1;
+    Shader shader_;
     unsigned vbo_ = 0;
     unsigned vao_ = 0;
     unsigned ebo_ = 0;
@@ -99,6 +103,7 @@ class ObjectManager
 {
   public:
     static ObjectManager* getObjectManager();
+    ~ObjectManager();
 
     void render();
     Object* addObject(std::string ID = "anon");
@@ -106,9 +111,9 @@ class ObjectManager
     
   private:
     ObjectManager(){};
+    static ObjectManager* objectManager_;
 
     std::vector<Object> objects_;
-    static ObjectManager* objectManager_;
 };
 
 #endif

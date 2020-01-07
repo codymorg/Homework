@@ -19,16 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\fragmentShader.frag" />
-    <None Include="Source\normalShader.frag" />
-    <None Include="Source\Passthrough.vert" />
-    <None Include="Source\PhongDiffuse.vert" />
-    <None Include="Source\PhongLighting.frag" />
-    <None Include="Source\PhongLighting.vert" />
-    <None Include="Source\vertexShader.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Source\imGui\imgui.cpp" />
     <ClCompile Include="Source\imGui\imgui_draw.cpp" />
     <ClCompile Include="Source\imGui\imgui_impl_glfw.cpp" />
@@ -36,9 +26,10 @@
     <ClCompile Include="Source\imGui\imgui_widgets.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Object.cpp" />
+    <ClCompile Include="Source\Scene.cpp" />
+    <ClCompile Include="Source\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="Source\imGui\imconfig.h" />
     <ClInclude Include="Source\imGui\imgui.h" />
     <ClInclude Include="Source\imGui\imgui_impl_glfw.h" />
@@ -48,6 +39,19 @@
     <ClInclude Include="Source\imGui\imstb_textedit.h" />
     <ClInclude Include="Source\imGui\imstb_truetype.h" />
     <ClInclude Include="Source\Object.h" />
+    <ClInclude Include="Source\Scene.h" />
+    <ClInclude Include="Source\ShaderManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\fragmentShader.frag" />
+    <None Include="Shaders\FSQ.frag" />
+    <None Include="Shaders\FSQ.vert" />
+    <None Include="Shaders\normalShader.frag" />
+    <None Include="Shaders\passthrough.vert" />
+    <None Include="Shaders\PhongDiffuse.vert" />
+    <None Include="Shaders\PhongLighting.frag" />
+    <None Include="Shaders\PhongLighting.vert" />
+    <None Include="Shaders\vertexShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

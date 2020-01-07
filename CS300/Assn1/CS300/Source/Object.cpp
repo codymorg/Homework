@@ -77,7 +77,7 @@ void Object::scale(glm::vec3 scale)
 void Object::draw()
 {
   // bind everything we're using
-  //glUseProgram(shaderProgram_);
+  glUseProgram(shader_.getProgram());
   glBindVertexArray(vao_);
 
   if (!wiremode)
@@ -97,7 +97,17 @@ void Object::draw()
 
   // unbind
   glBindVertexArray(0);
-  //glUseProgram(0);
+  glUseProgram(0);
+}
+
+unsigned Object::getShaderProgram()
+{
+  return shader_.getProgram();
+}
+
+void Object::setShader(std::string vs, std::string fs, ShaderType type)
+{
+  shader_ = ShaderManager::getShaderManager()->getShader(type);
 }
 
 void Object::initBuffers()
@@ -131,6 +141,12 @@ ObjectManager* ObjectManager::getObjectManager()
     objectManager_ = new ObjectManager;
 
   return objectManager_;
+}
+
+ObjectManager::~ObjectManager()
+{ 
+  delete objectManager_;
+  objectManager_ = nullptr;
 }
 
 void ObjectManager::render()

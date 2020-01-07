@@ -8,26 +8,23 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-using glm::vec3;
-using glm::vec4;
-
+  using glm::vec3;
+  using glm::vec4;
 #include <iostream>
-using std::cout;
-
+  using std::cout;
 #include <fstream>
-using std::ifstream;
-
+  using std::ifstream;
 #include <string>
-using std::string;
-
+  using std::string;
 #include <vector>
-using std::vector;
+  using std::vector;
 
 #include "imGui/imgui.h"
 #include "imGui/imgui_impl_glfw.h"
 #include "imGui/imgui_impl_opengl3.h"
 
 #include "Object.h"
+#include "ShaderManager.h"
 
 // static stuff
 static vec3 up(0, 1, 0);
@@ -38,7 +35,8 @@ static vec3 back(0, 0, -1);
 static vec3 forward(0, 0, 1);
 
 // managers
-ObjectManager* objManager = nullptr;
+ObjectManager* objectMgr = nullptr;
+ShaderManager* shaderMgr = nullptr;
 
 bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window)
 {
@@ -74,6 +72,7 @@ bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window
     return getchar();
   }
   glViewport(0, 0, width, height);
+
   // window is gtg
   return true;
 }
@@ -210,7 +209,8 @@ void LoopBottom(GLFWwindow* window, float time)
 
 void TriangleScene()
 {
-  Object* tri = objManager->addObject("tri");
+  Object* tri = objectMgr->addObject("tri");
+  tri->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
 }
 
 int main()
@@ -224,7 +224,8 @@ int main()
   InitGUI(window);
   
   // managers setup
-  objManager = ObjectManager::getObjectManager();
+  objectMgr = ObjectManager::getObjectManager();
+  shaderMgr = ShaderManager::getShaderManager();
 
   // scene setup
   TriangleScene();
@@ -236,7 +237,7 @@ int main()
     UpdateGUI();
 
     // sim loop
-    objManager->render();
+    objectMgr->render();
 
     // end of the loop
     LoopBottom(window, time);

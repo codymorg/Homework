@@ -13,35 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\shaders">
-      <UniqueIdentifier>{a6e50aa2-ef30-4fed-90ea-1cb3a5309f45}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\imGUI">
       <UniqueIdentifier>{e08ef7b1-ba35-404f-b4fd-b9ac0e7c76d7}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Source\fragmentShader.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\vertexShader.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\normalShader.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongLighting.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongLighting.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongDiffuse.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\Passthrough.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{79075f6a-0cb4-44b7-9de8-4e5871c8f33d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp">
@@ -65,7 +42,10 @@
     <ClCompile Include="Source\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
+    <ClCompile Include="Source\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -97,8 +77,40 @@
     <ClInclude Include="Source\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
+    <ClInclude Include="Source\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ShaderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\fragmentShader.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\FSQ.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\FSQ.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\normalShader.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\PhongDiffuse.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\PhongLighting.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\PhongLighting.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertexShader.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\passthrough.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
