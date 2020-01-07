@@ -46,8 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragmentShader.frag" />
-    <None Include="Shaders\FSQ.frag" />
-    <None Include="Shaders\FSQ.vert" />
     <None Include="Shaders\normalShader.frag" />
     <None Include="Shaders\passthrough.vert" />
     <None Include="Shaders\PhongDiffuse.vert" />

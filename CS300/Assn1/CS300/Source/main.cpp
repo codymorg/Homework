@@ -38,7 +38,6 @@ static vec3 forward(0, 0, 1);
 // managers
 static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
-static Camera* camera = nullptr; // not strictly a manager
 
 bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window)
 {
@@ -190,7 +189,7 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
    glViewport(0, 0, display_w, display_h);
 }
 
-void LoopBottom(GLFWwindow* window, float time)
+void GUIendFrame(GLFWwindow* window, float time)
 {
   //maintain viewport
   glfwSetFramebufferSizeCallback(window, Window_size_callback);
@@ -229,7 +228,8 @@ int main()
   // managers setup
   objectMgr = ObjectManager::getObjectManager();
   shaderMgr = ShaderManager::getShaderManager();
-  camera = new Camera()
+
+  Camera camera = Camera(vec3(0, -4, -8), 30.0f, right);
 
   // scene setup
   SceneSetup();
@@ -243,8 +243,8 @@ int main()
     // sim loop
 
     // end of the loop
-    objectMgr->render();
-    LoopBottom(window, time);
+    objectMgr->render(camera);
+    GUIendFrame(window, time);
   }
 
   Terminate();
