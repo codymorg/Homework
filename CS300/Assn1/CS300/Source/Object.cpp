@@ -178,11 +178,15 @@ ObjectManager::~ObjectManager()
   objectManager_ = nullptr;
 }
 
-void ObjectManager::render()
+void ObjectManager::render(Camera& camera)
 {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  // update shaders
+  ShaderManager::getShaderManager()->updateShaders(camera);
+
+  // draw each object
   for(Object obj : objects_)
   {
     obj.draw();

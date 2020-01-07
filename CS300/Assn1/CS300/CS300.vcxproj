@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\imGui\imgui.cpp" />
     <ClCompile Include="Source\imGui\imgui_draw.cpp" />
     <ClCompile Include="Source\imGui\imgui_impl_glfw.cpp" />
@@ -30,6 +31,7 @@
     <ClCompile Include="Source\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\imGui\imconfig.h" />
     <ClInclude Include="Source\imGui\imgui.h" />
     <ClInclude Include="Source\imGui\imgui_impl_glfw.h" />

@@ -12,6 +12,7 @@ Date  :   4 OCT 2019
 End Header --------------------------------------------------------*/
 
 #include "ShaderManager.h"
+#include "Camera.h"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -43,6 +44,27 @@ void Shader::shutdownShader()
 int Shader::getProgram()
 {
   return shaderProgram_;
+}
+
+// update this shader's camera matrix
+void Shader::updateWorldToCamTransform(glm::mat4 trans)
+{
+  // this is neccesary
+  if(worldToCamLoc_ == -1)
+    worldToCamLoc_ = glGetUniformLocation(shaderProgram_, "worldToCam");
+  assert(worldToCamLoc_ != -1 && "camera matrix location is invalid");
+
+  glUniformMatrix4fv(worldToCamLoc_, 1, GL_FALSE, &trans[0][0]);
+}
+
+void Shader::updateProjectionTransform(glm::mat4 trans)
+{
+  // this is neccesary
+  if (projectionLoc_ == -1)
+    projectionLoc_ = glGetUniformLocation(shaderProgram_, "projection");
+  assert(projectionLoc_ != -1 && "projection location is invalid");
+  
+  glUniformMatrix4fv(projectionLoc_, 1, GL_FALSE, &trans[0][0]);
 }
 
 int Shader::reloadProgram()
@@ -137,7 +159,7 @@ int Shader::InitShaderProgram(string vertShaderLocation, string fragShaderLocati
 
 ShaderManager::ShaderManager()
 {
-  compiledShaders_ = new Shader[int(ShaderType::TypeCount)];
+  compiledShaders_.reserve(int(ShaderType::TypeCount));
 
   // create all the shaders here
   addShader("Shaders/Passthrough.vert", "Shaders/normalShader.frag", ShaderType::Passthrough);
@@ -150,13 +172,12 @@ ShaderManager::~ShaderManager()
     compiledShaders_[i].shutdownShader();
   }
 
-  delete[] compiledShaders_;
   delete shaderManager_;
   shaderManager_ = nullptr;
 }
 
 
-Shader ShaderManager::addShader(std::string vertexShader, std::string fragShader, ShaderType shaderType)
+Shader ShaderManager::addShader(const std::string& vertexShader, const std::string& fragShader, ShaderType shaderType)
 {
   // you are changing the shader for this type
   if (compiledShaders_[int(shaderType)].getProgram() != -1)
@@ -174,6 +195,16 @@ Shader ShaderManager::addShader(std::string vertexShader, std::string fragShader
 Shader ShaderManager::getShader(ShaderType shaderType)
 {
   return compiledShaders_[int(shaderType)];
+}
+
+void ShaderManager::updateShaders(Camera& camera)
+{
+  for (Shader& shader : compiledShaders_)
+  {
+    glUseProgram(shader.getProgram());
+    shader.updateWorldToCamTransform(camera.worldToCam);
+    shader.updateProjectionTransform(camera.projection);
+  }
 }
 
 unsigned ShaderManager::reCompile(ShaderType shaderType)

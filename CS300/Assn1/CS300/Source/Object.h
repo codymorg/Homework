@@ -17,6 +17,8 @@
 
 #include "ShaderManager.h"
 
+typedef class Camera;
+
 class Vertex
 {
 public:
@@ -105,7 +107,7 @@ class ObjectManager
     static ObjectManager* getObjectManager();
     ~ObjectManager();
 
-    void render();
+    void render(Camera& camera);
     Object* addObject(std::string ID = "anon");
     std::vector<Object*> getObjectsByName(std::string name);
     

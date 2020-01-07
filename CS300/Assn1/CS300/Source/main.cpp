@@ -25,6 +25,7 @@
 
 #include "Object.h"
 #include "ShaderManager.h"
+#include "Camera.h"
 
 // static stuff
 static vec3 up(0, 1, 0);
@@ -35,8 +36,9 @@ static vec3 back(0, 0, -1);
 static vec3 forward(0, 0, 1);
 
 // managers
-ObjectManager* objectMgr = nullptr;
-ShaderManager* shaderMgr = nullptr;
+static ObjectManager* objectMgr = nullptr;
+static ShaderManager* shaderMgr = nullptr;
+static Camera* camera = nullptr; // not strictly a manager
 
 bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window)
 {
@@ -227,6 +229,7 @@ int main()
   // managers setup
   objectMgr = ObjectManager::getObjectManager();
   shaderMgr = ShaderManager::getShaderManager();
+  camera = new Camera()
 
   // scene setup
   SceneSetup();

@@ -18,6 +18,8 @@ End Header --------------------------------------------------------*/
 #include <string>
 #include <vector>
 
+typedef class Camera;
+
 enum class ShaderType
 {
   None,
@@ -45,6 +47,8 @@ public:
   void shutdownShader();
 
   int getProgram();
+  void updateWorldToCamTransform(glm::mat4 trans);
+  void updateProjectionTransform(glm::mat4 trans);
 
   int reloadProgram();
 
@@ -65,6 +69,9 @@ protected:
   ShaderType type_ = ShaderType::None;
   std::string vertShader_;
   std::string fragShader_;
+
+  int worldToCamLoc_ = -1;
+  int projectionLoc_ = -1;
 };
 
 
@@ -75,9 +82,9 @@ public:
   static ShaderManager* getShaderManager();
   ~ShaderManager();
 
-  Shader addShader(std::string vertexShader, std::string fragShader, ShaderType shaderType);
+  Shader addShader(const std::string& vertexShader, const std::string& fragShader, ShaderType shaderType);
   Shader getShader(ShaderType shaderType);
-
+  void updateShaders(Camera& camera);
   unsigned reCompile(ShaderType shaderType);
   unsigned getCurrentBound();
   std::vector<int> getAllShaders();
@@ -86,7 +93,7 @@ private:
   ShaderManager();
   static ShaderManager* shaderManager_;
 
-  Shader* compiledShaders_;
+  std::vector<Shader> compiledShaders_;
 };
 
 #endif
