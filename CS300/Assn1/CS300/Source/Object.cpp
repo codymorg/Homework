@@ -44,6 +44,35 @@ void Object::loadOBJ(std::string location)
 
 void Object::loadeCube(float radius)
 {
+  vertices_ =
+  {
+    Vertex(vec3(-0.5f, -0.5f,  0.5f)),
+    Vertex(vec3(0.5f, -0.5f,  0.5f)),
+    Vertex(vec3(0.5f,  0.5f,  0.5f)),
+    Vertex(vec3(-0.5f,  0.5f,  0.5f)),
+    Vertex(vec3(-0.5f, -0.5f, -0.5f)),
+    Vertex(vec3(0.5f, -0.5f, -0.5f)),
+    Vertex(vec3(0.5f,  0.5f, -0.5f)),
+    Vertex(vec3(-0.5f,  0.5f, -0.5f))
+  };
+
+  indices_ =
+  {
+    0,1,2, // Front
+    0,2,3,
+    0,5,1, // Bottom
+    0,4,5,
+    1,5,6, // Right
+    1,6,2,
+    4,0,3, // Left
+    4,3,7,
+    4,7,6, // Back
+    4,6,5,
+    3,2,6, // Top
+    3,6,7
+  };
+
+  initBuffers();
 }
 
 void Object::loadSphere(float radius, int divisions)

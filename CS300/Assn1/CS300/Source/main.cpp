@@ -207,10 +207,11 @@ void LoopBottom(GLFWwindow* window, float time)
   }
 }
 
-void TriangleScene()
+void SceneSetup()
 {
-  Object* tri = objectMgr->addObject("tri");
-  tri->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
+  Object* obj = objectMgr->addObject("Object");
+  obj->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
+  obj->loadeCube(1.0f);
 }
 
 int main()
@@ -228,7 +229,7 @@ int main()
   shaderMgr = ShaderManager::getShaderManager();
 
   // scene setup
-  TriangleScene();
+  SceneSetup();
 
   while (!glfwWindowShouldClose(window))
   {
@@ -237,9 +238,9 @@ int main()
     UpdateGUI();
 
     // sim loop
-    objectMgr->render();
 
     // end of the loop
+    objectMgr->render();
     LoopBottom(window, time);
   }
 
