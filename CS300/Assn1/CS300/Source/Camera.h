@@ -25,12 +25,11 @@ public:
   Camera(glm::vec3 position, float angle, glm::vec3 axis);
 
   void translate(glm::vec3 translation);
-  void update(ShaderManager& shaderManager);
   void rotate(float degrees, glm::vec3 axis);
   void reset();
 
   glm::mat4 worldToCam = glm::mat4(1.0f);
-  glm::mat4 projection;
+  glm::mat4 projection = glm::mat4(1.0f);
 
   int width = 0;
   int height = 0;

@@ -49,22 +49,30 @@ int Shader::getProgram()
 // update this shader's camera matrix
 void Shader::updateWorldToCamTransform(glm::mat4 trans)
 {
+  glUseProgram(shaderProgram_);
+
   // this is neccesary
   if(worldToCamLoc_ == -1)
     worldToCamLoc_ = glGetUniformLocation(shaderProgram_, "worldToCam");
   assert(worldToCamLoc_ != -1 && "camera matrix location is invalid");
 
+  // update and exit shader
   glUniformMatrix4fv(worldToCamLoc_, 1, GL_FALSE, &trans[0][0]);
+  glUseProgram(0);
 }
 
 void Shader::updateProjectionTransform(glm::mat4 trans)
 {
+  glUseProgram(shaderProgram_);
+
   // this is neccesary
   if (projectionLoc_ == -1)
     projectionLoc_ = glGetUniformLocation(shaderProgram_, "projection");
   assert(projectionLoc_ != -1 && "projection location is invalid");
   
   glUniformMatrix4fv(projectionLoc_, 1, GL_FALSE, &trans[0][0]);
+  glUseProgram(0);
+
 }
 
 int Shader::reloadProgram()
@@ -159,7 +167,7 @@ int Shader::InitShaderProgram(string vertShaderLocation, string fragShaderLocati
 
 ShaderManager::ShaderManager()
 {
-  compiledShaders_.reserve(int(ShaderType::TypeCount));
+  compiledShaders_ = new Shader[int(ShaderType::TypeCount)];
 
   // create all the shaders here
   addShader("Shaders/Passthrough.vert", "Shaders/normalShader.frag", ShaderType::Passthrough);
@@ -199,11 +207,13 @@ Shader ShaderManager::getShader(ShaderType shaderType)
 
 void ShaderManager::updateShaders(Camera& camera)
 {
-  for (Shader& shader : compiledShaders_)
+  for (int i = 0; i < int(ShaderType::TypeCount); i++)
   {
-    glUseProgram(shader.getProgram());
-    shader.updateWorldToCamTransform(camera.worldToCam);
-    shader.updateProjectionTransform(camera.projection);
+    if (compiledShaders_[i].getProgram() != -1)
+    {
+      compiledShaders_[i].updateWorldToCamTransform(camera.worldToCam);
+      compiledShaders_[i].updateProjectionTransform(camera.projection);
+    }
   }
 }
 

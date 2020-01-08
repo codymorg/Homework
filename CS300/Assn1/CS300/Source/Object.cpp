@@ -35,7 +35,6 @@ Object::Object(std::string ID)
   glGenBuffers(1, &ebo_);
   initBuffers();
 
-  // shader setup
 }
 
 void Object::loadOBJ(std::string location)
@@ -137,6 +136,10 @@ unsigned Object::getShaderProgram()
 void Object::setShader(std::string vs, std::string fs, ShaderType type)
 {
   shader_ = ShaderManager::getShaderManager()->getShader(type);
+
+  // set shader locations for object
+  modelToWorldLoc_ = glGetUniformLocation(shader_.getProgram(), "modelToWorld");
+  assert(modelToWorldLoc_ != -1 && "model matrix location is invalid");
 }
 
 void Object::initBuffers()

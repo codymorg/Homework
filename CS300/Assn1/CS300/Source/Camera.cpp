@@ -49,22 +49,3 @@ void Camera::reset()
 }
 
 
-void Camera::update(ShaderManager& shaderManager)
-{
-  std::vector<int> shaders = shaderManager.getAllShaders();
-  for (int shader : shaders)
-  {
-    glUseProgram(shader);
-    viewLoc = glGetUniformLocation(shader, "view");
-    projectionLoc = glGetUniformLocation(shader, "projection");
-    //cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
-    assert(viewLoc >= 0);
-
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &worldToCam[0][0]);
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
-    //glUniform3fv(cameraPosLoc, 1, glm::value_ptr(view[3]));
-    glUseProgram(0);
-
-  }
-}
-

@@ -18,6 +18,8 @@ End Header --------------------------------------------------------*/
 #include <string>
 #include <vector>
 
+#include "glm//common.hpp"
+
 typedef class Camera;
 
 enum class ShaderType
@@ -93,7 +95,7 @@ private:
   ShaderManager();
   static ShaderManager* shaderManager_;
 
-  std::vector<Shader> compiledShaders_;
+  Shader* compiledShaders_;
 };
 
 #endif
