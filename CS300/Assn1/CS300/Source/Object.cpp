@@ -5,10 +5,14 @@
 ******************************************************************************/
 
 #include "Object.h"
-using std::vector;
-using glm::vec3;
-using glm::vec4;
-using glm::mat4;
+  using std::vector;
+  using glm::vec3;
+  using glm::vec4;
+  using glm::mat4;
+
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 ObjectManager* ObjectManager::objectManager_ = nullptr;
 
@@ -34,25 +38,24 @@ Object::Object(std::string ID)
   glGenBuffers(1, &vbo_);
   glGenBuffers(1, &ebo_);
   initBuffers();
-
 }
 
 void Object::loadOBJ(std::string location)
 {
 }
 
-void Object::loadeCube(float radius)
+void Object::loadeCube(float side)
 {
   vertices_ =
   {
-    Vertex(vec3(-0.5f, -0.5f,  0.5f)),
-    Vertex(vec3(0.5f, -0.5f,  0.5f)),
-    Vertex(vec3(0.5f,  0.5f,  0.5f)),
-    Vertex(vec3(-0.5f,  0.5f,  0.5f)),
-    Vertex(vec3(-0.5f, -0.5f, -0.5f)),
-    Vertex(vec3(0.5f, -0.5f, -0.5f)),
-    Vertex(vec3(0.5f,  0.5f, -0.5f)),
-    Vertex(vec3(-0.5f,  0.5f, -0.5f))
+    Vertex(vec3(-side / 2, -side / 2,  side / 2)),
+    Vertex(vec3(side / 2, -side / 2,  side / 2)),
+    Vertex(vec3(side / 2,  side / 2,  side / 2)),
+    Vertex(vec3(-side / 2,  side / 2,  side / 2)),
+    Vertex(vec3(-side / 2, -side / 2, -side / 2)),
+    Vertex(vec3(side / 2, -side / 2, -side / 2)),
+    Vertex(vec3(side / 2,  side / 2, -side / 2)),
+    Vertex(vec3(-side / 2,  side / 2, -side / 2))
   };
 
   indices_ =
@@ -74,32 +77,21 @@ void Object::loadeCube(float radius)
   initBuffers();
 }
 
-void Object::loadSphere(float radius, int divisions)
-{
-}
-
-void Object::loadCircle(float radius, int divisions, glm::vec3 axis)
-{
-}
-
-void Object::loadPlane(float radius)
-{
-}
-
-void Object::loadTexture(std::string location, int slot)
-{
-}
-
 void Object::translate(glm::vec3 trans)
 {
+  modelToWorld_ = glm::translate(modelToWorld_, trans);
 }
 
-void Object::rotate(float degrees, float radius, glm::vec3 axis)
+void Object::rotate(float degrees, glm::vec3 center, glm::vec3 axis)
 {
+  modelToWorld_ = glm::translate(modelToWorld_, center);
+  modelToWorld_ = glm::rotate(modelToWorld_, glm::radians(degrees), axis);
+  modelToWorld_ = glm::translate(modelToWorld_, -center);
 }
 
 void Object::scale(glm::vec3 scale)
 {
+  modelToWorld_ = glm::scale(modelToWorld_, scale);
 }
 
 void Object::draw()
@@ -215,4 +207,16 @@ std::vector<Object*> ObjectManager::getObjectsByName(std::string name)
   }
 
   return namedObjects;
+}
+
+Object* ObjectManager::getFirstObjectByName(std::string name)
+{
+  // retern first object with this name
+  for (Object& obj : objects_)
+  {
+    if (obj.name == name)
+      return &obj;
+  }
+
+  return nullptr;
 }

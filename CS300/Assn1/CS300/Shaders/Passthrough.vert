@@ -11,6 +11,7 @@ out vec3 norm;
 
 void main()
 {
-  gl_Position = projection * worldToCam * modelToWorld * vec4(pos,1.0f);
-  norm = pos + 0.5f;
+  mat4 viewModel = worldToCam * modelToWorld;
+  gl_Position = projection * viewModel * vec4(pos,1.0f);
+  norm = normalize(mat3(transpose(inverse(viewModel))) * normal);
 }

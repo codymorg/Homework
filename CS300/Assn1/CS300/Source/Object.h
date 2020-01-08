@@ -50,14 +50,14 @@ class Object
 
     // object manipulation
     void translate(glm::vec3 trans);
-    void rotate(float degrees, float radius, glm::vec3 axis = glm::vec3(0,1,0));
+    void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0,1,0));
     void scale(glm::vec3 scale);
 
     void draw();
 
     // public data
     std::string name;
-    bool wiremode = false;
+    bool        wiremode = false;
 
     // Getters
     unsigned getShaderProgram();
@@ -68,21 +68,17 @@ class Object
   private:
     
     // object data
-    glm::vec3 boundingBox_[2];
-    glm::mat4 preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
-    glm::mat4 modelToWorld_ = glm::mat4(1.0f);
+    glm::vec3           boundingBox_[2];
+    glm::mat4           preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
+    glm::mat4           modelToWorld_ = glm::mat4(1.0f);
+    unsigned            renderMode_ = GL_TRIANGLES;
     std::vector<Vertex> vertices_ = 
     {
       Vertex(glm::vec3(-0.5,-0.5,0)),
       Vertex(glm::vec3(0.5,-0.5,0)),
       Vertex(glm::vec3(0,0.5,0)),
     };
-    std::vector<unsigned int> indices_ = 
-    {
-      0,1,2
-    };
-    std::vector<glm::vec3> faceNormals_;
-    unsigned renderMode_ = GL_TRIANGLES;
+    std::vector<unsigned int> indices_ = { 0,1,2 };
 
     // openGL stuff
     Shader shader_;
@@ -107,9 +103,10 @@ class ObjectManager
     static ObjectManager* getObjectManager();
     ~ObjectManager();
 
-    void render(Camera& camera);
-    Object* addObject(std::string ID = "anon");
+    void                 render(Camera& camera);
+    Object*              addObject(std::string ID = "anon");
     std::vector<Object*> getObjectsByName(std::string name);
+    Object* getFirstObjectByName(std::string name);
     
   private:
     ObjectManager(){};

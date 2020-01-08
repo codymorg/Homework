@@ -213,6 +213,15 @@ void SceneSetup()
   Object* obj = objectMgr->addObject("Object");
   obj->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
   obj->loadeCube(1.0f);
+
+  Object* obj2 = objectMgr->addObject("Object2");
+  obj2->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
+  obj2->loadeCube(0.5f);
+  obj2->translate(vec3(3, 0, 0));
+}
+void SceneUpdate()
+{
+  objectMgr->getFirstObjectByName("Object")->rotate(1,vec3(3,0,0));
 }
 
 int main()
@@ -241,6 +250,7 @@ int main()
     UpdateGUI();
 
     // sim loop
+    SceneUpdate();
 
     // end of the loop
     objectMgr->render(camera);
