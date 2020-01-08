@@ -220,3 +220,19 @@ Object* ObjectManager::getFirstObjectByName(std::string name)
 
   return nullptr;
 }
+
+Object* ObjectManager::getAt(unsigned index)
+{
+  return &objects_[index];
+}
+
+Object* ObjectManager::getSelected()
+{
+  return &objects_[selectedObject];
+}
+
+unsigned ObjectManager::getSize()
+{
+  return objects_.size();
+}
+

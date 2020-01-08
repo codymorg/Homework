@@ -167,8 +167,20 @@ void InitGUI(GLFWwindow* window)
   ImGui::StyleColorsDark();
 }
 
+void ProcessInput(GLFWwindow* window)
+{
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    objectMgr->getSelected()->translate(left * 0.1f);
+}
+
 void UpdateGUI()
 {
+  //get all current state data
+  int& selectedObject = ObjectManager::getObjectManager()->selectedObject;
+
+
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -176,9 +188,20 @@ void UpdateGUI()
 
   ImGui::Begin("Welcome to CS300 Assignment 2!");
 
-  // normal stuff
+  // options
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+  ImGui::Text("Selected Object");
+  ImGui::SliderInt(objectMgr->getAt(selectedObject)->name.c_str(), &selectedObject, 0, objectMgr->getSize() -1);
+
+  bool recompileShaders = ImGui::Button("Recompile Shaders");
+
   ImGui::End();
+
+  // effects
+  if (recompileShaders)
+  {
+    shaderMgr->reCompile(ShaderType::TypeCount);
+  }
 
 }
 
@@ -238,9 +261,8 @@ int main()
   objectMgr = ObjectManager::getObjectManager();
   shaderMgr = ShaderManager::getShaderManager();
 
-  Camera camera = Camera(vec3(0, -4, -8), 30.0f, right);
-
   // scene setup
+  Camera camera = Camera(vec3(0, -4, -8), 30.0f, right);
   SceneSetup();
 
   while (!glfwWindowShouldClose(window))
@@ -248,6 +270,7 @@ int main()
     // scene loop
     double time = glfwGetTime();
     UpdateGUI();
+    ProcessInput(window);
 
     // sim loop
     SceneUpdate();

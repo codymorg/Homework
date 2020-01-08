@@ -105,9 +105,17 @@ class ObjectManager
 
     void                 render(Camera& camera);
     Object*              addObject(std::string ID = "anon");
+
+    // getters
     std::vector<Object*> getObjectsByName(std::string name);
-    Object* getFirstObjectByName(std::string name);
-    
+    Object*              getFirstObjectByName(std::string name);
+    Object*              getAt(unsigned index);
+    Object*              getSelected();
+    unsigned             getSize();
+
+    // data
+    int selectedObject = 0; // which object the GUI is looking at
+
   private:
     ObjectManager(){};
     static ObjectManager* objectManager_;
