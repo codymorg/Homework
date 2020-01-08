@@ -27,7 +27,7 @@
 #include "ShaderManager.h"
 #include "Camera.h"
 
-// static stuff
+// common vectors
 static vec3 up(0, 1, 0);
 static vec3 right(1, 0, 0);
 static vec3 down(0, -1, 0);
@@ -38,6 +38,11 @@ static vec3 forward(0, 0, 1);
 // managers
 static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
+static Camera* camera = nullptr;
+
+
+/////***** Window and OpenGL Management *****/////
+
 
 bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window)
 {
@@ -143,6 +148,17 @@ void GLAPIENTRY MessageCallback(GLenum source,
   }
 }
 
+void Window_size_callback(GLFWwindow* window, int width, int height)
+{
+  int display_w, display_h;
+  glfwGetFramebufferSize(window, &display_w, &display_h);
+  glViewport(0, 0, display_w, display_h);
+}
+
+
+/////***** GUI Management *****/////
+
+
 void InitGUI(GLFWwindow* window)
 {
   // GL state setting
@@ -171,28 +187,40 @@ void ProcessInput(GLFWwindow* window)
 {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
+
+  // camera movement
+  float speed = 0.1f;
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    camera->translate(forward * speed);
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    objectMgr->getSelected()->translate(left * 0.1f);
+    camera->translate(right * speed);
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    camera->translate(back * speed);
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    camera->translate(left * speed);
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    camera->translate(up * speed);
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    camera->translate(down * speed);
 }
 
 void UpdateGUI()
 {
-  //get all current state data
+  // get all current state data
   int& selectedObject = ObjectManager::getObjectManager()->selectedObject;
-
 
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
+  // text
   ImGui::Begin("Welcome to CS300 Assignment 2!");
-
-  // options
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
   ImGui::Text("Selected Object");
-  ImGui::SliderInt(objectMgr->getAt(selectedObject)->name.c_str(), &selectedObject, 0, objectMgr->getSize() -1);
 
+  // options
+  bool changedObject = ImGui::SliderInt(objectMgr->getAt(selectedObject)->name.c_str(), &selectedObject, 0, objectMgr->getSize() -1);
   bool recompileShaders = ImGui::Button("Recompile Shaders");
 
   ImGui::End();
@@ -203,13 +231,6 @@ void UpdateGUI()
     shaderMgr->reCompile(ShaderType::TypeCount);
   }
 
-}
-
-void Window_size_callback(GLFWwindow* window, int width, int height)
-{
-   int display_w, display_h;
-   glfwGetFramebufferSize(window, &display_w, &display_h);
-   glViewport(0, 0, display_w, display_h);
 }
 
 void GUIendFrame(GLFWwindow* window, float time)
@@ -231,20 +252,26 @@ void GUIendFrame(GLFWwindow* window, float time)
   }
 }
 
+
+/////***** Scene Management *****/////
+
+
 void SceneSetup()
 {
   Object* obj = objectMgr->addObject("Object");
   obj->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
-  obj->loadeCube(1.0f);
+  obj->loadOBJ("Common/models/4Sphere.obj");
 
   Object* obj2 = objectMgr->addObject("Object2");
   obj2->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
-  obj2->loadeCube(0.5f);
-  obj2->translate(vec3(3, 0, 0));
+  obj2->loadSphere(1.0f, 50);
+  obj2->translate(right * 3.0f);
 }
+
 void SceneUpdate()
 {
-  objectMgr->getFirstObjectByName("Object")->rotate(1,vec3(3,0,0));
+  objectMgr->getFirstObjectByName("Object")->rotate(1);
+  objectMgr->getFirstObjectByName("Object2")->rotate(-1,left * 3.0f);
 }
 
 int main()
@@ -262,7 +289,7 @@ int main()
   shaderMgr = ShaderManager::getShaderManager();
 
   // scene setup
-  Camera camera = Camera(vec3(0, -4, -8), 30.0f, right);
+  camera =  new Camera(vec3(0, -4, -8), 30.0f, right);
   SceneSetup();
 
   while (!glfwWindowShouldClose(window))
@@ -276,7 +303,7 @@ int main()
     SceneUpdate();
 
     // end of the loop
-    objectMgr->render(camera);
+    objectMgr->render(*camera);
     GUIendFrame(window, time);
   }
 

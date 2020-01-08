@@ -6,9 +6,19 @@
 
 #include "Object.h"
   using std::vector;
+  using std::string;
   using glm::vec3;
   using glm::vec4;
   using glm::mat4;
+
+#include <fstream>
+  using std::ifstream;
+#include <sstream>
+#include <algorithm>
+  using std::min;
+  using std::max;
+#include <iostream>
+  using std::cout;
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
@@ -19,11 +29,11 @@ ObjectManager* ObjectManager::objectManager_ = nullptr;
 
 /////***** Vertex stuff *****/////
 
-Vertex::Vertex(glm::vec3 pos)
-{
-  position = pos;
-  normal = pos;
-}
+Vertex::Vertex(vec3 pos) : position(pos), normal(pos)
+{}
+
+Vertex::Vertex(vec3 pos, vec3 norm) : position(pos), normal(norm)
+{}
 
 
 /////***** Object stuff *****/////
@@ -40,8 +50,155 @@ Object::Object(std::string ID)
   initBuffers();
 }
 
-void Object::loadOBJ(std::string location)
+void Object::loadOBJ(string fileLocation)
 {
+  ifstream file(fileLocation);
+
+  // load vert data and normal data
+  if (file)
+  {
+    vector<float>verts; // vertex numbers
+
+    // bounding box
+    vec3 maxPos = vec3(INT_MIN, INT_MIN, INT_MIN);
+    vec3 minPos = vec3(INT_MAX, INT_MAX, INT_MAX);
+
+    // since the file is good - clear the old vertex data if any
+    vertices_.clear();
+    indices_.clear();
+    modelToWorld_ = glm::mat4();
+
+    string line;
+    while (getline(file, line))
+    {
+      if (line.substr(0, 2) == "v " || line.substr(0, 2) == "v\t")
+      {
+        std::istringstream objData(line.substr(2));
+        float vertexData;
+        for (size_t i = 0; i < 3; i++)
+        {
+          objData >> vertexData;
+          verts.push_back(vertexData);
+          minPos[i] = min(minPos[i], vertexData);
+          maxPos[i] = max(maxPos[i], vertexData);
+        }
+      }
+      else if (line.substr(0, 2) == "f ")
+      {
+        std::istringstream objData(line.substr(2));
+        std::string token;
+        int faceCount = 0;
+        vector<unsigned> fanIndices;
+
+        // if you have '//' delimiters you monster
+        if (line.find("//") != string::npos)
+        {
+          while (getline(objData, token, '/'))
+          {
+            int index;
+            std::istringstream substring(token);
+            substring >> index;
+
+            // add this face to the fan list if you have more than 3 faces
+            fanIndices.push_back(index - 1);
+            indices_.push_back(index - 1);
+
+            faceCount++;
+
+            // skip uv stuff
+            objData.get();
+            char peek = '\0';
+            while (peek != ' ' && peek != -1)
+            {
+              peek = objData.peek();
+              objData.get();
+            }
+          }
+        }
+
+        // if you have '\\' delimiters
+        else if (line.find("\\") != string::npos && line.find("\\par") == string::npos)
+        {
+          while (getline(objData, token, '\\'))
+          {
+            int index;
+            std::istringstream substring(token);
+            substring >> index;
+
+            fanIndices.push_back(index - 1);
+            faceCount++;
+
+            char peek = '\0';
+            while (peek != ' ' && peek != -1)
+            {
+              peek = objData.peek();
+              objData.get();
+            }
+            indices_.push_back(index - 1);
+          }
+        }
+
+        // if you have ' ' delimitation like a normal person
+        else
+        {
+          while (getline(objData, token, ' '))
+          {
+            int index;
+            std::istringstream substring(token);
+            substring >> index;
+            indices_.push_back(index - 1);
+            fanIndices.push_back(index - 1);
+
+            faceCount++;
+
+          }
+        }
+
+        if (faceCount > 3)
+        {
+          // shear off those fan faces
+          while (faceCount > 3)
+          {
+            indices_.pop_back();
+            faceCount--;
+          }
+
+          // convert fan to gl tris
+          unsigned triA = fanIndices[0];
+          for (int i = 0; i < fanIndices.size() - 3; i++)
+          {
+            unsigned triB = fanIndices[2 + i];
+            unsigned triC = fanIndices[3 + i];
+            indices_.push_back(triA);
+            indices_.push_back(triB);
+            indices_.push_back(triC);
+          }
+        }
+
+      }
+    }
+
+    // scale down to unit size and put at the origin
+    vec3 centroid = (maxPos + minPos) / 2.0f;
+    float modelScale = ((maxPos - minPos).x + (maxPos - minPos).y + (maxPos - minPos).z) / 3;
+    translate(-centroid);
+    scale(vec3(1 / modelScale));
+
+    // load data into vertex struct
+    for (size_t i = 0; i < verts.size(); i += 3)
+    {
+      //generate normals if not provided
+      vec3 vertData(verts[i], verts[i + 1], verts[i + 2]);
+      vec3 norm(modelToWorld_* vec4(vertData,1));
+      vertices_.push_back(Vertex(vertData, norm));
+    }
+
+    initBuffers();
+  }
+  else
+  {
+    cout << "error opening file: " << fileLocation << "\n";
+  }
 }
 
 void Object::loadeCube(float side)
@@ -73,6 +230,74 @@ void Object::loadeCube(float side)
     3,2,6, // Top
     3,6,7
   };
+
+  initBuffers();
+}
+
+void Object::loadSphere(float diameter, int divisions)
+{
+  float radius = diameter / 2;
+  // reset object geometry
+  vertices_.clear();
+  indices_.clear();
+
+  vec3 position;
+  vec3 norm;
+  float pi = glm::pi<float>();
+  float sectorStep = 2.0f * pi / divisions;
+  float stackStep = pi / divisions;
+  float theta = 0;
+  float phi = 0;
+  float length = 1.0f / radius;
+
+  // generate vertices
+  for (int i = 0; i <= divisions; ++i)
+  {
+    theta = pi / 2 - i * stackStep;
+    float xy = radius * cosf(theta);
+    position.z = radius * sinf(theta);
+
+    for (int j = 0; j <= divisions; ++j)
+    {
+      phi = j * sectorStep;
+      position.x = xy * cosf(phi);
+      position.y = xy * sinf(phi);
+
+      // normalized vertex normal (nx, ny, nz)
+      norm.x = position.x / radius;
+      norm.y = position.y / radius;
+      norm.z = position.z / radius;
+
+      vertices_.push_back(Vertex(position, norm));
+    }
+  }
+
+  // generate indices
+  unsigned k1;
+  unsigned k2;
+  for (int i = 0; i < divisions; ++i)
+  {
+    k1 = i * (divisions + 1);   // beginning of current stack
+    k2 = k1 + divisions + 1;    // beginning of next stack
+
+    for (int j = 0; j < divisions; ++j, ++k1, ++k2)
+    {
+      if (i != 0)
+      {
+        indices_.push_back(k1);
+        indices_.push_back(k2);
+        indices_.push_back(k1 + 1);
+      }
+
+      // k1+1 => k2 => k2+1
+      if (i != (divisions - 1))
+      {
+        indices_.push_back(k1 + 1);
+        indices_.push_back(k2);
+        indices_.push_back(k2 + 1);
+      }
+    }
+  }
 
   initBuffers();
 }
