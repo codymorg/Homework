@@ -29,7 +29,7 @@ ObjectManager* ObjectManager::objectManager_ = nullptr;
 
 /////***** Vertex stuff *****/////
 
-Vertex::Vertex(vec3 pos) : position(pos), normal(pos)
+Vertex::Vertex(vec3 pos) : position(pos), normal(vec3(0))
 {}
 
 Vertex::Vertex(vec3 pos, vec3 norm) : position(pos), normal(norm)
@@ -181,17 +181,16 @@ void Object::loadOBJ(string fileLocation)
     // scale down to unit size and put at the origin
     vec3 centroid = (maxPos + minPos) / 2.0f;
     float modelScale = ((maxPos - minPos).x + (maxPos - minPos).y + (maxPos - minPos).z) / 3;
+    scale(vec3(2 / modelScale));
     translate(-centroid);
-    scale(vec3(1 / modelScale));
 
     // load data into vertex struct
     for (size_t i = 0; i < verts.size(); i += 3)
     {
-      //generate normals if not provided
       vec3 vertData(verts[i], verts[i + 1], verts[i + 2]);
-      vec3 norm(modelToWorld_* vec4(vertData,1));
-      vertices_.push_back(Vertex(vertData, norm));
+      vertices_.push_back(Vertex(vertData));
     }
+    genVertexNormals();
 
     initBuffers();
   }
@@ -350,6 +349,11 @@ unsigned Object::getShaderProgram()
   return shader_.getProgram();
 }
 
+vec3 Object::getWorldPosition()
+{
+  return vec3(modelToWorld_[3]);
+}
+
 void Object::setShader(std::string vs, std::string fs, ShaderType type)
 {
   shader_ = ShaderManager::getShaderManager()->getShader(type);
@@ -381,6 +385,55 @@ void Object::initBuffers()
   glBindVertexArray(0);
 }
 
+void Object::genFaceNormals()
+{
+  faceNormals_.clear();
+
+  for (int i = 0; i < indices_.size(); i += 3)
+  {
+    const vec3& A = vertices_[indices_[i]].position;
+    const vec3& B = vertices_[indices_[i + 1]].position;
+    const vec3& C = vertices_[indices_[i + 2]].position;
+
+    vec3 center =
+    {
+      (A.x + B.x + C.x) / 3,
+      (A.y + B.y + C.y) / 3,
+      (A.z + B.z + C.z) / 3,
+    };
+
+    // find the normal of this triangle
+    vec3 vectorAB = vec3(B - A);
+    vec3 vectorBC = vec3(C - B);
+    vec3 norm = glm::cross(vectorAB, vectorBC);
+    norm = glm::normalize(norm);
+
+    faceNormals_.push_back(norm);
+  }
+}
+
+void Object::genVertexNormals()
+{
+  // ensure the face normals are generated
+  genFaceNormals();
+
+  // average the face normals for vertex normal
+  for (int i = 0; i < faceNormals_.size(); i++)
+  {
+    // apply the normal that affects these vertices
+    vec3 norm = faceNormals_[i];
+    for (int j = 0; j < 3; j++)
+    {
+      vertices_[indices_[(3 * i) + j]].normal += norm;
+    }
+  }
+
+  // normalize dem normals
+  for (Vertex& vert : vertices_)
+  {
+    vert.normal = glm::normalize(vert.normal);
+  }
+}
 
 /////***** Object Manager stuff *****/////
 
@@ -413,11 +466,25 @@ void ObjectManager::render(Camera& camera)
   }
 }
 
+void ObjectManager::removeAllObjects()
+{
+  selectedObject = -1;
+  isValid_ = false;
+  objects_.clear();
+}
+
 Object* ObjectManager::addObject(std::string ID)
 {
   objects_.push_back(Object(ID));
+  selectedObject = objects_.size() - 1;
+  isValid_ = true;
 
   return &objects_.back();
+}
+
+bool ObjectManager::isValid()
+{
+  return isValid_;
 }
 
 std::vector<Object*> ObjectManager::getObjectsByName(std::string name)
@@ -453,7 +520,10 @@ Object* ObjectManager::getAt(unsigned index)
 
 Object* ObjectManager::getSelected()
 {
-  return &objects_[selectedObject];
+  if (isValid_)
+    return &objects_[selectedObject];
+  else
+    return nullptr;
 }
 
 unsigned ObjectManager::getSize()

@@ -26,19 +26,13 @@
 #include "Object.h"
 #include "ShaderManager.h"
 #include "Camera.h"
+#include "Common.h"
 
-// common vectors
-static vec3 up(0, 1, 0);
-static vec3 right(1, 0, 0);
-static vec3 down(0, -1, 0);
-static vec3 left(-1, 0, 0);
-static vec3 back(0, 0, -1);
-static vec3 forward(0, 0, 1);
-
-// managers
+// managers and static variables
 static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
 static Camera* camera = nullptr;
+static bool pauseSimulation = false;
 
 
 /////***** Window and OpenGL Management *****/////
@@ -156,6 +150,42 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 }
 
 
+/////***** Scene Management *****/////
+
+
+void SceneSetup()
+{
+  Object* obj = objectMgr->addObject("model");
+  obj->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
+  obj->loadOBJ("Common/models/4Sphere.obj");
+
+  Object* obj2 = objectMgr->addObject("ball");
+  obj2->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
+  obj2->loadSphere(1.0f, 50);
+  obj2->translate(right * 3.0f);
+
+  Object* obj3 = objectMgr->addObject("center");
+  obj3->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
+  obj3->loadeCube(1.0f);
+  obj3->wiremode = true;
+
+}
+
+void SceneUpdate()
+{
+  // dont update invalid object managers
+  if (!objectMgr->isValid() || pauseSimulation)
+    return;
+
+  objectMgr->getFirstObjectByName("model")->rotate(1);
+  objectMgr->getFirstObjectByName("ball")->rotate(-1, left * 3.0f);
+}
+
+void SceneShutdown()
+{
+  objectMgr->removeAllObjects();
+}
+
 /////***** GUI Management *****/////
 
 
@@ -202,12 +232,32 @@ void ProcessInput(GLFWwindow* window)
     camera->translate(up * speed);
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
     camera->translate(down * speed);
+
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    pauseSimulation = true;
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+    pauseSimulation = false;
 }
 
 void UpdateGUI()
 {
   // get all current state data
-  int& selectedObject = ObjectManager::getObjectManager()->selectedObject;
+  int& objectIndex = objectMgr->selectedObject;
+  Object* selectedObject = objectMgr->getSelected();
+
+  // dont use any GUI if there are no objects
+  if (!selectedObject)
+  {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    ImGui::Begin("ERROR - THERE ARE NO OBJECTS");
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
+    return;
+  }
+
+  vec3 currentPosition = selectedObject->getWorldPosition();
 
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
@@ -217,18 +267,49 @@ void UpdateGUI()
   // text
   ImGui::Begin("Welcome to CS300 Assignment 2!");
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-  ImGui::Text("Selected Object");
 
-  // options
-  bool changedObject = ImGui::SliderInt(objectMgr->getAt(selectedObject)->name.c_str(), &selectedObject, 0, objectMgr->getSize() -1);
+  // object options
+  ImGui::Text("Selected Object");
+  bool changedObject = ImGui::SliderInt(objectMgr->getAt(objectIndex)->name.c_str(), &objectIndex, 0, objectMgr->getSize() -1);
+  bool changedPosition = ImGui::DragFloat3("World Position", &currentPosition[0]);
+  ImGui::Text("Drawing Mode");
+  bool changetoWire = ImGui::RadioButton("WireFrame", selectedObject->wiremode);
+  bool changeFromWire = ImGui::RadioButton("Shaded", !selectedObject->wiremode);
+
+  // resetting options
   bool recompileShaders = ImGui::Button("Recompile Shaders");
+  bool resetCamera = ImGui::Button("Reset Camera");
+  bool resetScene = ImGui::Button("Reset Scene");
+
 
   ImGui::End();
 
-  // effects
+
+  // object effects
+  if (changedPosition)
+  {
+    vec3 trans = selectedObject->getWorldPosition() - currentPosition;
+    selectedObject->translate(trans);
+  }
+  if (changetoWire || changeFromWire)
+  {
+    selectedObject->wiremode = !selectedObject->wiremode;
+  }
+
+  // resetting effects
   if (recompileShaders)
   {
     shaderMgr->reCompile(ShaderType::TypeCount);
+  }
+  if (resetCamera)
+  {
+    camera->reset();
+  }
+  if (resetScene)
+  {
+    SceneShutdown();
+    SceneSetup();
+    camera->reset();
   }
 
 }
@@ -253,26 +334,8 @@ void GUIendFrame(GLFWwindow* window, float time)
 }
 
 
-/////***** Scene Management *****/////
+/////***** Main *****/////
 
-
-void SceneSetup()
-{
-  Object* obj = objectMgr->addObject("Object");
-  obj->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
-  obj->loadOBJ("Common/models/4Sphere.obj");
-
-  Object* obj2 = objectMgr->addObject("Object2");
-  obj2->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
-  obj2->loadSphere(1.0f, 50);
-  obj2->translate(right * 3.0f);
-}
-
-void SceneUpdate()
-{
-  objectMgr->getFirstObjectByName("Object")->rotate(1);
-  objectMgr->getFirstObjectByName("Object2")->rotate(-1,left * 3.0f);
-}
 
 int main()
 {

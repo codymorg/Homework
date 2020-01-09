@@ -11,6 +11,7 @@
 #include <string>
 
 
+
 class Scene
 {
 public:
@@ -20,7 +21,16 @@ public:
   void update(float dt);
   void shutdown();
 
+  // Getters
+
+  // Setters
+
+  // Data
+  bool pause = false;
+
 private:
+  std::string name_;
+
 
 };
 

@@ -47,7 +47,6 @@ class Object
     void translate(glm::vec3 trans);
     void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0,1,0));
     void scale(glm::vec3 scale);
-
     void draw();
 
     // public data
@@ -55,10 +54,15 @@ class Object
     bool        wiremode = false;
 
     // Getters
-    unsigned getShaderProgram();
+    unsigned  getShaderProgram();
+    glm::vec3 getWorldPosition();
 
     // Setters
     void setShader(std::string vs, std::string fs, ShaderType type);
+
+    // object attributes
+    void genFaceNormals();
+    void genVertexNormals();
 
   private:
     
@@ -74,6 +78,7 @@ class Object
       Vertex(glm::vec3(0,0.5,0)),
     };
     std::vector<unsigned int> indices_ = { 0,1,2 };
+    std::vector<glm::vec3>faceNormals_;
 
     // openGL stuff
     Shader shader_;
@@ -98,8 +103,11 @@ class ObjectManager
     static ObjectManager* getObjectManager();
     ~ObjectManager();
 
-    void                 render(Camera& camera);
-    Object*              addObject(std::string ID = "anon");
+    void    render(Camera& camera);
+    void    removeAllObjects();
+    Object* addObject(std::string ID = "anon");
+    bool    isValid();
+
 
     // getters
     std::vector<Object*> getObjectsByName(std::string name);
@@ -116,6 +124,7 @@ class ObjectManager
     static ObjectManager* objectManager_;
 
     std::vector<Object> objects_;
+    bool                isValid_ = false;
 };
 
 #endif
