@@ -447,6 +447,11 @@ ObjectManager* ObjectManager::getObjectManager()
 
 ObjectManager::~ObjectManager()
 { 
+  for (Object* obj : objects_)
+  {
+    delete obj;
+  }
+
   delete objectManager_;
   objectManager_ = nullptr;
 }
@@ -460,9 +465,9 @@ void ObjectManager::render(Camera& camera)
   ShaderManager::getShaderManager()->updateShaders(camera);
 
   // draw each object
-  for(Object obj : objects_)
+  for(Object* obj : objects_)
   {
-    obj.draw();
+    obj->draw();
   }
 }
 
@@ -475,11 +480,11 @@ void ObjectManager::removeAllObjects()
 
 Object* ObjectManager::addObject(std::string ID)
 {
-  objects_.push_back(Object(ID));
+  objects_.push_back(new Object(ID));
   selectedObject = objects_.size() - 1;
   isValid_ = true;
 
-  return &objects_.back();
+  return objects_.back();
 }
 
 bool ObjectManager::isValid()
@@ -494,8 +499,8 @@ std::vector<Object*> ObjectManager::getObjectsByName(std::string name)
   // retern all objects with this name
   for (int i = 0; i < objects_.size(); i++)
   {
-    if(objects_[i].name == name)
-      namedObjects.push_back(&(objects_[i]));
+    if(objects_[i]->name == name)
+      namedObjects.push_back(objects_[i]);
   }
 
   return namedObjects;
@@ -504,10 +509,10 @@ std::vector<Object*> ObjectManager::getObjectsByName(std::string name)
 Object* ObjectManager::getFirstObjectByName(std::string name)
 {
   // retern first object with this name
-  for (Object& obj : objects_)
+  for (Object* obj : objects_)
   {
-    if (obj.name == name)
-      return &obj;
+    if (obj->name == name)
+      return obj;
   }
 
   return nullptr;
@@ -515,13 +520,13 @@ Object* ObjectManager::getFirstObjectByName(std::string name)
 
 Object* ObjectManager::getAt(unsigned index)
 {
-  return &objects_[index];
+  return objects_[index];
 }
 
 Object* ObjectManager::getSelected()
 {
   if (isValid_)
-    return &objects_[selectedObject];
+    return objects_[selectedObject];
   else
     return nullptr;
 }

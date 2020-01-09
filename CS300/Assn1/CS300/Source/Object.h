@@ -123,7 +123,7 @@ class ObjectManager
     ObjectManager(){};
     static ObjectManager* objectManager_;
 
-    std::vector<Object> objects_;
+    std::vector<Object*> objects_;
     bool                isValid_ = false;
 };
 

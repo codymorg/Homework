@@ -27,6 +27,7 @@
 #include "ShaderManager.h"
 #include "Camera.h"
 #include "Common.h"
+#include "Light.h"
 
 // managers and static variables
 static ObjectManager* objectMgr = nullptr;

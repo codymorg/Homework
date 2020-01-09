@@ -13,6 +13,10 @@
 class Light : public Object
 {
 public:
+  void draw();
+
+  // data
+  bool showLightSource = true;
 
 private:
 
@@ -24,11 +28,14 @@ public:
   static LightManager* getLightManager();
   ~LightManager();
 
+  const unsigned lightMax = 16;
 
 
 private:
   LightManager() {};
   static LightManager* lightManager_;
+
+
 
 };
 
