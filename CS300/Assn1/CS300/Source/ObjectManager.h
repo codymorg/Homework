@@ -12,11 +12,10 @@ typedef class Light;
 
 struct UBO
 {
-  unsigned id;
+  unsigned       id;
   const unsigned lightMax = 16;
-  unsigned lightCount = 0;
-  void* buffer;
-
+  unsigned       lightCount = 0;
+  unsigned       size = sizeof(Light::lightData) * lightMax + sizeof(Object::MaterialData);
 };
 
 class ObjectManager
@@ -33,7 +32,8 @@ public:
 
   // GPU management
   void genUBO();
-  void updateUBO(Light* light);
+  void updateLightUBO(Light* light);
+  void updateMaterialUBO(Object* object);
 
 
   // getters

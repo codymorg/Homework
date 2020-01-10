@@ -81,27 +81,43 @@ Object* ObjectManager::addLight(std::string ID)
   }
 }
 
+// generate a UBO for light and material data
+// [ [light data 0] [light data...] [material data] ]
 void ObjectManager::genUBO()
 {
   glGenBuffers(1, &ubo_.id);
   glBindBuffer(GL_UNIFORM_BUFFER, ubo_.id);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * ubo_.lightMax, nullptr, GL_STATIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, ubo_.size, nullptr, GL_STATIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_.id);
 
   // zeroize the buffer space
-  ubo_.buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY); // does this have to be every frame?
-  memset(ubo_.buffer, 0, sizeof(Light::LightData) * ubo_.lightMax);
+  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY); 
+  memset(buffer, 0, ubo_.size);
+  glUnmapNamedBuffer(ubo_.id);
 }
 
-void ObjectManager::updateUBO(Light* light)
+// update during render pass 1 so that all light data is fresh for render pass 2
+void ObjectManager::updateLightUBO(Light* light)
 {
-  ubo_.buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
+  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY); // TODO move this outside light update 
 
   // fill this light member
-  Light::LightData* nextMember = static_cast<Light::LightData*>(ubo_.buffer) + light->ID;
-  memcpy(static_cast<void*>(nextMember), &light->lightData, sizeof(Light::LightData));
+  Light::LightData* lightData = static_cast<Light::LightData*>(buffer) + light->ID;
+  memcpy(static_cast<void*>(lightData), &light->lightData, sizeof(Light::LightData));
+
+  glUnmapNamedBuffer(ubo_.id);
+}
+
+// update during render pass 2 as objects are drawn and again during render pass 3
+void ObjectManager::updateMaterialUBO(Object* object)
+{
+  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
+
+  // fill this light member
+  Light::LightData* materialData = static_cast<Light::LightData*>(buffer) + ubo_.lightMax + 1;
+  memcpy(static_cast<void*>(materialData), &object->material, sizeof(Object::MaterialData));
 
   glUnmapNamedBuffer(ubo_.id);
 }
