@@ -12,6 +12,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <string>
+#include <vector>
+
 
 // common vectors
 glm::vec3 up(0, 1, 0);

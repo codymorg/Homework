@@ -171,6 +171,7 @@ ShaderManager::ShaderManager()
 
   // create all the shaders here
   addShader("Shaders/Passthrough.vert", "Shaders/normalShader.frag", ShaderType::Passthrough);
+
 }
 
 ShaderManager::~ShaderManager()
@@ -185,7 +186,7 @@ ShaderManager::~ShaderManager()
 }
 
 
-Shader ShaderManager::addShader(const std::string& vertexShader, const std::string& fragShader, ShaderType shaderType)
+Shader& ShaderManager::addShader(const std::string& vertexShader, const std::string& fragShader, ShaderType shaderType)
 {
   // you are changing the shader for this type
   if (compiledShaders_[int(shaderType)].getProgram() != -1)

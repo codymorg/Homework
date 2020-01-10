@@ -20,9 +20,11 @@
 #include <iostream>
   using std::cout;
 
+#include <glm/common.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
 
 ObjectManager* ObjectManager::objectManager_ = nullptr;
 
@@ -354,7 +356,7 @@ vec3 Object::getWorldPosition()
   return vec3(modelToWorld_[3]);
 }
 
-void Object::setShader(std::string vs, std::string fs, ShaderType type)
+void Object::setShader(ShaderType type)
 {
   shader_ = ShaderManager::getShaderManager()->getShader(type);
 
@@ -481,6 +483,17 @@ void ObjectManager::removeAllObjects()
 Object* ObjectManager::addObject(std::string ID)
 {
   objects_.push_back(new Object(ID));
+  selectedObject = objects_.size() - 1;
+  isValid_ = true;
+
+  return objects_.back();
+}
+
+Object* ObjectManager::addLight(std::string ID)
+{
+  Light* light = new Light(ID);
+  Object* lightObj = dynamic_cast<Object*>(light);
+  objects_.push_back(lightObj);
   selectedObject = objects_.size() - 1;
   isValid_ = true;
 

@@ -50,12 +50,11 @@ bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window
   }
 
   // instance the window
-  *window = glfwCreateWindow(width, height, "CS300 Assgnment 1", NULL, NULL);
+  *window = glfwCreateWindow(width, height, "CS350 Assignment 1 Cody Morgan", NULL, NULL);
   glfwWindowHint(GLFW_SAMPLES, 1); // change for anti-aliasing
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 
   // create the window obj
   if (*window == NULL)
@@ -157,16 +156,14 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 void SceneSetup()
 {
   Object* obj = objectMgr->addObject("model");
-  obj->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
+  obj->setShader(ShaderType::Passthrough);
   obj->loadOBJ("Common/models/4Sphere.obj");
 
-  Object* obj2 = objectMgr->addObject("ball");
-  obj2->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
-  obj2->loadSphere(1.0f, 50);
+  Object* obj2 = objectMgr->addLight("ball");
   obj2->translate(right * 3.0f);
 
   Object* obj3 = objectMgr->addObject("center");
-  obj3->setShader("shaders/Passthrough.vert", "shaders/normalShader.frag", ShaderType::Passthrough);
+  obj3->setShader(ShaderType::Passthrough);
   obj3->loadeCube(1.0f);
   obj3->wiremode = true;
 
@@ -355,7 +352,6 @@ int main()
   // scene setup
   camera =  new Camera(vec3(0, -4, -8), 30.0f, right);
   SceneSetup();
-
   while (!glfwWindowShouldClose(window))
   {
     // scene loop

@@ -26,10 +26,7 @@ enum class ShaderType
 {
   None,
   Passthrough,
-  Reflection,
-  Line,
-  PhongShading,
-  Skybox,
+  Light,
 
   //***//
   TypeCount
@@ -84,7 +81,7 @@ public:
   static ShaderManager* getShaderManager();
   ~ShaderManager();
 
-  Shader addShader(const std::string& vertexShader, const std::string& fragShader, ShaderType shaderType);
+  Shader& addShader(const std::string& vertexShader, const std::string& fragShader, ShaderType shaderType);
   Shader getShader(ShaderType shaderType);
   void updateShaders(Camera& camera);
   unsigned reCompile(ShaderType shaderType);

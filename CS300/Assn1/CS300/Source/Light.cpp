@@ -5,7 +5,11 @@
 ******************************************************************************/
 
 #include "Light.h"
+#include "Object.h"
 
-LightManager* LightManager::lightManager_ = nullptr;
-
-
+Light::Light(std::string name) : Object(name)
+{
+  loadSphere(1, 50);
+  this->setShader(ShaderType::Passthrough);
+  debugObject = true;
+}
