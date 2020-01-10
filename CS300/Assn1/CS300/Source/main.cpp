@@ -23,7 +23,7 @@
 #include "imGui/imgui_impl_glfw.h"
 #include "imGui/imgui_impl_opengl3.h"
 
-#include "Object.h"
+#include "ObjectManager.h"
 #include "ShaderManager.h"
 #include "Camera.h"
 #include "Common.h"

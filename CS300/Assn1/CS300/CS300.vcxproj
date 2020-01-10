@@ -28,6 +28,7 @@
     <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Object.cpp" />
+    <ClCompile Include="Source\ObjectManager.cpp" />
     <ClCompile Include="Source\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +44,7 @@
     <ClInclude Include="Source\imGui\imstb_truetype.h" />
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\Object.h" />
+    <ClInclude Include="Source\ObjectManager.h" />
     <ClInclude Include="Source\ShaderManager.h" />
   </ItemGroup>
   <ItemGroup>
