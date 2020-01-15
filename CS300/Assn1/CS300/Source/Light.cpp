@@ -5,11 +5,23 @@
 ******************************************************************************/
 
 #include "Light.h"
-#include "Object.h"
+#include "ObjectManager.h"
 
 Light::Light(std::string name) : Object(name)
 {
   loadSphere(1, 50);
   this->setShader(ShaderType::Passthrough);
-  debugObject = true;
+  isDebugObject = true;
+}
+
+void Light::draw()
+{
+  ObjectManager::getObjectManager()->updateUBO(this);
+
+  // only draw this object if it is a debug object
+  if (isDebugObject)
+  {
+    Object::draw();
+  }
+
 }

@@ -156,10 +156,10 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 void SceneSetup()
 {
   Object* obj = objectMgr->addObject("model");
-  obj->setShader(ShaderType::Passthrough);
+  obj->setShader(ShaderType::Phong);
   obj->loadOBJ("Common/models/4Sphere.obj");
 
-  Object* obj2 = objectMgr->addLight("ball");
+  Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
 
   Object* obj3 = objectMgr->addObject("center");
@@ -176,7 +176,7 @@ void SceneUpdate()
     return;
 
   objectMgr->getFirstObjectByName("model")->rotate(1);
-  objectMgr->getFirstObjectByName("ball")->rotate(-1, left * 3.0f);
+  objectMgr->getFirstObjectByName("light")->rotate(-1, left * 3.0f);
 }
 
 void SceneShutdown()

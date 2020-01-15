@@ -47,12 +47,12 @@ class Object
     void translate(glm::vec3 trans);
     void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0,1,0));
     void scale(glm::vec3 scale);
-    void draw();
+    virtual void draw();
 
     // public data
     std::string name;
     bool        wiremode = false;
-    bool        debugObject = false;
+    bool        isDebugObject = false;
 
     // Getters
     unsigned  getShaderProgram();

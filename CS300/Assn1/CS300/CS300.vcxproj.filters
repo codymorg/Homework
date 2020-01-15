@@ -100,25 +100,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\fragmentShader.frag">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
     <None Include="Shaders\normalShader.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\PhongDiffuse.vert">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\PhongLighting.frag">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\PhongLighting.vert">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\vertexShader.vert">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
     <None Include="Shaders\passthrough.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\phong.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>

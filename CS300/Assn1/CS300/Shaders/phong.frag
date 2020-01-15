@@ -28,13 +28,14 @@ void main()
 {
   // ambient
   vec3 ambient = lightStrength * lightColor; 
-
+  
   // diffuse
   vec3 norm = normalize(normal);
   vec3 lightDir = normalize(lightPos - fragPos);
   float diff = max(dot(norm, lightDir),0.0f);
   vec3 diffuse = diff * lightColor;
-  vec3 newColor = (ambient + diffuse) * objColor;
+  vec3 newColor = (ambient + diffuse) * /*objColor*/ vec3(1);
     
   fragColor = vec4(newColor, 1.0f);
+  fragColor = vec4(lightColor,1);
 } 
