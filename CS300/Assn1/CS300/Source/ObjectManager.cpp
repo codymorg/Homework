@@ -122,6 +122,17 @@ bool ObjectManager::isValid()
   return isValid_;
 }
 
+const std::vector<const char*> ObjectManager::getObjectNames()
+{
+  vector<const char*> names;
+  for(Object* obj : objects_)
+  {
+    names.push_back(obj->name.c_str());
+  }
+
+  return static_cast<const vector<const char*>>(names);
+}
+
 std::vector<Object*> ObjectManager::getObjectsByName(std::string name)
 {
   vector<Object*> namedObjects;

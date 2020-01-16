@@ -37,11 +37,12 @@ public:
 
 
   // getters
-  std::vector<Object*> getObjectsByName(std::string name);
-  Object*              getFirstObjectByName(std::string name);
-  Object*              getAt(unsigned index);
-  Object*              getSelected();
-  unsigned             getSize();
+  const std::vector<const char*> getObjectNames();
+  std::vector<Object*>           getObjectsByName(std::string name);
+  Object*                        getFirstObjectByName(std::string name);
+  Object*                        getAt(unsigned index);
+  Object*                        getSelected();
+  unsigned                       getSize();
 
   // data
   int selectedObject = 0; // which object the GUI is looking at

@@ -274,12 +274,14 @@ void UpdateGUI()
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
   // object options
-  ImGui::Text("Selected Object");
-  bool changedObject = ImGui::SliderInt(objectMgr->getAt(objectIndex)->name.c_str(), &objectIndex, 0, objectMgr->getSize() -1);
+  bool changedObject = ImGui::ListBox("Objects", &objectIndex, &objectMgr->getObjectNames()[0],objectMgr->getSize());
   bool changedPosition = ImGui::DragFloat3("World Position", &currentPosition[0]);
   ImGui::Text("Drawing Mode");
   bool changetoWire = ImGui::RadioButton("WireFrame", selectedObject->wiremode);
   bool changeFromWire = ImGui::RadioButton("Shaded", !selectedObject->wiremode);
+
+  // light obtions
+  bool changeDebugObject = ImGui::Button("Toggle Selected Object to draw as debug or not");
 
   // resetting options
   bool recompileShaders = ImGui::Button("Recompile Shaders");
@@ -299,6 +301,12 @@ void UpdateGUI()
   if (changetoWire || changeFromWire)
   {
     selectedObject->wiremode = !selectedObject->wiremode;
+  }
+
+  // todo : change to all debug objs
+  if(changeDebugObject)
+  {
+    selectedObject->isDebugObject = !selectedObject->isDebugObject;
   }
 
   // resetting effects
