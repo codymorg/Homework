@@ -64,7 +64,7 @@ vec3 PointLight(Light currentLight, vec3 viewV)
 
 
   // view space conversion
-  vec3 lightPosView =   (viewTrans * vec4(lightPos, 1)).xyz;
+  vec3 lightPosView = (viewTrans * vec4(lightPos, 1)).xyz;
 
   // light vector
   vec3 lightV = lightPosView - vertPosView;
@@ -87,7 +87,6 @@ vec3 PointLight(Light currentLight, vec3 viewV)
   
   // local color
   vec3 local = att * Iambient + att * (Idiffuse + Ispecular);
-  local = vec3((lightPos.z+3.0f)/6.0f); //debug
 
   return local;
 }

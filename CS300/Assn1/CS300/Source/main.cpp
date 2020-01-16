@@ -281,6 +281,9 @@ void UpdateGUI()
   bool changetoWire = ImGui::RadioButton("WireFrame", selectedObject->wiremode);
   bool changeFromWire = ImGui::RadioButton("Shaded", !selectedObject->wiremode);
 
+  // light obtions
+  bool changeDebugObject = ImGui::Button("Toggle Selected Object to draw as debug or not");
+
   // resetting options
   bool recompileShaders = ImGui::Button("Recompile Shaders");
   bool resetCamera = ImGui::Button("Reset Camera");
@@ -299,6 +302,12 @@ void UpdateGUI()
   if (changetoWire || changeFromWire)
   {
     selectedObject->wiremode = !selectedObject->wiremode;
+  }
+
+  // todo : change to all debug objs
+  if(changeDebugObject)
+  {
+    selectedObject->isDebugObject = !selectedObject->isDebugObject;
   }
 
   // resetting effects
