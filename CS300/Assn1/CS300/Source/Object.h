@@ -34,7 +34,6 @@ class Object
 {
   public:
     Object(std::string ID = "anon");
-    virtual ~Object();
 
     // object shape
     void loadOBJ(std::string location);
@@ -50,6 +49,11 @@ class Object
     void scale(glm::vec3 scale);
     void draw();
 
+    // public data
+    std::string name;
+    bool        wiremode = false;
+    bool        debugObject = false;
+
     // Getters
     unsigned  getShaderProgram();
     glm::vec3 getWorldPosition();
@@ -60,20 +64,6 @@ class Object
     // object attributes
     void genFaceNormals();
     void genVertexNormals();
-
-    // public data
-    std::string name;
-    bool        wiremode = false;
-    bool        debugObject = false;
-    struct MaterialData
-    {
-      glm::vec3 ambient = glm::vec3(1);
-      float     padding_I = 0.0f;
-      glm::vec3 diffuse = glm::vec3(1);
-      float     padding_II = 0.0f;
-      glm::vec3 specular = glm::vec3(1);
-      float     padding_III = 0.0f;
-    }material;
 
   private:
     

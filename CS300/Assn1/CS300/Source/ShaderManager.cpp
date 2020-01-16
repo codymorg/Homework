@@ -170,7 +170,7 @@ ShaderManager::ShaderManager()
   compiledShaders_ = new Shader[int(ShaderType::TypeCount)];
 
   // create all the shaders here
-  addShader("Shaders/passthrough.vert", "Shaders/normal.frag", ShaderType::Passthrough);
+  addShader("Shaders/Passthrough.vert", "Shaders/normalShader.frag", ShaderType::Passthrough);
 
 }
 
