@@ -1,41 +1,108 @@
-/* Start Header -------------------------------------------------------
-Copyright (C) 2019 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior written
-consent of DigiPen Institute of Technology is prohibited.
+#version 430 core
+#define MAX_LIGHTS 16
 
-Purpose :   Instructions on how to use this software
-Language:   C++ Visual Studio
-Platform:   Windows 10
-Project :   cody.morgan_CS300_1
-Author  :   Cody Morgan  ID: 180001017
-Date  :   4 OCT 2019
-End Header --------------------------------------------------------*/ 
+uniform vec3 objColor;      // for lines
+uniform int hasTexture;
+uniform sampler2D texSampler;  // back  00
+uniform sampler2D texSampler2;  // back  00
+uniform int useGPUuv;
+uniform vec3 lower;
+uniform vec3 upper;
+uniform int projectionType;
 
+// material data
+layout (std140, binding = 1) uniform material
+{
+  vec3 matAmbient;
+  vec3 matDiffuse;
+  vec3 matSpecular;
+};
 
-#version 400 core
+struct Light
+{
+  vec3 lightPos_;
+  vec3 ambient_;
+  vec3 diffuse_;
+  vec3 specular_;
+  float ns_; 
+  vec3 emissive_;
+  vec3 attenuation_;
+  int number;
+  vec3 directional;
+  int type;
+  vec2 spot;
+};
 
-in vec3 fragPos;
+// vertex shader phong lighting
+layout (std140, binding = 0) uniform lightData
+{
+  Light lights[MAX_LIGHTS];
+};
+
 in vec3 normal;
+in mat4 viewTrans;
+in vec3 vertPosView;
 
-uniform vec3 objColor;      // from obj
-uniform vec3 lightColor;    // from light
-uniform vec3 lightPos;      // from light
-uniform float lightStrength;  // from light
+const float PI = 3.1415926535897932384626433832795;
 
-out vec4 fragColor;
+
+out vec3 fragColor;
+
+
+/////***** Point and Directional *****/////
+
+vec3 PointLight(Light currentLight, vec3 viewV)
+{
+  // grab light data for this light
+  vec3 lightPos    = currentLight.lightPos_;
+  vec3 ambient     = currentLight.ambient_;
+  vec3 diffuse     = currentLight.diffuse_;
+  vec3 specular    = currentLight.specular_;
+  float ns         = currentLight.ns_; 
+  vec3 emissive    = currentLight.emissive_;
+  vec3 attenuation = currentLight.attenuation_;
+
+
+  // view space conversion
+  vec3 lightPosView =   (viewTrans * vec4(lightPos, 1)).xyz;
+
+  // light vector
+  vec3 lightV = lightPosView - vertPosView;
+
+  float lightMagnitude = length(lightV);
+  lightV = normalize(lightV);
+
+  vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
+
+  // ambient
+  vec3 Iambient = ambient * /*matAmbient*/ 1; // replace with material attributes
+
+  // diffuse
+  vec3 Idiffuse = diffuse * 1 * max(dot(normal,lightV),0);
+  vec3 Ispecular = specular * 1 * pow(max(dot(reflection, viewV),0), ns);
+  
+  // attenuation
+  float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
+  att = 1; //debug
+  
+  // local color
+  vec3 local = att * Iambient + att * (Idiffuse + Ispecular);
+  local = vec3((lightPos.z+3.0f)/6.0f); //debug
+
+  return local;
+}
+
+
+/////***** Main *****/////
 
 void main()
 {
-  // ambient
-  vec3 ambient = lightStrength * lightColor; 
-  
-  // diffuse
-  vec3 norm = normalize(normal);
-  vec3 lightDir = normalize(lightPos - fragPos);
-  float diff = max(dot(norm, lightDir),0.0f);
-  vec3 diffuse = diff * lightColor;
-  vec3 newColor = (ambient + diffuse) * /*objColor*/ vec3(1);
-    
-  fragColor = vec4(newColor, 1.0f);
-  fragColor = vec4(lightColor,1);
-} 
+  fragColor = vec3(0);
+
+  // view vector
+  vec3 viewV = -vertPosView;
+  float viewDist = length(viewV);
+  viewV = normalize(viewV);
+
+  fragColor += PointLight(lights[0], viewV);
+}

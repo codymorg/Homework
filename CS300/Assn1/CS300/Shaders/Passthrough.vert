@@ -8,7 +8,6 @@ uniform mat4 worldToCam;   // view
 uniform mat4 projection;   // projection
 
 out vec3 normal;
-out vec3 fragPos;
 
 void main()
 {
@@ -16,5 +15,4 @@ void main()
   gl_Position = projection * viewModel * vec4(vPos,1.0f);
 
   normal = normalize(mat3(transpose(inverse(viewModel))) * vNormal);
-  fragPos = vPos;
 }

@@ -81,8 +81,8 @@ Object* ObjectManager::addLight(std::string ID)
     // update relevant light data
     selectedObject = objects_.size() - 1;
     isValid_ = true;
-    light->ID = ubo_.lightCount;
     ubo_.lightCount++;
+    light->ID = ubo_.lightCount;
 
     return objects_.back();
   }
@@ -107,13 +107,13 @@ void ObjectManager::genUBO()
 void ObjectManager::updateUBO(Light* light)
 {
   //glBindBuffer(GL_UNIFORM_BUFFER, ubo_.id);
-  //ubo_.buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
+  ubo_.buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
 
   // fill this light member
-  Light::LightData* nextMember = static_cast<Light::LightData*>(ubo_.buffer) + light->ID;
+  Light::LightData* nextMember = static_cast<Light::LightData*>(ubo_.buffer) + (light->ID - 1);
   memcpy(static_cast<void*>(nextMember), &light->lightData, sizeof(Light::LightData));
 
-  //glUnmapNamedBuffer(ubo_.id);
+  glUnmapNamedBuffer(ubo_.id);
   //glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

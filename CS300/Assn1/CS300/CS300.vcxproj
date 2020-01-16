@@ -51,6 +51,7 @@
     <None Include="Shaders\phong.frag" />
     <None Include="Shaders\normalShader.frag" />
     <None Include="Shaders\passthrough.vert" />
+    <None Include="Shaders\phong.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

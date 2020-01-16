@@ -34,6 +34,7 @@ static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
 static Camera* camera = nullptr;
 static bool pauseSimulation = false;
+static bool pauseModel = false;
 
 
 /////***** Window and OpenGL Management *****/////
@@ -175,7 +176,8 @@ void SceneUpdate()
   if (!objectMgr->isValid() || pauseSimulation)
     return;
 
-  objectMgr->getFirstObjectByName("model")->rotate(1);
+  if(pauseModel == false)
+    objectMgr->getFirstObjectByName("model")->rotate(1);
   objectMgr->getFirstObjectByName("light")->rotate(-1, left * 3.0f);
 }
 
@@ -230,11 +232,16 @@ void ProcessInput(GLFWwindow* window)
     camera->translate(up * speed);
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
     camera->translate(down * speed);
-
+  
+  // simulation states
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
     pauseSimulation = true;
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
     pauseSimulation = false;
+  if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+    pauseModel = true;
+  if (glfwGetKey(window, GLFW_KEY_R) == GLFW_RELEASE)
+    pauseModel = false;
 }
 
 void UpdateGUI()
