@@ -64,6 +64,15 @@ class Object
     // object attributes
     void genFaceNormals();
     void genVertexNormals();
+    struct MaterialData
+    {
+      glm::vec3 ambient = glm::vec3(1);
+      float     paddingI = 0;
+      glm::vec3 diffuse = glm::vec3(1);
+      float     paddingII = 0;
+      glm::vec3 specular = glm::vec3(1);
+      float     paddingIII = 0;
+    }material;
 
   private:
     

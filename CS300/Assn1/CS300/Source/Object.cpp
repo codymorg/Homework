@@ -321,6 +321,7 @@ void Object::scale(glm::vec3 scale)
 
 void Object::draw()
 {
+
   // bind everything we're using
   glUseProgram(shader_.getProgram());
   glBindVertexArray(vao_);

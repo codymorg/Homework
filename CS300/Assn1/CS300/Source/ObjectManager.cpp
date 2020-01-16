@@ -43,6 +43,9 @@ void ObjectManager::render(Camera& camera)
   // draw each object
   for (Object* obj : objects_)
   {
+    if (!dynamic_cast<Light*>(obj))
+      updateUBO(obj);
+
     obj->draw();
   }
 }
@@ -90,13 +93,17 @@ Object* ObjectManager::addLight(std::string ID)
 
 void ObjectManager::genUBO()
 {
+  // fill in information
+  ubo_.size = sizeof(Light::LightData) * ubo_.lightMax + sizeof(Object::MaterialData);
   glGenBuffers(1, &ubo_.id);
+
+  // bind this ubo
   glBindBuffer(GL_UNIFORM_BUFFER, ubo_.id);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * ubo_.lightMax, nullptr, GL_STATIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, ubo_.size, nullptr, GL_STATIC_DRAW);
 
   // zeroize the buffer space
-  ubo_.buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY); // does this have to be every frame?
-  memset(ubo_.buffer, 0, sizeof(Light::LightData) * ubo_.lightMax);
+  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY); // does this have to be every frame?
+  memset(buffer, 0, sizeof(Light::LightData) * ubo_.lightMax);
 
   // release buffer
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -107,11 +114,24 @@ void ObjectManager::genUBO()
 void ObjectManager::updateUBO(Light* light)
 {
   //glBindBuffer(GL_UNIFORM_BUFFER, ubo_.id);
-  ubo_.buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
+  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
 
   // fill this light member
-  Light::LightData* nextMember = static_cast<Light::LightData*>(ubo_.buffer) + (light->ID - 1);
+  Light::LightData* nextMember = static_cast<Light::LightData*>(buffer) + (light->ID - 1);
   memcpy(static_cast<void*>(nextMember), &light->lightData, sizeof(Light::LightData));
+
+  glUnmapNamedBuffer(ubo_.id);
+  //glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ObjectManager::updateUBO(Object* object)
+{
+  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
+
+  // get last light which coincides with the material
+  Light::LightData* lastLight = static_cast<Light::LightData*>(buffer) + ubo_.lightMax;
+  void* material = static_cast<void*>(lastLight);
+  memcpy(material, &object->material, sizeof(Object::MaterialData));
 
   glUnmapNamedBuffer(ubo_.id);
   //glBindBuffer(GL_UNIFORM_BUFFER, 0);

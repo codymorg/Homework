@@ -249,6 +249,7 @@ void UpdateGUI()
   // get all current state data
   int& objectIndex = objectMgr->selectedObject;
   Object* selectedObject = objectMgr->getSelected();
+  Light* selectedLight = dynamic_cast<Light*>(selectedObject);
 
   // dont use any GUI if there are no objects
   if (!selectedObject)
@@ -276,6 +277,24 @@ void UpdateGUI()
   // object options
   bool changedObject = ImGui::ListBox("Objects", &objectIndex, &objectMgr->getObjectNames()[0],objectMgr->getSize());
   bool changedPosition = ImGui::DragFloat3("World Position", &currentPosition[0]);
+
+  // data
+  bool changedLightData = false;
+  bool changedObjectData = false;
+  if (selectedLight)
+  {
+    changedLightData |= ImGui::ColorEdit3("light ambient", &(selectedLight->lightData.ambient.x));
+    changedLightData |= ImGui::ColorEdit3("light diffuse", &(selectedLight->lightData.diffuse.x));
+    changedLightData |= ImGui::ColorEdit3("light specular", &(selectedLight->lightData.specular.x));
+    changedLightData |= ImGui::SliderFloat("shininess", &(selectedLight->lightData.ns), 0, 500);
+  }
+  else
+  {
+    changedObjectData |= ImGui::ColorEdit3("object ambient", &(selectedObject->material.ambient.x));
+    changedObjectData |= ImGui::ColorEdit3("object diffuse", &(selectedObject->material.diffuse.x));
+    changedObjectData |= ImGui::ColorEdit3("object specular", &(selectedObject->material.specular.x));
+  }
+
   ImGui::Text("Drawing Mode");
   bool changetoWire = ImGui::RadioButton("WireFrame", selectedObject->wiremode);
   bool changeFromWire = ImGui::RadioButton("Shaded", !selectedObject->wiremode);
@@ -289,7 +308,9 @@ void UpdateGUI()
   bool resetScene = ImGui::Button("Reset Scene");
 
 
+  // end of gui options
   ImGui::End();
+
 
 
   // object effects

@@ -11,11 +11,11 @@ uniform vec3 upper;
 uniform int projectionType;
 
 // material data
-layout (std140, binding = 1) uniform material
+struct Material
 {
-  vec3 matAmbient;
-  vec3 matDiffuse;
-  vec3 matSpecular;
+  vec3 ambient_;
+  vec3 diffuse_;
+  vec3 specular_;
 };
 
 struct Light
@@ -36,7 +36,8 @@ struct Light
 // vertex shader phong lighting
 layout (std140, binding = 0) uniform lightData
 {
-  Light lights[MAX_LIGHTS];
+  Light lights[MAX_LIGHTS]; // all lights will be loaded before rendering
+  Material material;        // material will be loaded every object
 };
 
 in vec3 normal;
@@ -62,6 +63,10 @@ vec3 PointLight(Light currentLight, vec3 viewV)
   vec3 emissive    = currentLight.emissive_;
   vec3 attenuation = currentLight.attenuation_;
 
+  // grab material 
+  vec3 matAmbient = material.ambient_;
+  vec3 matDiffuse = material.diffuse_;
+  vec3 matSpecular = material.specular_;
 
   // view space conversion
   vec3 lightPosView = (viewTrans * vec4(lightPos, 1)).xyz;
@@ -75,18 +80,17 @@ vec3 PointLight(Light currentLight, vec3 viewV)
   vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
 
   // ambient
-  vec3 Iambient = ambient * /*matAmbient*/ 1; // replace with material attributes
+  vec3 Iambient = ambient * matAmbient; // replace with material attributes
 
   // diffuse
-  vec3 Idiffuse = diffuse * 1 * max(dot(normal,lightV),0);
-  vec3 Ispecular = specular * 1 * pow(max(dot(reflection, viewV),0), ns);
+  vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
+  vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
   
   // attenuation
-  float att = min((1.0f / (attenuation.x + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude * lightMagnitude)), 1.0f);
-  att = 1; //debug
-  
+  float att = min((1.0f / (attenuation.x  * lightMagnitude + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude)), 1.0f);
+  att=1;
   // local color
-  vec3 local = att * Iambient + att * (Idiffuse + Ispecular);
+  vec3 local = att * Iambient +  att * (Idiffuse + Ispecular);
 
   return local;
 }
