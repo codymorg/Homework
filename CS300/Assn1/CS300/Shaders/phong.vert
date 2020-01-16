@@ -8,6 +8,8 @@ uniform mat4 worldToCam;   // view
 uniform mat4 projection;   // projection
 
 out vec3 normal;
+out mat4 viewTrans;
+out vec3 vertPosView;
 
 void main()
 {
@@ -15,4 +17,6 @@ void main()
   gl_Position = projection * viewModel * vec4(vPos,1.0f);
 
   normal = normalize(mat3(transpose(inverse(viewModel))) * vNormal);
+  vertPosView = (viewModel * vec4(vPos,1)).xyz;
+  viewTrans = worldToCam;
 }

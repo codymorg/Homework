@@ -171,6 +171,7 @@ ShaderManager::ShaderManager()
 
   // create all the shaders here
   addShader("Shaders/Passthrough.vert", "Shaders/normalShader.frag", ShaderType::Passthrough);
+  addShader("Shaders/phong.vert", "Shaders/phong.frag", ShaderType::Phong);
 
 }
 

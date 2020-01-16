@@ -14,6 +14,8 @@ class Light : public Object
 public:
   Light(std::string name);
 
+  void draw();
+
   // phong data
   struct LightData
   {

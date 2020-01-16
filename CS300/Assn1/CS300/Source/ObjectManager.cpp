@@ -12,7 +12,10 @@ ObjectManager* ObjectManager::objectManager_ = nullptr;
 ObjectManager* ObjectManager::getObjectManager()
 {
   if (!objectManager_)
+  {
     objectManager_ = new ObjectManager;
+    objectManager_->genUBO();
+  }
 
   return objectManager_;
 }
@@ -36,6 +39,7 @@ void ObjectManager::render(Camera& camera)
   // update shaders
   ShaderManager::getShaderManager()->updateShaders(camera);
 
+  //Light* i = dynamic_cast<Light*>(objects_[0]);
   // draw each object
   for (Object* obj : objects_)
   {
@@ -68,14 +72,17 @@ Object* ObjectManager::addLight(std::string ID)
   }
   else
   {
+    // add a light object to list of objects 
     Light* light = new Light(ID);
     Object* lightObj = dynamic_cast<Object*>(light);
-    objects_.push_back(lightObj);
+    lightObj->loadSphere(1,50);
+    objects_.push_back(light);
 
+    // update relevant light data
     selectedObject = objects_.size() - 1;
     isValid_ = true;
-    light->ID = ubo_.lightCount;
     ubo_.lightCount++;
+    light->ID = ubo_.lightCount;
 
     return objects_.back();
   }
@@ -86,24 +93,28 @@ void ObjectManager::genUBO()
   glGenBuffers(1, &ubo_.id);
   glBindBuffer(GL_UNIFORM_BUFFER, ubo_.id);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(Light::LightData) * ubo_.lightMax, nullptr, GL_STATIC_DRAW);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_.id);
 
   // zeroize the buffer space
   ubo_.buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY); // does this have to be every frame?
   memset(ubo_.buffer, 0, sizeof(Light::LightData) * ubo_.lightMax);
+
+  // release buffer
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_.id);
+  glUnmapNamedBuffer(ubo_.id);
 }
 
 void ObjectManager::updateUBO(Light* light)
 {
+  //glBindBuffer(GL_UNIFORM_BUFFER, ubo_.id);
   ubo_.buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
 
   // fill this light member
-  Light::LightData* nextMember = static_cast<Light::LightData*>(ubo_.buffer) + light->ID;
+  Light::LightData* nextMember = static_cast<Light::LightData*>(ubo_.buffer) + (light->ID - 1);
   memcpy(static_cast<void*>(nextMember), &light->lightData, sizeof(Light::LightData));
 
   glUnmapNamedBuffer(ubo_.id);
+  //glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 bool ObjectManager::isValid()

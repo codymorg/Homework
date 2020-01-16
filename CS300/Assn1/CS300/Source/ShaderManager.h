@@ -26,6 +26,7 @@ enum class ShaderType
 {
   None,
   Passthrough,
+  Phong,
   Light,
 
   //***//

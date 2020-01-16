@@ -48,13 +48,10 @@
     <ClInclude Include="Source\ShaderManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\fragmentShader.frag" />
+    <None Include="Shaders\phong.frag" />
     <None Include="Shaders\normalShader.frag" />
     <None Include="Shaders\passthrough.vert" />
-    <None Include="Shaders\PhongDiffuse.vert" />
-    <None Include="Shaders\PhongLighting.frag" />
-    <None Include="Shaders\PhongLighting.vert" />
-    <None Include="Shaders\vertexShader.vert" />
+    <None Include="Shaders\phong.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
