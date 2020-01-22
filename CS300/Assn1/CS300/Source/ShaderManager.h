@@ -25,9 +25,11 @@ typedef class Camera;
 enum class ShaderType
 {
   None,
-  Passthrough,
+  Normal,
   Phong,
   Light,
+  Deferred,
+  DeferredLighting,
 
   //***//
   TypeCount

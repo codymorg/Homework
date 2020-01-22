@@ -47,7 +47,8 @@ class Object
     void translate(glm::vec3 trans);
     void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0,1,0));
     void scale(glm::vec3 scale);
-    virtual void draw();
+    virtual void draw();                  // draw with the object's shader projrag
+    virtual void deferredDraw(int pass);  // draw with deferred shader program
 
     // public data
     std::string name;

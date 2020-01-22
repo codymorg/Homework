@@ -48,9 +48,11 @@
     <ClInclude Include="Source\ShaderManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\deferred.frag" />
+    <None Include="Shaders\deferred.vert" />
     <None Include="Shaders\phong.frag" />
-    <None Include="Shaders\normalShader.frag" />
-    <None Include="Shaders\passthrough.vert" />
+    <None Include="Shaders\normal.frag" />
+    <None Include="Shaders\normal.vert" />
     <None Include="Shaders\phong.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

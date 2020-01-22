@@ -4,6 +4,8 @@
   Date    : 16 DEC 2019
 ******************************************************************************/
 
+#include "ShaderManager.h"
+#include "ObjectManager.h"
 #include "Object.h"
   using std::vector;
   using std::string;
@@ -321,22 +323,21 @@ void Object::scale(glm::vec3 scale)
 
 void Object::draw()
 {
-
-  // bind everything we're using
+  // bind shader and vao
   glUseProgram(shader_.getProgram());
   glBindVertexArray(vao_);
 
+  // draw mode
   if (!wiremode)
-  {
     glPolygonMode(GL_FRONT, GL_FILL);
-  }
   else
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 
   // send data for drawing
   glUniform3fv(boundingBoxLoc_, 2, glm::value_ptr(*boundingBox_));
   glUniformMatrix4fv(modelToWorldLoc_, 1, GL_FALSE, &modelToWorld_[0][0]);
+
+  ObjectManager::getObjectManager()->updateUBO(this);
 
   // draw
   glDrawElements(renderMode_, indices_.size(), GL_UNSIGNED_INT, 0);
@@ -344,6 +345,10 @@ void Object::draw()
   // unbind
   glBindVertexArray(0);
   glUseProgram(0);
+}
+
+void Object::deferredDraw(int pass)
+{
 }
 
 unsigned Object::getShaderProgram()

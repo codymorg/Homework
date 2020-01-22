@@ -158,13 +158,13 @@ void SceneSetup()
 {
   Object* obj = objectMgr->addObject("model");
   obj->setShader(ShaderType::Phong);
-  obj->loadOBJ("Common/models/4Sphere.obj");
+  obj->loadOBJ("Common/models/4sphere.obj");
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
 
   Object* obj3 = objectMgr->addObject("center");
-  obj3->setShader(ShaderType::Passthrough);
+  obj3->setShader(ShaderType::Normal);
   obj3->loadeCube(1.0f);
   obj3->wiremode = true;
 

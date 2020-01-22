@@ -1,4 +1,6 @@
 #include "ObjectManager.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <vector>
   using std::vector;
 #include <string>
@@ -15,6 +17,7 @@ ObjectManager* ObjectManager::getObjectManager()
   {
     objectManager_ = new ObjectManager;
     objectManager_->genUBO();
+    objectManager_->genFBO();
   }
 
   return objectManager_;
@@ -33,21 +36,30 @@ ObjectManager::~ObjectManager()
 
 void ObjectManager::render(Camera& camera)
 {
+  // bind fbo 1
+  //gBindFramebuffer(GL_FRAMEBUFFER, fbo_.fbo_id);
+
+  // clear fbo 1
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // update shaders
+  //update camera data in shaders
   ShaderManager::getShaderManager()->updateShaders(camera);
 
-  //Light* i = dynamic_cast<Light*>(objects_[0]);
-  // draw each object
+  // draw objects to textures
   for (Object* obj : objects_)
   {
-    if (!dynamic_cast<Light*>(obj))
-      updateUBO(obj);
-
     obj->draw();
   }
+
+  // bind fbo 0
+  //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  // clear fbo 0
+  //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // draw each object with texture lookup
 }
 
 void ObjectManager::removeAllObjects()
@@ -135,6 +147,53 @@ void ObjectManager::updateUBO(Object* object)
 
   glUnmapNamedBuffer(ubo_.id);
   //glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ObjectManager::genFBO()
+{
+  // gen our FBO
+  glGenFramebuffers(1, &fbo_.fbo_id);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo_.fbo_id);
+
+  // init window size for textures
+  GLFWwindow* window = glfwGetCurrentContext();
+  glfwGetWindowSize(window, &fbo_.width, &fbo_.height);
+
+  // Create the gbuffer textures
+  glGenTextures(fbo_.textureCount, &fbo_.textures[0]);
+
+  // fill the textures
+  for (unsigned int i = 0; i < fbo_.textureCount; i++)
+  {
+    glBindTexture(GL_TEXTURE_2D, fbo_.textures[i]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, fbo_.width, fbo_.height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, fbo_.textures[i], 0);
+  }
+
+  // Now bind the depth attachment
+  glGenRenderbuffers(1, &fbo_.rbo_id);
+  glBindRenderbuffer(GL_RENDERBUFFER, fbo_.rbo_id);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, fbo_.width, fbo_.height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fbo_.rbo_id);
+  GLenum buffers[] =
+  {
+    GL_COLOR_ATTACHMENT0,
+    GL_COLOR_ATTACHMENT1,
+    GL_COLOR_ATTACHMENT2,
+    GL_COLOR_ATTACHMENT3,
+  };
+  glDrawBuffers(fbo_.textureCount, buffers);
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+  {
+    printf("gbuffer program failed to compile");
+    assert(false);
+  }
+
+  // restore default FBO
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 bool ObjectManager::isValid()

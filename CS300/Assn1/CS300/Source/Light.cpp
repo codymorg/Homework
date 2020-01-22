@@ -10,7 +10,7 @@
 Light::Light(std::string name) : Object(name)
 {
   loadSphere(1, 50);
-  this->setShader(ShaderType::Passthrough);
+  this->setShader(ShaderType::Normal);
   isDebugObject = true;
 }
 

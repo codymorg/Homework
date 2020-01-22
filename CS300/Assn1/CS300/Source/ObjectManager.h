@@ -17,6 +17,17 @@ struct UBO
   unsigned       lightCount = 0;
   float          size = 0;
 };
+struct FBO
+{
+  unsigned             fbo_id = 0;
+  unsigned             rbo_id = 0;
+  int                  width = -1;
+  int                  height = -1;
+  static constexpr int textureCount = 2;
+  unsigned             textures[textureCount];
+
+
+};
 
 class ObjectManager
 {
@@ -34,6 +45,8 @@ public:
   void genUBO();
   void updateUBO(Light* light);
   void updateUBO(Object* light);
+
+  void genFBO();
 
 
   // getters
@@ -57,8 +70,12 @@ private:
   std::vector<Object*> objects_;
   bool                 isValid_ = false;
 
+  void deferredRender();
+  void forwardRender();
+
   // uniform data namely lights
   UBO ubo_;
+  FBO fbo_;
 };
 
 #endif

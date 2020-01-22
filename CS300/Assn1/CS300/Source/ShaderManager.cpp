@@ -170,9 +170,10 @@ ShaderManager::ShaderManager()
   compiledShaders_ = new Shader[int(ShaderType::TypeCount)];
 
   // create all the shaders here
-  addShader("Shaders/Passthrough.vert", "Shaders/normalShader.frag", ShaderType::Passthrough);
+  addShader("Shaders/normal.vert", "Shaders/normal.frag", ShaderType::Normal);
   addShader("Shaders/phong.vert", "Shaders/phong.frag", ShaderType::Phong);
-
+  addShader("Shaders/deferred.vert", "Shaders/deferred.frag", ShaderType::Deferred);
+  addShader("Shaders/deferredLighting.vert", "Shaders/deferredLighting.frag", ShaderType::DeferredLighting);
 }
 
 ShaderManager::~ShaderManager()
