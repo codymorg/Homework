@@ -321,6 +321,7 @@ void Object::scale(glm::vec3 scale)
   modelToWorld_ = glm::scale(modelToWorld_, scale);
 }
 
+// draw this object using its own shader
 void Object::draw()
 {
   // bind shader and vao
@@ -347,13 +348,15 @@ void Object::draw()
   glUseProgram(0);
 }
 
-void Object::deferredDraw(int pass)
-{
-}
 
 unsigned Object::getShaderProgram()
 {
   return shader_.getProgram();
+}
+
+Shader& Object::getShader()
+{
+  return shader_;
 }
 
 vec3 Object::getWorldPosition()

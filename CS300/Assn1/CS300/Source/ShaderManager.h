@@ -49,8 +49,11 @@ public:
   void shutdownShader();
 
   int getProgram();
+  ShaderType getShaderType();
+
   void updateWorldToCamTransform(glm::mat4 trans);
   void updateProjectionTransform(glm::mat4 trans);
+
 
   int reloadProgram();
 

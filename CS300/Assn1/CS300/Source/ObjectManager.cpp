@@ -36,9 +36,68 @@ ObjectManager::~ObjectManager()
 
 void ObjectManager::render(Camera& camera)
 {
-  // bind fbo 1
-  //gBindFramebuffer(GL_FRAMEBUFFER, fbo_.fbo_id);
+  //deferredRender(camera);
+  forwardRender(camera);
+}
 
+void ObjectManager::deferredRender(Camera& camera)
+{
+  // bind fbo 1
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo_.fbo_id);
+
+  // clear fbo 1
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  //update camera data in shaders
+  ShaderManager::getShaderManager()->updateShaders(camera);
+
+  // draw objects to textures
+  for (Object* obj : objects_)
+  {
+    // dont draw debug objects
+    if (obj->isDebugObject == false)
+    {
+      ShaderType original = obj->getShader().getShaderType();
+      obj->setShader(ShaderType::Deferred);
+      obj->draw();
+      obj->setShader(original);
+    }
+  }
+
+  // bind fbo 0
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  // clear fbo 0
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // draw each object with texture lookup
+  for (Object* obj : objects_)
+  {
+    // dont draw debug objects
+    if (obj->isDebugObject == false)
+    {
+      ShaderType original = obj->getShader().getShaderType();
+      obj->setShader(ShaderType::DeferredLighting);
+      obj->draw();
+      obj->setShader(original);
+    }
+  }
+
+  // draw debug objects ontop of everything
+  for (Object* obj : objects_)
+  {
+    // dont draw debug objects
+    if (obj->isDebugObject == true)
+    {
+      obj->draw();
+    }
+  }
+}
+
+void ObjectManager::forwardRender(Camera& camera)
+{
   // clear fbo 1
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -51,15 +110,6 @@ void ObjectManager::render(Camera& camera)
   {
     obj->draw();
   }
-
-  // bind fbo 0
-  //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  // clear fbo 0
-  //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  // draw each object with texture lookup
 }
 
 void ObjectManager::removeAllObjects()
@@ -255,3 +305,6 @@ unsigned ObjectManager::getSize()
 {
   return objects_.size();
 }
+
+
+

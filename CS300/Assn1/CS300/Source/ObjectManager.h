@@ -70,8 +70,8 @@ private:
   std::vector<Object*> objects_;
   bool                 isValid_ = false;
 
-  void deferredRender();
-  void forwardRender();
+  void deferredRender(Camera& camera);
+  void forwardRender(Camera& camera);
 
   // uniform data namely lights
   UBO ubo_;

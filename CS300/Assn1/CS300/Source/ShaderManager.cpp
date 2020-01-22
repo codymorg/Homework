@@ -46,6 +46,11 @@ int Shader::getProgram()
   return shaderProgram_;
 }
 
+ShaderType Shader::getShaderType()
+{
+  return type_;
+}
+
 // update this shader's camera matrix
 void Shader::updateWorldToCamTransform(glm::mat4 trans)
 {

@@ -50,6 +50,8 @@
   <ItemGroup>
     <None Include="Shaders\deferred.frag" />
     <None Include="Shaders\deferred.vert" />
+    <None Include="Shaders\deferredLighting.frag" />
+    <None Include="Shaders\deferredLighting.vert" />
     <None Include="Shaders\phong.frag" />
     <None Include="Shaders\normal.frag" />
     <None Include="Shaders\normal.vert" />
