@@ -7,14 +7,11 @@ uniform mat4 modelToWorld; // model
 uniform mat4 worldToCam;   // view
 uniform mat4 projection;   // projection
 
-out vec3 position;
-out vec3 normal;
+out vec3 modelPos;
 
 void main()
 {
-  mat4 viewModel = worldToCam * modelToWorld;
-  gl_Position = projection * viewModel * vec4(vPos,1.0f);
-
-  position = vec3(viewModel * vec4(vPos,1.0f));
-  normal = normalize(mat3(transpose(inverse(viewModel))) * vNormal);
+  mat4 modelToCam = worldToCam * modelToWorld;
+  gl_Position = projection * modelToCam * vec4(vPos,1.0f);
+  modelPos = vPos;
 }

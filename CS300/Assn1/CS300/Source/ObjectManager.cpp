@@ -36,8 +36,8 @@ ObjectManager::~ObjectManager()
 
 void ObjectManager::render(Camera& camera)
 {
-  //deferredRender(camera);
-  forwardRender(camera);
+  deferredRender(camera);
+  //forwardRender(camera);
 }
 
 void ObjectManager::deferredRender(Camera& camera)
@@ -71,6 +71,7 @@ void ObjectManager::deferredRender(Camera& camera)
   // clear fbo 0
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
   // draw each object with texture lookup
   for (Object* obj : objects_)
@@ -216,10 +217,19 @@ void ObjectManager::genFBO()
   for (unsigned int i = 0; i < fbo_.textureCount; i++)
   {
     glBindTexture(GL_TEXTURE_2D, fbo_.textures[i]);
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, fbo_.width, fbo_.height, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, fbo_.textures[i], 0);
+
+    // these samplers are only for the deferred lighting so they can be stored in the manager
+    string texName = "texSampler" + std::to_string(i);
+    int deferredLightingSP = ShaderManager::getShaderManager()->getShader(ShaderType::DeferredLighting).getProgram();
+    fbo_.texSamplerLocs[i] = glGetUniformLocation(deferredLightingSP, texName.c_str());
+    glUniform1i(fbo_.texSamplerLocs[i], i);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
   }
 
   // Now bind the depth attachment

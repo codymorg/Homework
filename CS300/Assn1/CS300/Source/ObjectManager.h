@@ -17,6 +17,7 @@ struct UBO
   unsigned       lightCount = 0;
   float          size = 0;
 };
+
 struct FBO
 {
   unsigned             fbo_id = 0;
@@ -24,9 +25,8 @@ struct FBO
   int                  width = -1;
   int                  height = -1;
   static constexpr int textureCount = 2;
-  unsigned             textures[textureCount];
-
-
+  unsigned             textures[textureCount] = {};
+  unsigned             texSamplerLocs[textureCount] = {};
 };
 
 class ObjectManager

@@ -187,6 +187,10 @@ void Object::loadOBJ(string fileLocation)
     scale(vec3(2 / modelScale));
     translate(-centroid);
 
+    // save the bounding box
+    boundingBox_[0] = minPos;
+    boundingBox_[1] = maxPos;
+
     // load data into vertex struct
     for (size_t i = 0; i < verts.size(); i += 3)
     {
@@ -232,6 +236,9 @@ void Object::loadeCube(float side)
     3,2,6, // Top
     3,6,7
   };
+
+  boundingBox_[0] = vec3(-side / 2);
+  boundingBox_[0] = vec3(side / 2);
 
   initBuffers();
 }
@@ -300,6 +307,9 @@ void Object::loadSphere(float diameter, int divisions)
       }
     }
   }
+
+  boundingBox_[0] = vec3(-diameter / 2);
+  boundingBox_[1] = vec3(diameter / 2);
 
   initBuffers();
 }
@@ -371,6 +381,8 @@ void Object::setShader(ShaderType type)
   // set shader locations for object
   modelToWorldLoc_ = glGetUniformLocation(shader_.getProgram(), "modelToWorld");
   assert(modelToWorldLoc_ != -1 && "model matrix location is invalid");
+
+  boundingBoxLoc_ = glGetUniformLocation(shader_.getProgram(), "boundingBox");
 }
 
 void Object::initBuffers()
