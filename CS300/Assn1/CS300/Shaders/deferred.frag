@@ -8,6 +8,6 @@ layout(location=1) out vec3 normalOut;
 
 void main()
 {
-  positionOut = positionOut;
-  normalOut = normalOut;
+  positionOut = position;
+  normalOut = normal;
 } 

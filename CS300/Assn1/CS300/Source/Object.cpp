@@ -380,8 +380,6 @@ void Object::setShader(ShaderType type)
 
   // set shader locations for object
   modelToWorldLoc_ = glGetUniformLocation(shader_.getProgram(), "modelToWorld");
-  assert(modelToWorldLoc_ != -1 && "model matrix location is invalid");
-
   boundingBoxLoc_ = glGetUniformLocation(shader_.getProgram(), "boundingBox");
 }
 

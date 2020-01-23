@@ -20,13 +20,14 @@ struct UBO
 
 struct FBO
 {
-  unsigned             fbo_id = 0;
-  unsigned             rbo_id = 0;
-  int                  width = -1;
-  int                  height = -1;
   static constexpr int textureCount = 2;
-  unsigned             textures[textureCount] = {};
-  unsigned             texSamplerLocs[textureCount] = {};
+
+  unsigned fbo_id = 0;
+  unsigned rbo_id = 0;
+  unsigned textures[textureCount] = {};
+  int      width = -1;
+  int      height = -1;
+  int      texSamplerLocs[textureCount] = {};
 };
 
 class ObjectManager
@@ -45,6 +46,7 @@ public:
   void genUBO();
   void updateUBO(Light* light);
   void updateUBO(Object* light);
+
 
   void genFBO();
 

@@ -44,9 +44,7 @@ void ObjectManager::deferredRender(Camera& camera)
 {
   // bind fbo 1
   glBindFramebuffer(GL_FRAMEBUFFER, fbo_.fbo_id);
-
-  // clear fbo 1
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClearColor(1, 1, 1, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   //update camera data in shaders
@@ -66,12 +64,21 @@ void ObjectManager::deferredRender(Camera& camera)
   }
 
   // bind fbo 0
+  //glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_.fbo_id);
+  //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  // clear fbo 0
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  // set up textures and their samplers for deferred drawing
+  glUseProgram(ShaderManager::getShaderManager()->getShader(ShaderType::DeferredLighting).getProgram());
+  for (int i = 0; i < fbo_.textureCount; i++)
+  {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, fbo_.textures[i]);
+    glUniform1i(fbo_.texSamplerLocs[i], i);
+  }
+  glUseProgram(0);
 
   // draw each object with texture lookup
   for (Object* obj : objects_)
@@ -86,15 +93,9 @@ void ObjectManager::deferredRender(Camera& camera)
     }
   }
 
-  // draw debug objects ontop of everything
-  for (Object* obj : objects_)
-  {
-    // dont draw debug objects
-    if (obj->isDebugObject == true)
-    {
-      obj->draw();
-    }
-  }
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
 }
 
 void ObjectManager::forwardRender(Camera& camera)
@@ -200,6 +201,7 @@ void ObjectManager::updateUBO(Object* object)
   //glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
+
 void ObjectManager::genFBO()
 {
   // gen our FBO
@@ -227,7 +229,6 @@ void ObjectManager::genFBO()
     string texName = "texSampler" + std::to_string(i);
     int deferredLightingSP = ShaderManager::getShaderManager()->getShader(ShaderType::DeferredLighting).getProgram();
     fbo_.texSamplerLocs[i] = glGetUniformLocation(deferredLightingSP, texName.c_str());
-    glUniform1i(fbo_.texSamplerLocs[i], i);
 
     glBindTexture(GL_TEXTURE_2D, 0);
   }

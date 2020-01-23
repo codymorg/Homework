@@ -1,12 +1,12 @@
 #version 430 core
 
-uniform sampler2D texSampler0; // sample the textures stored on FBO1
+uniform sampler2D texSampler0; // position
+uniform sampler2D texSampler1; // normal
 uniform vec3 boundingBox[2];
 
 in vec3 modelPos;
 
-layout(location=0) out vec3 positionOut;
-layout(location=1) out vec3 normalOut;
+out vec3 fragColor;
 
 const float PI = 3.1415926535897932384626433832795;
 
@@ -27,19 +27,17 @@ vec2 SphereProjection(vec3 point2)
 
 vec2 GenerateUV()
 {
-  vec2 uv = vec2(0,0);
-  vec3 point = modelPos;
   vec3 lower = boundingBox[0];
   vec3 upper = boundingBox[1];
   vec3 center = vec3(lower + upper) / 2.0f;
-  vec3 point2 = point - center;
-  vec3 lower2 = lower - center;
-  vec3 upper2 = upper - center;
+  vec3 point2 = modelPos - center;
 
   return SphereProjection(point2);
 }
 
 void main()
 {
-  positionOut = texture( texSampler0, GenerateUV() ).rgb;
+  vec3 t0 = texture( texSampler0, GenerateUV() ).rgb;
+  vec3 t1 = texture( texSampler1, GenerateUV() ).rgb;
+  fragColor = t1;
 } 
