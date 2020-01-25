@@ -15,6 +15,7 @@ public:
   Light(std::string name);
 
   void draw();
+  void update();
 
   // phong data
   struct LightData

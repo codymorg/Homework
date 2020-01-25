@@ -39,6 +39,5 @@ public:
 private:
   glm::vec3 initialPos;
 };
-
 #endif
 

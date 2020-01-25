@@ -16,14 +16,20 @@ Light::Light(std::string name) : Object(name)
 
 void Light::draw()
 {
-  lightData.position = glm::vec4(this->getWorldPosition(),1);
-
-  ObjectManager::getObjectManager()->updateUBO(this);
 
   // only draw this object if it is a debug object
   if (isDebugObject)
   {
+    this->Light::update();
     Object::draw();
   }
+
+}
+
+void Light::update()
+{
+  lightData.position = glm::vec4(this->getWorldPosition(), 1);
+
+  ObjectManager::getObjectManager()->updateUBO(this);
 
 }

@@ -39,15 +39,14 @@ class Object
     void loadOBJ(std::string location);
     void loadeCube(float radius);
     void loadSphere(float radius, int divisions);
-    void loadCircle(float radius, int divisions, glm::vec3 axis = glm::vec3(0,1,0));
-    void loadPlane(float radius);
-    void loadTexture(std::string location, int slot = 0);
+
 
     // object manipulation
     void translate(glm::vec3 trans);
     void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0,1,0));
     void scale(glm::vec3 scale);
     virtual void draw();  
+    virtual void update();
 
     // public data
     std::string name;

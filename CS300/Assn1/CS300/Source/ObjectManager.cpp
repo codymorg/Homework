@@ -6,6 +6,7 @@
 #include <string>
   using std::string;
 #include "Light.h"
+#include "Camera.h"
 
 // singleton
 ObjectManager* ObjectManager::objectManager_ = nullptr;
@@ -40,27 +41,53 @@ void ObjectManager::render(Camera& camera)
   //forwardRender(camera);
 }
 
+void RenderQuad()
+{
+  static unsigned int quadVAO = 0;
+  static unsigned int quadVBO;
+  if (quadVAO == 0)
+  {
+    float quadVertices[] = {
+      // positions        // texture Coords
+      -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+      -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+       1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+       1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+    };
+    // setup plane VAO
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  }
+  glBindVertexArray(quadVAO);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  glBindVertexArray(0);
+}
+
 void ObjectManager::deferredRender(Camera& camera)
 {
   // bind fbo 1
   glBindFramebuffer(GL_FRAMEBUFFER, fbo_.fbo_id);
-  glClearColor(1, 1, 1, 1.0f);
+  glClearColor(0, 0, 0, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   //update camera data in shaders
   ShaderManager::getShaderManager()->updateShaders(camera);
 
+
   // draw objects to textures
   for (Object* obj : objects_)
   {
-    // dont draw debug objects
-    if (obj->isDebugObject == false)
-    {
-      ShaderType original = obj->getShader().getShaderType();
-      obj->setShader(ShaderType::Deferred);
-      obj->draw();
-      obj->setShader(original);
-    }
+    ShaderType original = obj->getShader().getShaderType();
+    obj->setShader(ShaderType::Deferred);
+    obj->draw();
+    obj->setShader(original);
   }
 
   // bind fbo 0
@@ -71,31 +98,30 @@ void ObjectManager::deferredRender(Camera& camera)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // set up textures and their samplers for deferred drawing
-  glUseProgram(ShaderManager::getShaderManager()->getShader(ShaderType::DeferredLighting).getProgram());
+  int diferredSP = ShaderManager::getShaderManager()->getShader(ShaderType::DeferredLighting).getProgram();
+  glUseProgram(diferredSP);
   for (int i = 0; i < fbo_.textureCount; i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, fbo_.textures[i]);
     glUniform1i(fbo_.texSamplerLocs[i], i);
   }
-  glUseProgram(0);
 
-  // draw each object with texture lookup
+  // update lighting
   for (Object* obj : objects_)
   {
-    // dont draw debug objects
-    if (obj->isDebugObject == false)
+    Light* light = dynamic_cast<Light*>(obj);
+    if (light)
     {
-      ShaderType original = obj->getShader().getShaderType();
-      obj->setShader(ShaderType::DeferredLighting);
-      obj->draw();
-      obj->setShader(original);
+      light->update();
+      obj->Object::update();
     }
   }
 
+  RenderQuad();
+  glUseProgram(0);
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
 }
 
 void ObjectManager::forwardRender(Camera& camera)
@@ -240,11 +266,13 @@ void ObjectManager::genFBO()
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fbo_.rbo_id);
   GLenum buffers[] =
   {
-    GL_COLOR_ATTACHMENT0,
-    GL_COLOR_ATTACHMENT1,
-    GL_COLOR_ATTACHMENT2,
-    GL_COLOR_ATTACHMENT3,
+    GL_COLOR_ATTACHMENT0, // position
+    GL_COLOR_ATTACHMENT1, // normal
+    GL_COLOR_ATTACHMENT2, // diffuse 
+    GL_COLOR_ATTACHMENT3, // ambient 
+    GL_COLOR_ATTACHMENT4, // specular 
   };
+  assert(_countof(buffers) == fbo_.textureCount);
   glDrawBuffers(fbo_.textureCount, buffers);
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

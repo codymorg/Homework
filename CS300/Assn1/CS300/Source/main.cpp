@@ -34,7 +34,7 @@ static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
 static Camera* camera = nullptr;
 static bool pauseSimulation = false;
-static bool pauseModel = false;
+static bool pauseModel = true;
 
 
 /////***** Window and OpenGL Management *****/////
@@ -162,12 +162,6 @@ void SceneSetup()
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
-
-  Object* obj3 = objectMgr->addObject("center");
-  obj3->setShader(ShaderType::Normal);
-  obj3->loadeCube(1.0f);
-  obj3->wiremode = true;
-
 }
 
 void SceneUpdate()
@@ -176,7 +170,7 @@ void SceneUpdate()
   if (!objectMgr->isValid() || pauseSimulation)
     return;
 
-  if(pauseModel == false)
+  if(pauseModel == true)
     objectMgr->getFirstObjectByName("model")->rotate(1);
   objectMgr->getFirstObjectByName("light")->rotate(-1, left * 3.0f);
 }
@@ -387,6 +381,7 @@ int main()
 
   // scene setup
   camera =  new Camera(vec3(0, -4, -8), 30.0f, right);
+
   SceneSetup();
   while (!glfwWindowShouldClose(window))
   {

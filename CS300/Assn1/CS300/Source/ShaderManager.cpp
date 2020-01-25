@@ -57,9 +57,7 @@ void Shader::updateWorldToCamTransform(glm::mat4 trans)
   glUseProgram(shaderProgram_);
 
   // this is neccesary
-  if(worldToCamLoc_ == -1)
-    worldToCamLoc_ = glGetUniformLocation(shaderProgram_, "worldToCam");
-  assert(worldToCamLoc_ != -1 && "camera matrix location is invalid");
+  worldToCamLoc_ = glGetUniformLocation(shaderProgram_, "worldToCam");
 
   // update and exit shader
   glUniformMatrix4fv(worldToCamLoc_, 1, GL_FALSE, &trans[0][0]);
@@ -70,10 +68,7 @@ void Shader::updateProjectionTransform(glm::mat4 trans)
 {
   glUseProgram(shaderProgram_);
 
-  // this is neccesary
-  if (projectionLoc_ == -1)
-    projectionLoc_ = glGetUniformLocation(shaderProgram_, "projection");
-  assert(projectionLoc_ != -1 && "projection location is invalid");
+  projectionLoc_ = glGetUniformLocation(shaderProgram_, "projection");
   
   glUniformMatrix4fv(projectionLoc_, 1, GL_FALSE, &trans[0][0]);
   glUseProgram(0);

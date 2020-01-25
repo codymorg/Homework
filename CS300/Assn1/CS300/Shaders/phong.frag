@@ -1,14 +1,8 @@
 #version 430 core
 #define MAX_LIGHTS 16
 
-uniform vec3 objColor;      // for lines
-uniform int hasTexture;
 uniform sampler2D texSampler;  // back  00
 uniform sampler2D texSampler2;  // back  00
-uniform int useGPUuv;
-uniform vec3 lower;
-uniform vec3 upper;
-uniform int projectionType;
 
 // material data
 struct Material
@@ -80,7 +74,7 @@ vec3 PointLight(Light currentLight, vec3 viewV)
   vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
 
   // ambient
-  vec3 Iambient = ambient * matAmbient; // replace with material attributes
+  vec3 Iambient = ambient * matAmbient; 
 
   // diffuse
   vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);

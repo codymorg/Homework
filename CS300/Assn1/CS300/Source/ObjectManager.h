@@ -20,7 +20,7 @@ struct UBO
 
 struct FBO
 {
-  static constexpr int textureCount = 2;
+  static constexpr int textureCount = 5;
 
   unsigned fbo_id = 0;
   unsigned rbo_id = 0;
