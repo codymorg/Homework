@@ -35,6 +35,7 @@ static ShaderManager* shaderMgr = nullptr;
 static Camera* camera = nullptr;
 static bool pauseSimulation = false;
 static bool pauseModel = true;
+static int selectedModel = 0;
 
 
 /////***** Window and OpenGL Management *****/////
@@ -157,7 +158,7 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 void SceneSetup()
 {
   Object* obj = objectMgr->addObject("model");
-  obj->setShader(ShaderType::Phong);
+  obj->setShader(ShaderType::Deferred);
   obj->loadOBJ("Common/models/4sphere.obj");
 
   Object* obj2 = objectMgr->addLight("light");
@@ -240,6 +241,15 @@ void ProcessInput(GLFWwindow* window)
 
 void UpdateGUI()
 {
+  // allowed models
+  const std::vector<const char*> modelNames =
+  {
+    "4Sphere",
+    "bunny",
+    "cube2",
+    "sphere",
+  };
+
   // get all current state data
   int& objectIndex = objectMgr->selectedObject;
   Object* selectedObject = objectMgr->getSelected();
@@ -265,12 +275,13 @@ void UpdateGUI()
   ImGui::NewFrame();
 
   // text
-  ImGui::Begin("Welcome to CS300 Assignment 2!");
+  ImGui::Begin("Welcome to CS350 Assignment 1!");
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
   // object options
   bool changedObject = ImGui::ListBox("Objects", &objectIndex, &objectMgr->getObjectNames()[0],objectMgr->getSize());
   bool changedPosition = ImGui::DragFloat3("World Position", &currentPosition[0]);
+  bool changeModel = ImGui::ListBox("Models", &selectedModel, &modelNames[0], int(modelNames.size()));
 
   // data
   bool changedLightData = false;
@@ -294,7 +305,7 @@ void UpdateGUI()
   bool changeFromWire = ImGui::RadioButton("Shaded", !selectedObject->wiremode);
 
   // light obtions
-  bool changeDebugObject = ImGui::Button("Toggle Selected Object to draw as debug or not");
+  bool changeDebugMode = ImGui::Button("Toggle Debug Drawing mode");
 
   // resetting options
   bool recompileShaders = ImGui::Button("Recompile Shaders");
@@ -317,11 +328,14 @@ void UpdateGUI()
   {
     selectedObject->wiremode = !selectedObject->wiremode;
   }
-
-  // todo : change to all debug objs
-  if(changeDebugObject)
+  if(changeDebugMode)
   {
-    selectedObject->isDebugObject = !selectedObject->isDebugObject;
+    objectMgr->debugMode = !objectMgr->debugMode;
+  }
+  if (changeModel)
+  {
+    string name = "Common/models/" + string(modelNames[selectedModel]) + ".obj";
+    selectedObject->loadOBJ(name);
   }
 
   // resetting effects

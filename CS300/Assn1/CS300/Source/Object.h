@@ -51,11 +51,10 @@ class Object
     // public data
     std::string name;
     bool        wiremode = false;
-    bool        isDebugObject = false;
 
     // Getters
-    unsigned  getShaderProgram();
-    Shader& getShader();
+    int  getShaderProgram();
+    Shader&   getShader();
     glm::vec3 getWorldPosition();
 
     // Setters
@@ -77,10 +76,12 @@ class Object
   private:
     
     // object data
-    glm::vec3           boundingBox_[2];
-    glm::mat4           preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
-    glm::mat4           modelToWorld_ = glm::mat4(1.0f);
-    unsigned            renderMode_ = GL_TRIANGLES;
+    glm::vec3   boundingBox_[2];
+    glm::mat4   preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
+    glm::mat4   modelToWorld_ = glm::mat4(1.0f);
+    unsigned    renderMode_ = GL_TRIANGLES;
+
+    // geometry data
     std::vector<Vertex> vertices_ = 
     {
       Vertex(glm::vec3(-0.5,-0.5,0)),

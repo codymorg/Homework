@@ -11,19 +11,12 @@ Light::Light(std::string name) : Object(name)
 {
   loadSphere(1, 50);
   this->setShader(ShaderType::Normal);
-  isDebugObject = true;
 }
 
 void Light::draw()
 {
-
-  // only draw this object if it is a debug object
-  if (isDebugObject)
-  {
-    this->Light::update();
-    Object::draw();
-  }
-
+  this->Light::update();
+  Object::draw();
 }
 
 void Light::update()

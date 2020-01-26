@@ -18,8 +18,13 @@ struct UBO
   float          size = 0;
 };
 
-struct FBO
+class FBO
 {
+public:
+  void bind();
+  void unbind();
+  void updateTextureInfo();
+  void useDepth();
   static constexpr int textureCount = 5;
 
   unsigned fbo_id = 0;
@@ -61,6 +66,7 @@ public:
 
   // data
   int selectedObject = 0; // which object the GUI is looking at
+  bool debugMode = false; // false: draw forward objects with depth, true: draw forward objects without depth ie on top
 
   // deferred data
 
@@ -73,11 +79,13 @@ private:
   bool                 isValid_ = false;
 
   void deferredRender(Camera& camera);
-  void forwardRender(Camera& camera);
+  void forwardRender(Camera& camera, bool clear = true);
 
   // uniform data namely lights
   UBO ubo_;
   FBO fbo_;
+
+
 };
 
 #endif

@@ -38,11 +38,13 @@ ObjectManager::~ObjectManager()
 void ObjectManager::render(Camera& camera)
 {
   deferredRender(camera);
-  //forwardRender(camera);
+  forwardRender(camera, false);
 }
 
 void RenderQuad()
 {
+
+
   static unsigned int quadVAO = 0;
   static unsigned int quadVBO;
   if (quadVAO == 0)
@@ -73,41 +75,30 @@ void RenderQuad()
 void ObjectManager::deferredRender(Camera& camera)
 {
   // bind fbo 1
-  glBindFramebuffer(GL_FRAMEBUFFER, fbo_.fbo_id);
-  glClearColor(0, 0, 0, 0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  fbo_.bind();
 
   //update camera data in shaders
   ShaderManager::getShaderManager()->updateShaders(camera);
 
-
   // draw objects to textures
   for (Object* obj : objects_)
   {
-    ShaderType original = obj->getShader().getShaderType();
-    obj->setShader(ShaderType::Deferred);
-    obj->draw();
-    obj->setShader(original);
+    ShaderType type = obj->getShader().getShaderType();
+    if (type == ShaderType::Deferred || type == ShaderType::DeferredLighting)
+    {
+      obj->draw();
+    }
   }
 
   // bind fbo 0
-  //glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_.fbo_id);
-  //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  fbo_.unbind();
 
   // set up textures and their samplers for deferred drawing
-  int diferredSP = ShaderManager::getShaderManager()->getShader(ShaderType::DeferredLighting).getProgram();
-  glUseProgram(diferredSP);
-  for (int i = 0; i < fbo_.textureCount; i++)
-  {
-    glActiveTexture(GL_TEXTURE0 + i);
-    glBindTexture(GL_TEXTURE_2D, fbo_.textures[i]);
-    glUniform1i(fbo_.texSamplerLocs[i], i);
-  }
+  fbo_.updateTextureInfo();
 
   // update lighting
+  int diferredSP = ShaderManager::getShaderManager()->getShader(ShaderType::DeferredLighting).getProgram();
+  glUseProgram(diferredSP);
   for (Object* obj : objects_)
   {
     Light* light = dynamic_cast<Light*>(obj);
@@ -119,16 +110,23 @@ void ObjectManager::deferredRender(Camera& camera)
   }
 
   RenderQuad();
-  glUseProgram(0);
 
+  glUseProgram(0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ObjectManager::forwardRender(Camera& camera)
+void ObjectManager::forwardRender(Camera& camera, bool clear)
 {
-  // clear fbo 1
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  if (clear)
+  {
+    // clear fbo 1
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
+  if(debugMode == true)
+    glClear(GL_DEPTH_BUFFER_BIT);
+  else
+    fbo_.useDepth();
 
   //update camera data in shaders
   ShaderManager::getShaderManager()->updateShaders(camera);
@@ -136,7 +134,9 @@ void ObjectManager::forwardRender(Camera& camera)
   // draw objects to textures
   for (Object* obj : objects_)
   {
-    obj->draw();
+    ShaderType type = obj->getShader().getShaderType();
+    if (type != ShaderType::Deferred && type != ShaderType::DeferredLighting)
+      obj->draw();
   }
 }
 
@@ -301,6 +301,8 @@ const std::vector<const char*> ObjectManager::getObjectNames()
   return static_cast<const vector<const char*>>(names);
 }
 
+
+
 std::vector<Object*> ObjectManager::getObjectsByName(std::string name)
 {
   vector<Object*> namedObjects;
@@ -345,5 +347,37 @@ unsigned ObjectManager::getSize()
   return objects_.size();
 }
 
+void FBO::bind()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo_id);
+  glClearColor(0, 0, 0, 0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
+void FBO::unbind()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
+void FBO::updateTextureInfo()
+{
+  int diferredSP = ShaderManager::getShaderManager()->getShader(ShaderType::DeferredLighting).getProgram();
+  glUseProgram(diferredSP);
+  for (int i = 0; i < textureCount; i++)
+  {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, textures[i]);
+    glUniform1i(texSamplerLocs[i], i);
+  }
+  glUseProgram(0);
+}
+
+void FBO::useDepth()
+{
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_id);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+  glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}

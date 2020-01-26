@@ -82,11 +82,11 @@ vec3 pointLight( Light currentLight,
 
   vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
 
-  vec3 Iambient = ambient * matAmbient; // replace with material attributes
+  vec3 Iambient = ambient * matAmbient;
 
   // diffuse
   vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
-  vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), 100);
+  vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
 
   // attenuation
   float att = min((1.0f / (attenuation.x  * lightMagnitude + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude)), 1.0f);
@@ -105,8 +105,7 @@ void main()
   vec3 specular =           texture(texSampler4, texCoord).rgb;
 
   // view vector
-  vec3 viewV = -viewPos;
-  viewV = normalize(viewV);
+  vec3 viewV = normalize(viewPos);
 
   fragColor = pointLight(lights[0], viewPos, viewNorm, diffuse, ambient, specular, viewV);
 } 

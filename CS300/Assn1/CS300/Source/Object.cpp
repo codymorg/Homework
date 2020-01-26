@@ -201,6 +201,7 @@ void Object::loadOBJ(string fileLocation)
     genVertexNormals();
 
     initBuffers();
+
   }
   else
   {
@@ -365,7 +366,7 @@ void Object::draw()
 }
 
 
-unsigned Object::getShaderProgram()
+int Object::getShaderProgram()
 {
   return shader_.getProgram();
 }
@@ -379,6 +380,7 @@ vec3 Object::getWorldPosition()
 {
   return vec3(modelToWorld_[3]);
 }
+
 
 void Object::setShader(ShaderType type)
 {
