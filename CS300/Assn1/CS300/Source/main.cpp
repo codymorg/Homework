@@ -36,6 +36,7 @@ static Camera* camera = nullptr;
 static bool pauseSimulation = false;
 static bool pauseModel = true;
 static int selectedModel = 0;
+static int currentDisplayMode = 0;
 
 
 /////***** Window and OpenGL Management *****/////
@@ -250,6 +251,16 @@ void UpdateGUI()
     "sphere",
   };
 
+  // differed visualization targets
+  const std::vector<const char*> displayNames =
+  {
+    "Phong Illumination",
+    "View Position",
+    "Normal",
+    "Diffuse",
+    "Specular",
+  };
+
   // get all current state data
   int& objectIndex = objectMgr->selectedObject;
   Object* selectedObject = objectMgr->getSelected();
@@ -279,9 +290,9 @@ void UpdateGUI()
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
   // object options
-  bool changedObject = ImGui::ListBox("Objects", &objectIndex, &objectMgr->getObjectNames()[0],objectMgr->getSize());
+  bool changedObject =   ImGui::ListBox("Objects", &objectIndex, &objectMgr->getObjectNames()[0],objectMgr->getSize());
   bool changedPosition = ImGui::DragFloat3("World Position", &currentPosition[0]);
-  bool changeModel = ImGui::ListBox("Models", &selectedModel, &modelNames[0], int(modelNames.size()));
+  bool changeModel =     ImGui::ListBox("Models", &selectedModel, &modelNames[0], int(modelNames.size()));
 
   // data
   bool changedLightData = false;
@@ -300,17 +311,20 @@ void UpdateGUI()
     changedObjectData |= ImGui::ColorEdit3("object specular", &(selectedObject->material.specular.x));
   }
 
+  // drawing mode options 
   ImGui::Text("Drawing Mode");
-  bool changetoWire = ImGui::RadioButton("WireFrame", selectedObject->wiremode);
+  bool changetoWire =   ImGui::RadioButton("WireFrame", selectedObject->wiremode);
   bool changeFromWire = ImGui::RadioButton("Shaded", !selectedObject->wiremode);
+  bool changeDisplay =  ImGui::ListBox("Deferred display mode", &currentDisplayMode, &displayNames[0], displayNames.size());
 
   // light obtions
   bool changeDebugMode = ImGui::Button("Toggle Debug Drawing mode");
 
+
   // resetting options
   bool recompileShaders = ImGui::Button("Recompile Shaders");
-  bool resetCamera = ImGui::Button("Reset Camera");
-  bool resetScene = ImGui::Button("Reset Scene");
+  bool resetCamera =      ImGui::Button("Reset Camera");
+  bool resetScene =       ImGui::Button("Reset Scene");
 
 
   // end of gui options
@@ -319,7 +333,11 @@ void UpdateGUI()
 
 
   // object effects
-  if (changedPosition)
+  if (changeDisplay)
+  {
+    shaderMgr->getShader(ShaderType::DeferredLighting).updateDisplayMode(currentDisplayMode);
+  }
+
   {
     vec3 trans = selectedObject->getWorldPosition() - currentPosition;
     selectedObject->translate(trans);
@@ -342,6 +360,7 @@ void UpdateGUI()
   if (recompileShaders)
   {
     shaderMgr->reCompile(ShaderType::TypeCount);
+    objectMgr->resetUBO();
   }
   if (resetCamera)
   {

@@ -11,7 +11,7 @@ uniform sampler2D texSampler1; // normal
 uniform sampler2D texSampler2; // diffuse
 uniform sampler2D texSampler3; // ambient
 uniform sampler2D texSampler4; // specular
-uniform vec3 boundingBox[2];
+uniform int displayMode = 0;
 
 // material data
 struct Material
@@ -56,12 +56,30 @@ in vec2 texCoord;
 
 out vec3 fragColor;
 
+vec3 specularOnly(Light currentLight, vec3 vertPosView, vec3 normal, vec3 matSpecular, vec3 viewV)
+{
+  vec3 lightPos    = currentLight.lightPos_;
+  vec3 specular    = currentLight.specular_;
+  float ns         = currentLight.ns_; 
 
-vec3 pointLight( Light currentLight, 
-                 vec3 vertPosView, 
-                 vec3 normal, 
-                 vec3 matDiffuse, vec3 matAmbient, vec3 matSpecular,
-                 vec3 viewV)
+    // view space conversion
+  vec3 lightPosView = (viewTrans * vec4(lightPos, 1)).xyz;
+
+  // light vector
+  vec3 lightV = lightPosView - vertPosView;
+  float lightMagnitude = length(lightV);
+  lightV = normalize(-lightV);
+
+  vec3 reflection = 2 * dot(normal, lightV) * normal - lightV;
+
+  return specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
+}
+
+vec3 pointLight(Light currentLight, 
+                vec3 vertPosView, 
+                vec3 normal, 
+                vec3 matDiffuse, vec3 matAmbient, vec3 matSpecular,
+                vec3 viewV)
 {
   // grab light data for this light
   vec3 lightPos    = currentLight.lightPos_;
@@ -85,8 +103,8 @@ vec3 pointLight( Light currentLight,
   vec3 Iambient = ambient * matAmbient;
 
   // diffuse
-  vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,lightV),0);
-  vec3 Ispecular = specular * matSpecular * pow(max(dot(reflection, viewV),0), ns);
+  vec3 Idiffuse = diffuse * matDiffuse * max(dot(normal,-lightV),0);
+  vec3 Ispecular = specularOnly(currentLight, vertPosView, normal, matSpecular, viewV);
 
   // attenuation
   float att = min((1.0f / (attenuation.x  * lightMagnitude + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude)), 1.0f);
@@ -107,5 +125,26 @@ void main()
   // view vector
   vec3 viewV = normalize(viewPos);
 
-  fragColor = pointLight(lights[0], viewPos, viewNorm, diffuse, ambient, specular, viewV);
+  switch(displayMode)
+  {
+  case 0:
+    fragColor = pointLight(lights[0], viewPos, viewNorm, diffuse, ambient, specular, viewV);
+    break;
+
+  case 1:
+    fragColor = viewPos;
+    break;
+
+  case 2:
+    fragColor = viewNorm;
+    break;
+
+  case 3:
+    fragColor = diffuse;
+    break;
+    
+  case 4:
+    fragColor = specularOnly(lights[0], viewPos, viewNorm, specular, viewV);;
+    break;
+  }
 } 

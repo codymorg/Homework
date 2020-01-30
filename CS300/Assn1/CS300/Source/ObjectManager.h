@@ -49,6 +49,7 @@ public:
 
   // GPU management
   void genUBO();
+  void resetUBO();
   void updateUBO(Light* light);
   void updateUBO(Object* light);
 

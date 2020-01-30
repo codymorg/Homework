@@ -336,9 +336,16 @@ void Object::scale(glm::vec3 scale)
 
 void Object::update()
 {
-  // send data for drawing
-  glUniform3fv(boundingBoxLoc_, 2, glm::value_ptr(*boundingBox_));
-  glUniformMatrix4fv(modelToWorldLoc_, 1, GL_FALSE, &modelToWorld_[0][0]);
+  // update all uniform variables
+  int currentSP = ShaderManager::getShaderManager()->getCurrentBound();
+
+  boundingBoxLoc_ = glGetUniformLocation(currentSP, "boundingBox");
+  if (boundingBoxLoc_ != -1)
+    glUniform3fv(boundingBoxLoc_, 2, glm::value_ptr(*boundingBox_));
+
+  modelToWorldLoc_ = glGetUniformLocation(currentSP, "modelToWorld");
+  if (modelToWorldLoc_ != -1)
+    glUniformMatrix4fv(modelToWorldLoc_, 1, GL_FALSE, &(modelToWorld_[0][0]));
 
   ObjectManager::getObjectManager()->updateUBO(this);
 }

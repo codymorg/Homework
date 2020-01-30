@@ -201,9 +201,14 @@ void ObjectManager::genUBO()
   glUnmapNamedBuffer(ubo_.id);
 }
 
+void ObjectManager::resetUBO()
+{
+  glDeleteBuffers(1, &ubo_.id);
+  genUBO();
+}
+
 void ObjectManager::updateUBO(Light* light)
 {
-  //glBindBuffer(GL_UNIFORM_BUFFER, ubo_.id);
   void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
 
   // fill this light member
@@ -246,7 +251,7 @@ void ObjectManager::genFBO()
   {
     glBindTexture(GL_TEXTURE_2D, fbo_.textures[i]);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, fbo_.width, fbo_.height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, fbo_.width, fbo_.height, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, fbo_.textures[i], 0);

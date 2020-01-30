@@ -56,11 +56,10 @@ void Shader::updateWorldToCamTransform(glm::mat4 trans)
 {
   glUseProgram(shaderProgram_);
 
-  // this is neccesary
   worldToCamLoc_ = glGetUniformLocation(shaderProgram_, "worldToCam");
+  if(worldToCamLoc_)
+    glUniformMatrix4fv(worldToCamLoc_, 1, GL_FALSE, &trans[0][0]);
 
-  // update and exit shader
-  glUniformMatrix4fv(worldToCamLoc_, 1, GL_FALSE, &trans[0][0]);
   glUseProgram(0);
 }
 
@@ -69,10 +68,21 @@ void Shader::updateProjectionTransform(glm::mat4 trans)
   glUseProgram(shaderProgram_);
 
   projectionLoc_ = glGetUniformLocation(shaderProgram_, "projection");
-  
-  glUniformMatrix4fv(projectionLoc_, 1, GL_FALSE, &trans[0][0]);
-  glUseProgram(0);
+  if(projectionLoc_ != -1)
+    glUniformMatrix4fv(projectionLoc_, 1, GL_FALSE, &trans[0][0]);
 
+  glUseProgram(0);
+}
+
+void Shader::updateDisplayMode(int value)
+{
+  glUseProgram(shaderProgram_);
+
+  displayModeLoc_ = glGetUniformLocation(shaderProgram_, "displayMode");
+  if (displayModeLoc_ != -1)
+    glUniform1i(displayModeLoc_, value);
+
+  glUseProgram(0);
 }
 
 int Shader::reloadProgram()

@@ -53,6 +53,7 @@ public:
 
   void updateWorldToCamTransform(glm::mat4 trans);
   void updateProjectionTransform(glm::mat4 trans);
+  void updateDisplayMode(int value);
 
 
   int reloadProgram();
@@ -77,6 +78,7 @@ protected:
 
   int worldToCamLoc_ = -1;
   int projectionLoc_ = -1;
+  int displayModeLoc_ = -1;
 };
 
 
