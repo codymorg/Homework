@@ -19,22 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\fragmentShader.frag" />
-    <None Include="Source\normalShader.frag" />
-    <None Include="Source\passthroughShader.vert" />
-    <None Include="Source\PhongBlinn.frag" />
-    <None Include="Source\PhongBlinn.vert" />
-    <None Include="Source\PhongDiffuse.vert" />
-    <None Include="Source\PhongLighting.frag" />
-    <None Include="Source\PhongLighting.vert" />
-    <None Include="Source\PhongShading.frag" />
-    <None Include="Source\PhongShading.vert" />
-    <None Include="Source\Reflection.frag" />
-    <None Include="Source\skyboxShader.frag" />
-    <None Include="Source\skyboxShader.vert" />
-    <None Include="Source\vertexShader.vert" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\imGui\imgui.cpp" />
     <ClCompile Include="Source\imGui\imgui_draw.cpp" />
@@ -43,12 +27,13 @@
     <ClCompile Include="Source\imGui\imgui_widgets.cpp" />
     <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\ObjectManagement.cpp" />
-    <ClCompile Include="Source\ShaderManagement.cpp" />
+    <ClCompile Include="Source\Object.cpp" />
+    <ClCompile Include="Source\ObjectManager.cpp" />
+    <ClCompile Include="Source\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\SOIL\SOIL.h" />
     <ClInclude Include="Source\Camera.h" />
+    <ClInclude Include="Source\Common.h" />
     <ClInclude Include="Source\imGui\imconfig.h" />
     <ClInclude Include="Source\imGui\imgui.h" />
     <ClInclude Include="Source\imGui\imgui_impl_glfw.h" />
@@ -58,8 +43,19 @@
     <ClInclude Include="Source\imGui\imstb_textedit.h" />
     <ClInclude Include="Source\imGui\imstb_truetype.h" />
     <ClInclude Include="Source\Light.h" />
-    <ClInclude Include="Source\ObjectManagement.h" />
-    <ClInclude Include="Source\ShaderManagement.h" />
+    <ClInclude Include="Source\Object.h" />
+    <ClInclude Include="Source\ObjectManager.h" />
+    <ClInclude Include="Source\ShaderManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\deferred.frag" />
+    <None Include="Shaders\deferred.vert" />
+    <None Include="Shaders\deferredLighting.frag" />
+    <None Include="Shaders\deferredLighting.vert" />
+    <None Include="Shaders\phong.frag" />
+    <None Include="Shaders\normal.frag" />
+    <None Include="Shaders\normal.vert" />
+    <None Include="Shaders\phong.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -114,12 +110,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)Common\SOIL;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>$(SolutionDir)Common\SOIL;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -129,7 +120,6 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>SOIL_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,7 +146,6 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

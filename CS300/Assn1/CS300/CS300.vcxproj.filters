@@ -13,68 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\shaders">
-      <UniqueIdentifier>{a6e50aa2-ef30-4fed-90ea-1cb3a5309f45}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\imGUI">
       <UniqueIdentifier>{e08ef7b1-ba35-404f-b4fd-b9ac0e7c76d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{79075f6a-0cb4-44b7-9de8-4e5871c8f33d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\fragmentShader.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\vertexShader.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\normalShader.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\passthroughShader.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongLighting.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongLighting.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongDiffuse.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongShading.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongShading.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongBlinn.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\PhongBlinn.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\skyboxShader.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\skyboxShader.vert">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-    <None Include="Source\Reflection.frag">
-      <Filter>Source Files\shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ObjectManagement.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\imGui\imgui.cpp">
@@ -92,20 +39,23 @@
     <ClCompile Include="Source\imGui\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imGUI</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ShaderManagement.cpp">
+    <ClCompile Include="Source\Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ObjectManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\ObjectManagement.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\imGui\imconfig.h">
       <Filter>Source Files\imGUI</Filter>
     </ClInclude>
@@ -130,11 +80,49 @@
     <ClInclude Include="Source\imGui\imgui_impl_opengl3.h">
       <Filter>Source Files\imGUI</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ShaderManagement.h">
+    <ClInclude Include="Source\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common\SOIL\SOIL.h">
+    <ClInclude Include="Source\ShaderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ObjectManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\phong.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\phong.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\deferred.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\deferred.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\normal.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\normal.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\deferredLighting.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\deferredLighting.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

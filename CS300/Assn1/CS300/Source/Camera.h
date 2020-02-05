@@ -17,34 +17,27 @@ End Header --------------------------------------------------------*/
 #define CAMERA_H
 
 #include <glm/glm.hpp>
-#include "ShaderManagement.h"
+#include "ShaderManager.h"
 
 class Camera
 {
 public:
-  Camera(glm::vec3 position, float angle, glm::vec3 axis, unsigned shader);
+  Camera(glm::vec3 position, float angle, glm::vec3 axis);
 
-  void update(ShaderManager& shaderManager);
   void translate(glm::vec3 translation);
   void rotate(float degrees, glm::vec3 axis);
   void reset();
 
-  glm::mat4 view = glm::mat4(1.0f);
-  glm::mat4 projection;
+  glm::mat4 worldToCam = glm::mat4(1.0f);
+  glm::mat4 projection = glm::mat4(1.0f);
 
   int width = 0;
   int height = 0;
   glm::vec3 position;
   glm::vec3 rotation;
+
 private:
   glm::vec3 initialPos;
-
-
-  unsigned shaderProgram = 0;
-  int viewLoc;         // view matrix shader location
-  int projectionLoc;   // projection matrix shader locaiton
-  int cameraPosLoc;    // load where the camera is for lighting
 };
-
 #endif
 

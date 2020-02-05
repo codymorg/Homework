@@ -39,8 +39,8 @@
 /CS260/assn1/Release/assn1.ipdb
 /CS260/assn1/Release/assn1.iobj
 /CS260/assn1/Release/assn1.exe
-*.o
-/CS260/assn1/.vs/CS260Solution/v16
-/CS260/assn1/x64
-/CS260/assn2/x64
-/CS260/assn2/CS260
+/CS260
+/CS300/Assn1/CS350_cody.morgan_1
+*.zip
+/CS261/Assn1/.vscode
+/CS261/Assn1/node_modules
