@@ -18,6 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\JT_permutations-files\driver.cpp" />
+    <ClCompile Include="..\..\JT_permutations-files\perm-jt.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\JT_permutations-files\handout.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\JT_permutations-files\Makefile" />
+    <None Include="..\..\JT_permutations-files\Makefile2" />
+    <None Include="..\..\JT_permutations-files\out0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\JT_permutations-files\perm-jt.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{DF230299-9331-4F9C-96E1-33EFD21A855C}</ProjectGuid>
@@ -122,13 +137,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="perm-lexicographical.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="driver.cpp" />
-    <ClCompile Include="perm-lexicographical.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

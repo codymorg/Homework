@@ -15,16 +15,32 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="perm-lexicographical.h">
+    <ClCompile Include="..\..\JT_permutations-files\driver.cpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="..\..\JT_permutations-files\perm-jt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="driver.cpp">
+    <Text Include="..\..\JT_permutations-files\handout.txt">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="perm-lexicographical.cpp">
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\JT_permutations-files\Makefile">
       <Filter>Source Files</Filter>
-    </ClCompile>
+    </None>
+    <None Include="..\..\JT_permutations-files\Makefile2">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\JT_permutations-files\out0">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\JT_permutations-files\perm-jt.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
