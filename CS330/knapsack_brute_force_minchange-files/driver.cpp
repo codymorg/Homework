@@ -3,6 +3,10 @@
 #include <fstream> //ostream, istream
 #include <vector>
 #include <algorithm>
+#include "definitions.h"
+#if(DEBUG)
+#pragma warning( disable : 4996)
+#endif
 
 void readItems(char const* filename, std::vector<Item> & items, Weight& W) {
     std::ifstream in( filename, std::ifstream::in );
