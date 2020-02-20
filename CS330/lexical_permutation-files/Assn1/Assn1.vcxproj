@@ -19,31 +19,38 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\knapsack_brute_force_minchange-files\definitions.cpp" />
-    <ClCompile Include="..\..\knapsack_brute_force_minchange-files\driver.cpp" />
-    <ClCompile Include="..\..\knapsack_brute_force_minchange-files\knapsack_brute_force_minchange.cpp" />
+    <ClCompile Include="..\..\convhull_BF-files\driver.cpp" />
+    <ClCompile Include="..\..\convhull_BF-files\hull-bruteforce.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\knapsack_brute_force_minchange-files\definitions.h" />
-    <ClInclude Include="..\..\knapsack_brute_force_minchange-files\knapsack_brute_force_minchange.h" />
+    <Text Include="..\..\convhull_BF-files\handout.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\knapsack_brute_force_minchange-files\handout.txt" />
+    <ClInclude Include="..\..\convhull_BF-files\hull-bruteforce.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\knapsack_brute_force_minchange-files\items0" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\items1" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\items2" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\items3" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\items4" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\Makefile" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\Makefile2" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\out0" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\out1" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\out2" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\out3" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\out4" />
-    <None Include="..\..\knapsack_brute_force_minchange-files\out5" />
+    <None Include="..\..\convhull_BF-files\Makefile" />
+    <None Include="..\..\convhull_BF-files\Makefile2" />
+    <None Include="..\..\convhull_BF-files\out0" />
+    <None Include="..\..\convhull_BF-files\out1" />
+    <None Include="..\..\convhull_BF-files\out10" />
+    <None Include="..\..\convhull_BF-files\out11" />
+    <None Include="..\..\convhull_BF-files\out12" />
+    <None Include="..\..\convhull_BF-files\out13" />
+    <None Include="..\..\convhull_BF-files\out2" />
+    <None Include="..\..\convhull_BF-files\out3" />
+    <None Include="..\..\convhull_BF-files\out4" />
+    <None Include="..\..\convhull_BF-files\out5" />
+    <None Include="..\..\convhull_BF-files\out6" />
+    <None Include="..\..\convhull_BF-files\out7" />
+    <None Include="..\..\convhull_BF-files\out8" />
+    <None Include="..\..\convhull_BF-files\out9" />
+    <None Include="..\..\convhull_BF-files\points1" />
+    <None Include="..\..\convhull_BF-files\points2" />
+    <None Include="..\..\convhull_BF-files\points3" />
+    <None Include="..\..\convhull_BF-files\points4" />
+    <None Include="..\..\convhull_BF-files\points5" />
+    <None Include="..\..\convhull_BF-files\points6" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
