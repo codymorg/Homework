@@ -1,11 +1,9 @@
 {
-  "name": "assn2",
+  "name": "assignment2",
   "version": "1.0.0",
   "description": "",
-  "main": "ServerClasses.js",
-  "dependencies": {
-    "body-parser": "^1.19.0"
-  },
+  "main": "assignment2.js",
+  "dependencies": {},
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

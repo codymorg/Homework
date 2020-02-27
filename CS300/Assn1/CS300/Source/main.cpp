@@ -28,6 +28,7 @@
 #include "Camera.h"
 #include "Common.h"
 #include "Light.h"
+#include "BoundingVolume.h"
 
 // managers and static variables
 static ObjectManager* objectMgr = nullptr;
@@ -164,6 +165,8 @@ void SceneSetup()
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
+
+  Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
 }
 
 void SceneUpdate()
@@ -375,7 +378,7 @@ void UpdateGUI()
 
 }
 
-void GUIendFrame(GLFWwindow* window, float time)
+void GUIendFrame(GLFWwindow* window, double time)
 {
   //maintain viewport
   glfwSetFramebufferSizeCallback(window, Window_size_callback);

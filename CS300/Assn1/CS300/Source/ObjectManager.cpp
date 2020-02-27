@@ -7,6 +7,7 @@
   using std::string;
 #include "Light.h"
 #include "Camera.h"
+#include "BoundingVolume.h"
 
 // singleton
 ObjectManager* ObjectManager::objectManager_ = nullptr;
@@ -181,6 +182,7 @@ Object* ObjectManager::addLight(std::string ID)
   }
 }
 
+
 void ObjectManager::genUBO()
 {
   // fill in information
@@ -313,7 +315,7 @@ std::vector<Object*> ObjectManager::getObjectsByName(std::string name)
   vector<Object*> namedObjects;
 
   // retern all objects with this name
-  for (int i = 0; i < objects_.size(); i++)
+  for (unsigned i = 0; i < objects_.size(); i++)
   {
     if (objects_[i]->name == name)
       namedObjects.push_back(objects_[i]);

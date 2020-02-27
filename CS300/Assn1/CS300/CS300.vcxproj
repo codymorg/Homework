@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\BoundingVolume.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\imGui\imgui.cpp" />
     <ClCompile Include="Source\imGui\imgui_draw.cpp" />
@@ -32,6 +33,7 @@
     <ClCompile Include="Source\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\BoundingVolume.h" />
     <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\Common.h" />
     <ClInclude Include="Source\imGui\imconfig.h" />

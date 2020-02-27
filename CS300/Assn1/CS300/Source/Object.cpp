@@ -169,7 +169,7 @@ void Object::loadOBJ(string fileLocation)
 
           // convert fan to gl tris
           unsigned triA = fanIndices[0];
-          for (int i = 0; i < fanIndices.size() - 3; i++)
+          for (unsigned i = 0; i < fanIndices.size() - 3; i++)
           {
             unsigned triB = fanIndices[2 + i];
             unsigned triC = fanIndices[3 + i];
@@ -188,10 +188,6 @@ void Object::loadOBJ(string fileLocation)
     scale(vec3(2 / modelScale));
     translate(-centroid);
 
-    // save the bounding box
-    boundingBox_[0] = minPos;
-    boundingBox_[1] = maxPos;
-
     // load data into vertex struct
     for (size_t i = 0; i < verts.size(); i += 3)
     {
@@ -209,18 +205,18 @@ void Object::loadOBJ(string fileLocation)
   }
 }
 
-void Object::loadeCube(float side)
+void Object::loadBox(glm::vec3 scale)
 {
   vertices_ =
   {
-    Vertex(vec3(-side / 2, -side / 2,  side / 2)),
-    Vertex(vec3(side / 2, -side / 2,  side / 2)),
-    Vertex(vec3(side / 2,  side / 2,  side / 2)),
-    Vertex(vec3(-side / 2,  side / 2,  side / 2)),
-    Vertex(vec3(-side / 2, -side / 2, -side / 2)),
-    Vertex(vec3(side / 2, -side / 2, -side / 2)),
-    Vertex(vec3(side / 2,  side / 2, -side / 2)),
-    Vertex(vec3(-side / 2,  side / 2, -side / 2))
+    Vertex(vec3(-scale.x / 2, -scale.y / 2,  scale.z / 2)),
+    Vertex(vec3( scale.x / 2, -scale.y / 2,  scale.z / 2)),
+    Vertex(vec3( scale.x / 2,  scale.y / 2,  scale.z / 2)),
+    Vertex(vec3(-scale.x / 2,  scale.y / 2,  scale.z / 2)),
+    Vertex(vec3(-scale.x / 2, -scale.y / 2, -scale.z / 2)),
+    Vertex(vec3( scale.x / 2, -scale.y / 2, -scale.z / 2)),
+    Vertex(vec3( scale.x / 2,  scale.y / 2, -scale.z / 2)),
+    Vertex(vec3(-scale.x / 2,  scale.y / 2, -scale.z / 2))
   };
 
   indices_ =
@@ -238,9 +234,6 @@ void Object::loadeCube(float side)
     3,2,6, // Top
     3,6,7
   };
-
-  boundingBox_[0] = vec3(-side / 2);
-  boundingBox_[0] = vec3(side / 2);
 
   initBuffers();
 }
@@ -310,9 +303,6 @@ void Object::loadSphere(float diameter, int divisions)
     }
   }
 
-  boundingBox_[0] = vec3(-diameter / 2);
-  boundingBox_[1] = vec3(diameter / 2);
-
   initBuffers();
 }
 
@@ -339,23 +329,20 @@ void Object::update()
   // update all uniform variables
   int currentSP = ShaderManager::getShaderManager()->getCurrentBound();
 
-  boundingBoxLoc_ = glGetUniformLocation(currentSP, "boundingBox");
-  if (boundingBoxLoc_ != -1)
-    glUniform3fv(boundingBoxLoc_, 2, glm::value_ptr(*boundingBox_));
-
   modelToWorldLoc_ = glGetUniformLocation(currentSP, "modelToWorld");
   if (modelToWorldLoc_ != -1)
     glUniformMatrix4fv(modelToWorldLoc_, 1, GL_FALSE, &(modelToWorld_[0][0]));
 
   ObjectManager::getObjectManager()->updateUBO(this);
 }
+
 // draw this object using its own shader
 void Object::draw()
 {
   // bind shader and vao
   glUseProgram(shader_.getProgram());
   glBindVertexArray(vao_);
-
+  
   // draw mode
   if (!wiremode)
     glPolygonMode(GL_FRONT, GL_FILL);
@@ -424,7 +411,7 @@ void Object::genFaceNormals()
 {
   faceNormals_.clear();
 
-  for (int i = 0; i < indices_.size(); i += 3)
+  for (unsigned i = 0; i < indices_.size(); i += 3)
   {
     const vec3& A = vertices_[indices_[i]].position;
     const vec3& B = vertices_[indices_[i + 1]].position;
@@ -453,7 +440,7 @@ void Object::genVertexNormals()
   genFaceNormals();
 
   // average the face normals for vertex normal
-  for (int i = 0; i < faceNormals_.size(); i++)
+  for (unsigned i = 0; i < faceNormals_.size(); i++)
   {
     // apply the normal that affects these vertices
     vec3 norm = faceNormals_[i];
@@ -468,6 +455,16 @@ void Object::genVertexNormals()
   {
     vert.normal = glm::normalize(vert.normal);
   }
+}
+
+const glm::vec3& Object::getMin() const
+{
+  return min_;
+}
+
+const glm::vec3& Object::getMax() const
+{
+  return max_;
 }
 
 

@@ -26,7 +26,7 @@ public:
     glm::vec3 specular = glm::vec3(1);
     float ns = 100.0f;
     glm::vec4 emissive = glm::vec4(1);
-    glm::vec3 attenuation = glm::vec3(.1);
+    glm::vec3 attenuation = glm::vec3(.1f);
     int number = 0;
     glm::vec3 direction = glm::vec3(0, 0.1, -1);
     int type = 0;

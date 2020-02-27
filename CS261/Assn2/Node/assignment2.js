@@ -1,68 +1,20 @@
 /** require all modules */
 let express = require('express');
-let bodyParser = require('body-parser');
-let { User, Session } = require("./ServerClasses.js")
+let { User, Session, users, sessions } = require("./ServerClasses.js")
+let { Authenticate, Authorize, GetUserBySID, ExtractName } = require("./ServerFunctions.js")
 
 /** set up server traits */
 let app = express();
 let port = 3100
 app.listen(port)
-app.use(bodyParser.json())
+app.use(express.json())
 console.log("Login Server Listening on Port " + port)
 
-
-/** Declarations */
-let users = new Map()
-let sessions = new Map()
-
-/** Authenticate user's session and token */
-function Authenticate(session, token) {
-    if (sessions[session] == undefined) {
-        console.log("Unauthenticated session " + session)
-        return false
-    }
-
-    return sessions[session].token == token
-}
-
-/** Authorize a user's name and password */
-function Authorize(name, password) {
-    // bad name
-    if (users[name] == undefined) {
-        console.log("user does not exists: " + name)
-        return 400
-    }
-
-    // bad password
-    else if (users[name].password != password) {
-        console.log("invalid password")
-        return 403
-    }
-
-    // good name good password
-    else if (users[name].username = name) {
-        console.log("user Authorized")
-        return 200
-    }
-}
-
-/** Get user object given a sessionID */
-function GetUserBySID(session) {
-    if (sessions[session] == undefined)
-        return undefined
-    else
-        return users[sessions[session].username]
-}
-
-/** Convert UserID to username */
-function ExtractName(userID) {
-    let tempUser = new User()
-    let userIDLength = tempUser.userIDRange
-
-    return userID.substring(0, userID.length - userIDLength)
-}
-
-/** Create user, no authentication */
+/** 
+ * @brief Create user, no authentication 
+ * @param req : must contain username, password, avatar
+ * @param res : will contain new user data
+ */
 app.post("/api/v1/users/", (req, res) => {
     // fill map with new user data
     if (users[req.body.username] == undefined) {
@@ -79,7 +31,11 @@ app.post("/api/v1/users/", (req, res) => {
     }
 })
 
-/** Login with user no authentication */
+/** 
+ * @brief login user, no authentication 
+ * @param req : must contain username, password
+ * @param res : will contain new session data
+ */
 app.post("/api/v1/login", (req, res) => {
 
     // unauthorized requests return error
@@ -101,7 +57,11 @@ app.post("/api/v1/login", (req, res) => {
     }
 })
 
-/** Get user by userID authenticated */
+/** 
+ * @brief get user by ID, authentication 
+ * @param req : must contain session, token
+ * @param res : will contain user data
+ */
 app.get("/api/v1/users/:id", (req, res) => {
 
     // unauthenticated
@@ -137,7 +97,11 @@ app.get("/api/v1/users/:id", (req, res) => {
     }
 })
 
-/** Get user by name authenticated */
+/** 
+ * @brief get user, authentication 
+ * @param req : must contain session, token
+ * @param res : will contain user data
+ */
 app.get("/api/v1/users", (req, res) => {
     // not authenticated
     if (Authenticate(req.body.session, req.body.token) == false) {
@@ -170,7 +134,11 @@ app.get("/api/v1/users", (req, res) => {
 
 })
 
-/** Update user authenticated */
+/** 
+ * @brief update user, authentication 
+ * @param req : must contain username, password, session, token
+ * @param res : will contain found user data
+ */
 app.put("/api/v1/users/:id", (req, res) => {
     if (Authenticate(req.body.session, req.body.token) == false) {
         console.log("bad authentication when updating user")
@@ -206,7 +174,11 @@ app.put("/api/v1/users/:id", (req, res) => {
     }
 })
 
-//connect to server
+/** 
+ * @brief connect user, authentication 
+ * @param req : must contain session, token
+ * @param res : will contain server data
+ */
 app.post("/api/v1/connect", (req, res) => {
     if (Authenticate(req.body.session, req.body.token) == false) {
         console.log("bad authentication when connecting user")

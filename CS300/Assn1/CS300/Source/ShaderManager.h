@@ -20,7 +20,7 @@ End Header --------------------------------------------------------*/
 
 #include "glm//common.hpp"
 
-typedef class Camera;
+typedef class Camera Camera;
 
 enum class ShaderType
 {
@@ -92,7 +92,7 @@ public:
   Shader& addShader(const std::string& vertexShader, const std::string& fragShader, ShaderType shaderType);
   Shader getShader(ShaderType shaderType);
   void updateShaders(Camera& camera);
-  unsigned reCompile(ShaderType shaderType);
+  void reCompile(ShaderType shaderType);
   unsigned getCurrentBound();
   std::vector<int> getAllShaders();
 

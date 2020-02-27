@@ -230,17 +230,12 @@ void ShaderManager::updateShaders(Camera& camera)
   }
 }
 
-unsigned ShaderManager::reCompile(ShaderType shaderType)
+void ShaderManager::reCompile(ShaderType shaderType)
 {
-  if (shaderType < ShaderType::TypeCount)
-    return compiledShaders_[int(shaderType)].reloadProgram();
-  else
+  for (int i = 0; i < int(ShaderType::TypeCount); i++)
   {
-    for (int i = 0; i < int(ShaderType::TypeCount); i++)
-    {
-      if (compiledShaders_[i].getProgram() != -1)
-        compiledShaders_[i].reloadProgram();
-    }
+    if (compiledShaders_[i].getProgram() != -1)
+      compiledShaders_[i].reloadProgram();
   }
 }
 

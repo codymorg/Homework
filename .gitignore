@@ -55,3 +55,5 @@
 /CS261/Assn2/CS261_Assignment2_Initial/RoboCatAction/RoboCatServer/Debug
 /CS261/Assn2/CS261_Assignment2_Initial/RoboCatAction/RoboCatServer/Release
 *.o
+/CS261/Assn2/Node/node_modules
+/CS261/Assn2/RoboCatAction/packages/cpprestsdk.v141.2.10.12.1

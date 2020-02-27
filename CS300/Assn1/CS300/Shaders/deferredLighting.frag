@@ -144,7 +144,7 @@ void main()
     break;
     
   case 4:
-    fragColor = specularOnly(lights[0], viewPos, viewNorm, specular, viewV);;
+    fragColor = specularOnly(lights[0], viewPos, viewNorm, specular, viewV);
     break;
   }
 } 

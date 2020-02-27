@@ -1,5 +1,12 @@
-/** map of all our users as [name]:User(name, password, avatar, UID)*/
+/** 
+ * @brief base file contains users and sessions calsses and maps
+ *        map of all our users as [name]:User(name, password, avatar, UID)
+ */
 
+
+/** Declarations */
+let users = new Map()
+let sessions = new Map()
 
 class User {
     constructor(name, password, avatar) {
@@ -23,4 +30,4 @@ class Session {
 }
 
 // export to higher modules
-module.exports = { User, Session }
+module.exports = { User, Session, users, sessions }

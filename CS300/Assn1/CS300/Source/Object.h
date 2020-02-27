@@ -17,7 +17,8 @@
 
 #include "ShaderManager.h"
 
-typedef class Camera;
+typedef class Camera Camera;
+typedef class BoundingVolume BoundingVolume;
 
 class Vertex
 {
@@ -34,10 +35,11 @@ class Object
 {
   public:
     Object(std::string ID = "anon");
+    friend class BoundingVolume;
 
     // object shape
     void loadOBJ(std::string location);
-    void loadeCube(float radius);
+    void loadBox(glm::vec3 scale);
     void loadSphere(float radius, int divisions);
 
 
@@ -73,13 +75,19 @@ class Object
       float     paddingIII = 0;
     }material;
 
+    // bounding Volume Hierarchy
+    BoundingVolume* root = nullptr; 
+    const glm::vec3& getMin()const;
+    const glm::vec3& getMax()const;
+
   private:
     
     // object data
-    glm::vec3   boundingBox_[2];
-    glm::mat4   preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
-    glm::mat4   modelToWorld_ = glm::mat4(1.0f);
-    unsigned    renderMode_ = GL_TRIANGLES;
+    glm::mat4 preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
+    glm::mat4 modelToWorld_ = glm::mat4(1.0f);
+    unsigned  renderMode_ = GL_TRIANGLES;
+    glm::vec3 min_;
+    glm::vec3 max_;
 
     // geometry data
     std::vector<Vertex> vertices_ = 
