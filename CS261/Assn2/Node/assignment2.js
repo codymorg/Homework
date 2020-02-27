@@ -10,6 +10,9 @@ app.listen(port)
 app.use(express.json())
 console.log("Login Server Listening on Port " + port)
 
+// default user
+users["usr"] = new User("usr", "pwd", "avatar1.png")
+
 /** 
  * @brief Create user, no authentication 
  * @param req : must contain username, password, avatar
