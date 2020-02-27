@@ -1,4 +1,6 @@
 #include "BoundingVolume.h"
+#include "../assimp/cimport.h"
+#include "../assimp/postprocess.h"
 using glm::vec3;
 using std::string;
 
