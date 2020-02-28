@@ -107,10 +107,9 @@ void Object::loadOBJ(string fileLocation)
   const aiScene* scene = importer.ReadFile(fileLocation, 
     aiProcess_Triangulate | 
     aiProcess_JoinIdenticalVertices |
-    aiProcess_GenNormals |
+    aiProcess_GenSmoothNormals |
     aiProcess_OptimizeMeshes |
-    aiProcess_GenBoundingBoxes |
-    aiProcess_ForceGenNormals
+    aiProcess_GenBoundingBoxes
   );
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -123,20 +122,19 @@ void Object::loadOBJ(string fileLocation)
     indices_.clear();
     modelToWorld_ = glm::mat4();
 
-    aiAABB bound(aiVector3D(INT_MAX, INT_MAX, INT_MAX), aiVector3D(INT_MIN, INT_MIN, INT_MIN));
-    processNode(scene->mRootNode, scene, bound);
+    processNode(scene->mRootNode, scene, bounds_);
 
     // scale down to unit size and put at the origin
-    aiVector3D aiModelScale = (bound.mMax - bound.mMin);
+    aiVector3D aiModelScale = (bounds_.mMax - bounds_.mMin);
     vec3 modelScale = vec3(aiModelScale.x, aiModelScale.y, aiModelScale.z);
     float maxScale = std::max(std::max(modelScale.x, modelScale.y), modelScale.z);
     maxScale = 2 / maxScale; // unit size of 2
-    scale(vec3(maxScale));
 
     // move to origin
-    aiVector3D centroid = (bound.mMin + bound.mMax) / 2.0f;
+    aiVector3D centroid = (bounds_.mMin + bounds_.mMax) / 2.0f;
     centroid *= maxScale;
     translate(-vec3(centroid.x, centroid.y, centroid.z));
+    scale(vec3(maxScale));
     initBuffers();
   }
 }
@@ -292,45 +290,55 @@ void Object::loadOBJfile(string fileLocation)
   }
 }
 
-void Object::loadeCube(float side)
+void Object::loadBox(vec3 halfScale)
 {
   vertices_ =
   {
-    Vertex(vec3(-side / 2, -side / 2,  side / 2)),
-    Vertex(vec3(side / 2, -side / 2,  side / 2)),
-    Vertex(vec3(side / 2,  side / 2,  side / 2)),
-    Vertex(vec3(-side / 2,  side / 2,  side / 2)),
-    Vertex(vec3(-side / 2, -side / 2, -side / 2)),
-    Vertex(vec3(side / 2, -side / 2, -side / 2)),
-    Vertex(vec3(side / 2,  side / 2, -side / 2)),
-    Vertex(vec3(-side / 2,  side / 2, -side / 2))
+    Vertex(vec3(-halfScale.x, -halfScale.y,  halfScale.z), vec3(-halfScale.x, -halfScale.y,  halfScale.z)),
+    Vertex(vec3(halfScale.x, -halfScale.y,  halfScale.z),  vec3(halfScale.x, -halfScale.y,  halfScale.z)),
+    Vertex(vec3(halfScale.x,  halfScale.y,  halfScale.z),  vec3(halfScale.x,  halfScale.y,  halfScale.z)),
+    Vertex(vec3(-halfScale.x,  halfScale.y,  halfScale.z), vec3(-halfScale.x,  halfScale.y,  halfScale.z)),
+    Vertex(vec3(-halfScale.x, -halfScale.y, -halfScale.z), vec3(-halfScale.x, -halfScale.y, -halfScale.z)),
+    Vertex(vec3(halfScale.x, -halfScale.y, -halfScale.z),  vec3(halfScale.x, -halfScale.y, -halfScale.z)),
+    Vertex(vec3(halfScale.x,  halfScale.y, -halfScale.z),  vec3(halfScale.x,  halfScale.y, -halfScale.z)),
+    Vertex(vec3(-halfScale.x,  halfScale.y, -halfScale.z), vec3(-halfScale.x,  halfScale.y, -halfScale.z))
   };
+
+  bounds_.mMax = aiVector3D(halfScale.x, halfScale.y, halfScale.z);
+  bounds_.mMin = aiVector3D(-halfScale.x, -halfScale.y, -halfScale.z);
 
   indices_ =
   {
-    0,1,2, // Front
-    0,2,3,
-    0,5,1, // Bottom
-    0,4,5,
-    1,5,6, // Right
-    1,6,2,
-    4,0,3, // Left
-    4,3,7,
-    4,7,6, // Back
-    4,6,5,
-    3,2,6, // Top
-    3,6,7
+  //  0,1,2, // Front
+  //  0,2,3,
+  //  0,5,1, // Bottom
+  //  0,4,5,
+  //  1,5,6, // Right
+  //  1,6,2,
+  //  4,0,3, // Left
+  //  4,3,7,
+  //  4,7,6, // Back
+  //  4,6,5,
+  //  3,2,6, // Top
+  //  3,6,7
+    0,1,2,3,0, 
+    4,7,3,2,   
+    6,7,4,     
+    5,6,5,     
+    1
   };
 
   initBuffers();
 }
 
-void Object::loadSphere(float diameter, int divisions)
+void Object::loadSphere(float radius, int divisions)
 {
-  float radius = diameter / 2;
   // reset object geometry
   vertices_.clear();
   indices_.clear();
+
+  bounds_.mMax = aiVector3D(radius, radius, radius);
+  bounds_.mMin = aiVector3D(-radius, -radius, -radius);
 
   vec3 position;
   vec3 norm;
@@ -438,7 +446,7 @@ void Object::draw()
   this->Object::update();
 
   // draw
-  glDrawElements(renderMode_, indices_.size(), GL_UNSIGNED_INT, 0);
+  glDrawElements(renderMode, indices_.size(), GL_UNSIGNED_INT, 0);
 
   // unbind
   glBindVertexArray(0);
@@ -459,6 +467,16 @@ Shader& Object::getShader()
 vec3 Object::getWorldPosition()
 {
   return vec3(modelToWorld_[3]);
+}
+
+glm::vec3 Object::getMinWorldPos()
+{
+  return vec3(modelToWorld_ * vec4(bounds_.mMin.x, bounds_.mMin.y, bounds_.mMin.z, 1));
+}
+
+glm::vec3 Object::getMaxWorldPos()
+{
+  return vec3(modelToWorld_* vec4(bounds_.mMax.x, bounds_.mMax.y, bounds_.mMax.z, 1));
 }
 
 

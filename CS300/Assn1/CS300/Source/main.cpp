@@ -161,13 +161,16 @@ void SceneSetup()
 {
   Object* obj = objectMgr->addObject("model");
   obj->setShader(ShaderType::Deferred);
-  obj->loadOBJfile("Common/models/4sphere.obj");
+  obj->loadOBJ("Common/models/bunny.obj");
   //obj->loadSphere(3, 50);
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
 
-  //Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
+  Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
+  bv->renderMode = GL_LINE_STRIP;
+  bv->material.ambient = vec3(1, 0, 0);
+
 }
 
 void SceneUpdate()
@@ -406,7 +409,7 @@ int main()
 {
   // make a window
   GLFWwindow* window = nullptr;
-  if (WindowInit(1600 , 1200 , 4, 0, &window) == false)
+  if (WindowInit(3000 , 2000 , 4, 0, &window) == false)
     return -1;
   
   // setup GLFW and IMgui

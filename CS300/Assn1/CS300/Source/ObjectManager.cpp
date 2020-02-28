@@ -44,10 +44,10 @@ void ObjectManager::render(Camera& camera)
 
 void RenderQuad()
 {
-
-
   static unsigned int quadVAO = 0;
   static unsigned int quadVBO;
+  glPolygonMode(GL_FRONT, GL_FILL);
+
   if (quadVAO == 0)
   {
     float quadVertices[] = {
@@ -57,6 +57,7 @@ void RenderQuad()
        1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
     };
+
     // setup plane VAO
     glGenVertexArrays(1, &quadVAO);
     glGenBuffers(1, &quadVBO);
@@ -68,6 +69,7 @@ void RenderQuad()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
   }
+
   glBindVertexArray(quadVAO);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glBindVertexArray(0);

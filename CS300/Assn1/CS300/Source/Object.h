@@ -40,7 +40,7 @@ public:
   // object shape
   void loadOBJ(std::string location);
   void loadOBJfile(std::string location);
-  void loadeCube(float radius);
+  void loadBox(glm::vec3 halfScale);
   void loadSphere(float radius, int divisions);
 
 
@@ -54,11 +54,14 @@ public:
   // public data
   std::string name;
   bool        wiremode = false;
+  unsigned    renderMode = GL_TRIANGLES;
 
   // Getters
   int       getShaderProgram();
-  Shader& getShader();
+  Shader&   getShader();
   glm::vec3 getWorldPosition();
+  glm::vec3 getMinWorldPos();
+  glm::vec3 getMaxWorldPos();
 
   // Setters
   void setShader(ShaderType type);
@@ -76,12 +79,12 @@ public:
     float     paddingIII = 0;
   }material;
 
+
 private:
 
   // object data
   glm::mat4   preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
   glm::mat4   modelToWorld_ = glm::mat4(1.0f);
-  unsigned    renderMode_ = GL_TRIANGLES;
 
   // geometry data
   std::vector<Vertex> vertices_ =
@@ -110,6 +113,7 @@ private:
 
   void processNode(aiNode* node, const aiScene* scene, aiAABB& maxBounding);
   aiAABB processMesh(aiMesh* mesh, const aiScene* scene);
+  aiAABB bounds_ = aiAABB(aiVector3D(INT_MAX, INT_MAX, INT_MAX), aiVector3D(INT_MIN, INT_MIN, INT_MIN));
 };
 
 

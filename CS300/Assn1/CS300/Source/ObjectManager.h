@@ -9,6 +9,7 @@
 typedef class Object Object;
 typedef class Camera Camera;
 typedef class Light Light;
+typedef enum class ShaderType ShaderType;
 
 struct UBO
 {
@@ -52,6 +53,8 @@ public:
   {
     T* bv= new T(model, ID);
     Object* newObj = dynamic_cast<Object*>(bv);
+    newObj->setShader(ShaderType::Deferred);
+
     objects_.push_back(bv);
     return newObj;
   };

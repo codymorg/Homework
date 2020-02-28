@@ -21,7 +21,7 @@ public:
   struct LightData
   {
     glm::vec4 position = glm::vec4(0);
-    glm::vec4 ambient = glm::vec4(10/255.0f);
+    glm::vec4 ambient = glm::vec4(69/255.0f);
     glm::vec4 diffuse = glm::vec4(1);
     glm::vec3 specular = glm::vec3(1);
     float ns = 100.0f;
