@@ -11,14 +11,15 @@
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <assimp/scene.h>
+
 
 #include <string>
 #include <vector>
 
 #include "ShaderManager.h"
 
-typedef class Camera Camera;
-typedef class BoundingVolume BoundingVolume;
+typedef class Camera;
 
 class Vertex
 {
@@ -33,87 +34,82 @@ public:
 
 class Object
 {
-  public:
-    Object(std::string ID = "anon");
-    friend class BoundingVolume;
+public:
+  Object(std::string ID = "anon");
 
-    // object shape
-    void loadOBJ(std::string location);
-    void loadBox(glm::vec3 scale);
-    void loadSphere(float radius, int divisions);
+  // object shape
+  void loadOBJ(std::string location);
+  void loadOBJfile(std::string location);
+  void loadeCube(float radius);
+  void loadSphere(float radius, int divisions);
 
 
-    // object manipulation
-    void translate(glm::vec3 trans);
-    void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0,1,0));
-    void scale(glm::vec3 scale);
-    virtual void draw();  
-    virtual void update();
+  // object manipulation
+  void translate(glm::vec3 trans);
+  void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0, 1, 0));
+  void scale(glm::vec3 scale);
+  virtual void draw();
+  virtual void update();
 
-    // public data
-    std::string name;
-    bool        wiremode = false;
+  // public data
+  std::string name;
+  bool        wiremode = false;
 
-    // Getters
-    int  getShaderProgram();
-    Shader&   getShader();
-    glm::vec3 getWorldPosition();
+  // Getters
+  int       getShaderProgram();
+  Shader& getShader();
+  glm::vec3 getWorldPosition();
 
-    // Setters
-    void setShader(ShaderType type);
+  // Setters
+  void setShader(ShaderType type);
 
-    // object attributes
-    void genFaceNormals();
-    void genVertexNormals();
-    struct MaterialData
-    {
-      glm::vec3 ambient = glm::vec3(1);
-      float     paddingI = 0;
-      glm::vec3 diffuse = glm::vec3(1);
-      float     paddingII = 0;
-      glm::vec3 specular = glm::vec3(1);
-      float     paddingIII = 0;
-    }material;
+  // object attributes
+  void genFaceNormals();
+  void genVertexNormals();
+  struct MaterialData
+  {
+    glm::vec3 ambient = glm::vec3(1);
+    float     paddingI = 0;
+    glm::vec3 diffuse = glm::vec3(1);
+    float     paddingII = 0;
+    glm::vec3 specular = glm::vec3(1);
+    float     paddingIII = 0;
+  }material;
 
-    // bounding Volume Hierarchy
-    BoundingVolume* root = nullptr; 
-    const glm::vec3& getMin()const;
-    const glm::vec3& getMax()const;
+private:
 
-  private:
-    
-    // object data
-    glm::mat4 preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
-    glm::mat4 modelToWorld_ = glm::mat4(1.0f);
-    unsigned  renderMode_ = GL_TRIANGLES;
-    glm::vec3 min_;
-    glm::vec3 max_;
+  // object data
+  glm::mat4   preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
+  glm::mat4   modelToWorld_ = glm::mat4(1.0f);
+  unsigned    renderMode_ = GL_TRIANGLES;
 
-    // geometry data
-    std::vector<Vertex> vertices_ = 
-    {
-      Vertex(glm::vec3(-0.5,-0.5,0)),
-      Vertex(glm::vec3(0.5,-0.5,0)),
-      Vertex(glm::vec3(0,0.5,0)),
-    };
-    std::vector<unsigned int> indices_ = { 0,1,2 };
-    std::vector<glm::vec3>faceNormals_;
+  // geometry data
+  std::vector<Vertex> vertices_ =
+  {
+    Vertex(glm::vec3(-0.5,-0.5,0)),
+    Vertex(glm::vec3(0.5,-0.5,0)),
+    Vertex(glm::vec3(0,0.5,0)),
+  };
+  std::vector<unsigned int> indices_ = { 0,1,2 };
+  std::vector<glm::vec3>faceNormals_;
 
-    // openGL stuff
-    Shader shader_;
-    unsigned vbo_ = 0;
-    unsigned vao_ = 0;
-    unsigned ebo_ = 0;
-    unsigned fbo_ = 0;
-    unsigned rbo_ = 0;
+  // openGL stuff
+  Shader shader_;
+  unsigned vbo_ = 0;
+  unsigned vao_ = 0;
+  unsigned ebo_ = 0;
+  unsigned fbo_ = 0;
+  unsigned rbo_ = 0;
 
-    // object functions
-    void initBuffers();
+  // object functions
+  void initBuffers();
 
-    // uniform locations
-    int textureCountLoc_ = -1;
-    int modelToWorldLoc_ = -1;
-    int boundingBoxLoc_ = -1;
+  // uniform locations
+  int textureCountLoc_ = -1;
+  int modelToWorldLoc_ = -1;
+
+  void processNode(aiNode* node, const aiScene* scene, aiAABB& maxBounding);
+  aiAABB processMesh(aiMesh* mesh, const aiScene* scene);
 };
 
 

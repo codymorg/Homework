@@ -161,12 +161,13 @@ void SceneSetup()
 {
   Object* obj = objectMgr->addObject("model");
   obj->setShader(ShaderType::Deferred);
-  obj->loadOBJ("Common/models/4sphere.obj");
+  obj->loadOBJfile("Common/models/4sphere.obj");
+  //obj->loadSphere(3, 50);
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
 
-  Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
+  //Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
 }
 
 void SceneUpdate()

@@ -1,6 +1,4 @@
 #include "BoundingVolume.h"
-#include "../assimp/cimport.h"
-#include "../assimp/postprocess.h"
 using glm::vec3;
 using std::string;
 
@@ -11,18 +9,18 @@ AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
 {
   findCenter();
   enclose();
-  this->loadBox(halfScale_);
+  //this->loadBox(halfScale_);
 }
 
 void AABB::findCenter()
 {
   // AABB uses unweighted center
-  center_ = (model->getMin() + model->getMax()) / 2.0f;
+  //center_ = (model->getMin() + model->getMax()) / 2.0f;
 }
 
 void AABB::enclose()
 {
-  halfScale_ = vec3(this->getMax() - center_);
+  //halfScale_ = vec3(this->getMax() - center_);
 }
 
 // top down

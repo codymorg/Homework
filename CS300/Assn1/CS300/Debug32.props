@@ -3,15 +3,15 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <LibraryPath>$(SolutionDir)Common\glew\x32\lib\Release\Win32;$(SolutionDir)Common\glfw\x32\lib-vc2019;$(SolutionDir)Common\glfw\x32\lib-mingw;$(SolutionDir)Common\glew\x32\bin\Release\Win32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Common\glew\x32\lib\Release\Win32;$(SolutionDir)Common\glfw\x32\lib-vc2019;$(SolutionDir)Common\glfw\x32\lib-mingw;$(SolutionDir)Common\glew\x32\bin\Release\Win32;$(SolutionDir)Common\assimp\debug\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)Source;$(SolutionDir)Source\imGui;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common\glew\x32\include;$(SolutionDir)Common\glfw\x32\include;$(SolutionDir)Common\glm;$(SolutionDir)Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common\glew\x32\include;$(SolutionDir)Common\glfw\x32\include;$(SolutionDir)Common\glm;$(SolutionDir)Source;$(SolutionDir)Common\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glew32.lib;openGL32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;openGL32.lib;glfw3.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

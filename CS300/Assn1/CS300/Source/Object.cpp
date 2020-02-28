@@ -8,20 +8,20 @@
 #include "ShaderManager.h"
 #include "ObjectManager.h"
 #include "Object.h"
-  using std::vector;
-  using std::string;
-  using glm::vec3;
-  using glm::vec4;
-  using glm::mat4;
+using std::vector;
+using std::string;
+using glm::vec3;
+using glm::vec4;
+using glm::mat4;
 
 #include <fstream>
-  using std::ifstream;
+using std::ifstream;
 #include <sstream>
 #include <algorithm>
-  using std::min;
-  using std::max;
+using std::min;
+using std::max;
 #include <iostream>
-  using std::cout;
+using std::cout;
 
 #include <glm/common.hpp>
 #include <glm/glm.hpp>
@@ -29,6 +29,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 
 /////***** Vertex stuff *****/////
@@ -54,7 +56,92 @@ Object::Object(std::string ID)
   initBuffers();
 }
 
+void Object::processNode(aiNode* node, const aiScene* scene, aiAABB& maxBounding)
+{
+  // process all the node's meshes (if any)
+  for (unsigned int i = 0; i < node->mNumMeshes; i++)
+  {
+    aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
+    // find the max bounding box so we can scale our object down to unit size
+    aiAABB aabb = processMesh(mesh, scene);
+    maxBounding.mMin = std::min(maxBounding.mMin, aabb.mMin);
+    maxBounding.mMax = std::max(maxBounding.mMax, aabb.mMax);
+  }
+
+  // then do the same for each of its children
+  for (unsigned int i = 0; i < node->mNumChildren; i++)
+  {
+    processNode(node->mChildren[i], scene, maxBounding);
+  }
+}
+
+aiAABB Object::processMesh(aiMesh* mesh, const aiScene* scene)
+{
+  for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+  {
+    aiVector3D pos = mesh->mVertices[i];
+    aiVector3D aiNorm = mesh->mVertices[i];
+    glm::vec3 norm = vec3(aiNorm.x, aiNorm.y, aiNorm.z);
+    if (mesh->HasNormals())
+    {
+      aiNorm = mesh->mNormals[i];
+      norm = vec3(aiNorm.x, aiNorm.y, aiNorm.z);
+    }
+    vertices_.push_back(Vertex(glm::vec3(pos.x, pos.y, pos.z), norm));
+  }
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+  {
+    aiFace face = mesh->mFaces[i];
+    for (unsigned int j = 0; j < face.mNumIndices; j++)
+      indices_.push_back(face.mIndices[j]);
+  }
+
+  return mesh->mAABB;
+}
+
 void Object::loadOBJ(string fileLocation)
+{
+  Assimp::Importer importer;
+  const aiScene* scene = importer.ReadFile(fileLocation, 
+    aiProcess_Triangulate | 
+    aiProcess_JoinIdenticalVertices |
+    aiProcess_GenNormals |
+    aiProcess_OptimizeMeshes |
+    aiProcess_GenBoundingBoxes |
+    aiProcess_ForceGenNormals
+  );
+
+  if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+  {
+    cout << "ERROR::ASSIMP::" << importer.GetErrorString() << "\n";
+  }
+  else
+  {
+    vertices_.clear();
+    indices_.clear();
+    modelToWorld_ = glm::mat4();
+
+    aiAABB bound(aiVector3D(INT_MAX, INT_MAX, INT_MAX), aiVector3D(INT_MIN, INT_MIN, INT_MIN));
+    processNode(scene->mRootNode, scene, bound);
+
+    // scale down to unit size and put at the origin
+    aiVector3D aiModelScale = (bound.mMax - bound.mMin);
+    vec3 modelScale = vec3(aiModelScale.x, aiModelScale.y, aiModelScale.z);
+    float maxScale = std::max(std::max(modelScale.x, modelScale.y), modelScale.z);
+    maxScale = 2 / maxScale; // unit size of 2
+    scale(vec3(maxScale));
+
+    // move to origin
+    aiVector3D centroid = (bound.mMin + bound.mMax) / 2.0f;
+    centroid *= maxScale;
+    translate(-vec3(centroid.x, centroid.y, centroid.z));
+    initBuffers();
+  }
+}
+
+void Object::loadOBJfile(string fileLocation)
 {
   ifstream file(fileLocation);
 
@@ -205,18 +292,18 @@ void Object::loadOBJ(string fileLocation)
   }
 }
 
-void Object::loadBox(glm::vec3 scale)
+void Object::loadeCube(float side)
 {
   vertices_ =
   {
-    Vertex(vec3(-scale.x / 2, -scale.y / 2,  scale.z / 2)),
-    Vertex(vec3( scale.x / 2, -scale.y / 2,  scale.z / 2)),
-    Vertex(vec3( scale.x / 2,  scale.y / 2,  scale.z / 2)),
-    Vertex(vec3(-scale.x / 2,  scale.y / 2,  scale.z / 2)),
-    Vertex(vec3(-scale.x / 2, -scale.y / 2, -scale.z / 2)),
-    Vertex(vec3( scale.x / 2, -scale.y / 2, -scale.z / 2)),
-    Vertex(vec3( scale.x / 2,  scale.y / 2, -scale.z / 2)),
-    Vertex(vec3(-scale.x / 2,  scale.y / 2, -scale.z / 2))
+    Vertex(vec3(-side / 2, -side / 2,  side / 2)),
+    Vertex(vec3(side / 2, -side / 2,  side / 2)),
+    Vertex(vec3(side / 2,  side / 2,  side / 2)),
+    Vertex(vec3(-side / 2,  side / 2,  side / 2)),
+    Vertex(vec3(-side / 2, -side / 2, -side / 2)),
+    Vertex(vec3(side / 2, -side / 2, -side / 2)),
+    Vertex(vec3(side / 2,  side / 2, -side / 2)),
+    Vertex(vec3(-side / 2,  side / 2, -side / 2))
   };
 
   indices_ =
@@ -335,14 +422,13 @@ void Object::update()
 
   ObjectManager::getObjectManager()->updateUBO(this);
 }
-
 // draw this object using its own shader
 void Object::draw()
 {
   // bind shader and vao
   glUseProgram(shader_.getProgram());
   glBindVertexArray(vao_);
-  
+
   // draw mode
   if (!wiremode)
     glPolygonMode(GL_FRONT, GL_FILL);
@@ -382,7 +468,6 @@ void Object::setShader(ShaderType type)
 
   // set shader locations for object
   modelToWorldLoc_ = glGetUniformLocation(shader_.getProgram(), "modelToWorld");
-  boundingBoxLoc_ = glGetUniformLocation(shader_.getProgram(), "boundingBox");
 }
 
 void Object::initBuffers()
@@ -411,7 +496,7 @@ void Object::genFaceNormals()
 {
   faceNormals_.clear();
 
-  for (unsigned i = 0; i < indices_.size(); i += 3)
+  for (int i = 0; i < indices_.size(); i += 3)
   {
     const vec3& A = vertices_[indices_[i]].position;
     const vec3& B = vertices_[indices_[i + 1]].position;
@@ -440,7 +525,7 @@ void Object::genVertexNormals()
   genFaceNormals();
 
   // average the face normals for vertex normal
-  for (unsigned i = 0; i < faceNormals_.size(); i++)
+  for (int i = 0; i < faceNormals_.size(); i++)
   {
     // apply the normal that affects these vertices
     vec3 norm = faceNormals_[i];
@@ -455,16 +540,6 @@ void Object::genVertexNormals()
   {
     vert.normal = glm::normalize(vert.normal);
   }
-}
-
-const glm::vec3& Object::getMin() const
-{
-  return min_;
-}
-
-const glm::vec3& Object::getMax() const
-{
-  return max_;
 }
 
 
