@@ -113,7 +113,7 @@ aiAABB Object::processMesh(aiMesh* mesh, const aiScene* scene)
   return mesh->mAABB;
 }
 
-void Object::loadOBJ(string fileLocation)
+void Object::loadModel(string fileLocation)
 {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(fileLocation, 

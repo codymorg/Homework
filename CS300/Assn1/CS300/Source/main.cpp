@@ -171,14 +171,9 @@ void SceneSetup()
   Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
   bv->material.ambient = vec3(1, 0, 0);
   bv->wiremode = true;
-  dynamic_cast<AABB*>(bv)->split();
-  dynamic_cast<AABB*>(bv)->left->split();
-  dynamic_cast<AABB*>(bv)->right->split();
+  
+  dynamic_cast<AABB*>(bv)->split(0);
 
-  dynamic_cast<AABB*>(bv)->left->left->split();
-  dynamic_cast<AABB*>(bv)->left->right->split();
-  dynamic_cast<AABB*>(bv)->right->left->split();
-  dynamic_cast<AABB*>(bv)->right->right->split();
 }
 
 void SceneUpdate()
@@ -375,7 +370,7 @@ void UpdateGUI()
   if (changeModel)
   {
     string name = "Common/models/" + string(modelNames[selectedModel]) + ".obj";
-    selectedObject->loadOBJ(name);
+    selectedObject->loadModel(name);
   }
 
   // resetting effects
@@ -424,7 +419,7 @@ int main()
 {
   // make a window
   GLFWwindow* window = nullptr;
-  if (WindowInit(1500 , 1000 , 4, 0, &window) == false)
+  if (WindowInit(1500*2 , 1000*2 , 4, 0, &window) == false)
     return -1;
   
   // setup GLFW and IMgui

@@ -6,6 +6,8 @@ using std::string;
 #include <algorithm>
 #include <vector>
 using std::vector;
+#include <iostream>
+using std::cout;
 
 typedef class Vertex Vertex;
 
@@ -13,7 +15,8 @@ typedef class Vertex Vertex;
 
 void printVec3( string name,vec3 vec)
 {
-  printf("%s : %f\t%f\t%f\n",name.c_str(), vec.x, vec.y, vec.z);
+  if(1)
+    printf("%s : %f\t%f\t%f\n",name.c_str(), vec.x, vec.y, vec.z);
 }
 
 AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
@@ -54,7 +57,8 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
     this->sortedX.push_back(sorted[i]);
     this->sortedY.push_back(sorted[i]);
     this->sortedZ.push_back(sorted[i]);
-    printf("%i: %f\t%f\t%f\n", i, vert.position.x, vert.position.y, vert.position.z);
+    printf("%i ", i);
+    printVec3("vert", vert.position);
     // get extrema
     maxVert.x = std::max(maxVert.x, vert.position.x);
     maxVert.y = std::max(maxVert.y, vert.position.y);
@@ -80,6 +84,8 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
   translate(-oldCenter);
   scale(halfScale_);
   translate(center_);
+  printVec3("center", center_);
+  printVec3("halfScale", halfScale_);
 }
 
 void AABB::enclose()
@@ -87,58 +93,68 @@ void AABB::enclose()
   halfScale_ = vec3(parent->getMaxWorldPos() - center_);
 }
 
-static char number = '0';
 // top down
-bool AABB::split()
+bool AABB::split(int level)
 {
-  // determine cut direction based on median data
-  int cutYZ = halfScale_.x > halfScale_.y && halfScale_.x > halfScale_.z; // vertical
-  int cutXZ = halfScale_.y > halfScale_.x && halfScale_.y > halfScale_.z; // horizontal
-  int cutXY = halfScale_.z > halfScale_.x && halfScale_.z > halfScale_.y; // depth cut
-  int cutDirection = (cutYZ + (cutXZ << 1) + (cutXY << 2));
-  int index = (sortedX.size() / 2);
-  int end = sortedX.size();
+  cout << "level: " << level << "\n";
 
-  // make sure my children know who i am
-  Object* leftObj = ObjectManager::getObjectManager()->addVolume<AABB>(this, string("AABB_L_") + number);
-  Object* rightObj = ObjectManager::getObjectManager()->addVolume<AABB>(this, string("AABB_R_") + number);
-
-  // upkeep and settings
-  leftObj->wiremode = true;
-  rightObj->wiremode = true;
-  number++;
-
-  // adopt my children
-  this->left = dynamic_cast<AABB*>(leftObj);
-  this->right = dynamic_cast<AABB*>(rightObj);
-  printf("cut direction: %i\n",cutDirection);
-  switch (cutDirection)
+  if (this->topDownMode == TopDownMode::vertexMax && sortedX.size() > vertexMax)
   {
-    // they are all equal - just cut along YZ arbitrarily
-  case 0:
-  case 1:
-    dynamic_cast<AABB*>(leftObj)->recalculateBounds(sortedX, 0, index);
-    dynamic_cast<AABB*>(rightObj)->recalculateBounds(sortedX, index, end);
-    break;
+    // determine cut direction based on median data
+    int cutYZ = halfScale_.x > halfScale_.y&& halfScale_.x > halfScale_.z; // vertical
+    int cutXZ = halfScale_.y > halfScale_.x&& halfScale_.y > halfScale_.z; // horizontal
+    int cutXY = halfScale_.z > halfScale_.x&& halfScale_.z > halfScale_.y; // depth cut
+    int cutDirection = (cutYZ + (cutXZ << 1) + (cutXY << 2));
+    int index = (sortedX.size() / 2);
+    int end = sortedX.size();
 
-  case 2:
-    dynamic_cast<AABB*>(leftObj)->recalculateBounds(sortedY, 0, index);
-    dynamic_cast<AABB*>(rightObj)->recalculateBounds(sortedY, index, end);
-    break;
+    // make sure my children know who i am
+    string number = std::to_string(level);
+    Object* leftObj = ObjectManager::getObjectManager()->addVolume<AABB>(this, string("AABB_L_") + number);
+    Object* rightObj = ObjectManager::getObjectManager()->addVolume<AABB>(this, string("AABB_R_") + number);
 
-  case 4:
-    dynamic_cast<AABB*>(leftObj)->recalculateBounds(sortedZ, 0, index);
-    dynamic_cast<AABB*>(rightObj)->recalculateBounds(sortedZ, index, end);
-    break;
+    // upkeep and settings
+    leftObj->wiremode = true;
+    rightObj->wiremode = true;
 
-    // no other combos possible
-  default:
-    break;
+    // adopt my children
+    this->left = dynamic_cast<AABB*>(leftObj);
+    this->right = dynamic_cast<AABB*>(rightObj);
+    printf("cut direction: %i\n", cutDirection);
+    switch (cutDirection)
+    {
+      // they are all equal - just cut along YZ arbitrarily
+    case 0:
+    case 1:
+      dynamic_cast<AABB*>(leftObj)->recalculateBounds(sortedX, 0, index);
+      dynamic_cast<AABB*>(rightObj)->recalculateBounds(sortedX, index, end);
+      break;
+
+    case 2:
+      dynamic_cast<AABB*>(leftObj)->recalculateBounds(sortedY, 0, index);
+      dynamic_cast<AABB*>(rightObj)->recalculateBounds(sortedY, index, end);
+      break;
+
+    case 4:
+      dynamic_cast<AABB*>(leftObj)->recalculateBounds(sortedZ, 0, index);
+      dynamic_cast<AABB*>(rightObj)->recalculateBounds(sortedZ, index, end);
+      break;
+
+      // no other combos possible
+    default:
+      break;
+    }
+
+    left->split(level+1);
+    right->split(level+1);
+
+    return true; // there's more splitting that can be done
   }
 
-
-  return true;
+  return false; // job's done
 }
+
+
 
 // bot up
 

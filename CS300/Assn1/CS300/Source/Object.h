@@ -37,8 +37,9 @@ public:
   Object(std::string ID = "anon");
 
   // object shape
-  void loadOBJ(std::string location);
+  void loadModel(std::string location);
   void loadOBJfile(std::string location);
+  void loadFolder(std::string location);
   void loadBox(glm::vec3 halfScale);
   void loadSphere(float radius, int divisions);
 

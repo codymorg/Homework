@@ -34,7 +34,7 @@ public:
     heightMax
   };
   TopDownMode topDownMode = TopDownMode::vertexMax;
-  int vertexMax = 400; // when using vertex mode
+  int vertexMax = 15; // when using vertex mode
   int heightMax = 7;   // when using height max mode
 
 
@@ -42,7 +42,7 @@ public:
   virtual void findCenter() = 0; // find the center of object
   virtual void enclose() = 0;    // determine how to encolse all points in volume
 
-  virtual bool split() = 0;
+  virtual bool split(int level) = 0;
 
 protected:
 
@@ -54,8 +54,7 @@ public:
   AABB(Object* parent, std::string name);
 
   // hierarchy funcitons
-  bool split();
-
+  bool split(int level);
 
   // overridden funcitons
   void findCenter();
@@ -81,7 +80,6 @@ class Sphere : public BoundingVolume
 
 
   // hierarchy funcitons
-  Sphere join(const BoundingVolume& sibling) const;
 
 private:
   // volume data
