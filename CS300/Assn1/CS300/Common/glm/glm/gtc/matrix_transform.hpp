@@ -250,7 +250,7 @@ namespace glm
 	template <typename T, typename U, precision P>
 	GLM_FUNC_DECL tvec3<T, P> project(
 		tvec3<T, P> const & obj,
-		tmat4x4<T, P> const & model,
+		tmat4x4<T, P> const & parent,
 		tmat4x4<T, P> const & proj,
 		tvec4<U, P> const & viewport);
 
@@ -267,7 +267,7 @@ namespace glm
 	template <typename T, typename U, precision P>
 	GLM_FUNC_DECL tvec3<T, P> unProject(
 		tvec3<T, P> const & win,
-		tmat4x4<T, P> const & model,
+		tmat4x4<T, P> const & parent,
 		tmat4x4<T, P> const & proj,
 		tvec4<U, P> const & viewport);
 

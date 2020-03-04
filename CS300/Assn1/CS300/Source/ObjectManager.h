@@ -3,6 +3,7 @@
 #define OBJ_MAN_H
 #pragma once
 
+#include "Object.h"
 #include <string>
 #include <vector>
 
@@ -49,9 +50,9 @@ public:
   Object* addLight(std::string ID = "anon_Light");
 
   template <class T>
-  Object* addVolume(Object* model, std::string ID = "root_Volume")
+  Object* addVolume(Object* parent, std::string ID = "root_Volume")
   {
-    T* bv= new T(model, ID);
+    T* bv = new T(parent, ID);
     Object* newObj = dynamic_cast<Object*>(bv);
     newObj->setShader(ShaderType::Deferred);
 

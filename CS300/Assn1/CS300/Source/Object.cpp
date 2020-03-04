@@ -20,6 +20,7 @@ using std::ifstream;
 #include <algorithm>
 using std::min;
 using std::max;
+using std::sort;
 #include <iostream>
 using std::cout;
 
@@ -91,6 +92,17 @@ aiAABB Object::processMesh(aiMesh* mesh, const aiScene* scene)
     vertices_.push_back(Vertex(glm::vec3(pos.x, pos.y, pos.z), norm));
   }
 
+    // keep a sorte list
+  for (size_t i = 0; i < vertices_.size(); i++)
+  {
+    sortedX.push_back(&vertices_[i]);
+    sortedY.push_back(&vertices_[i]);
+    sortedZ.push_back(&vertices_[i]);
+    sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
+    sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
+    sort(sortedZ.begin(), sortedZ.end(), [&](Vertex* l, Vertex* r) {return l->position.z < r->position.z; });
+  }
+
   for (unsigned int i = 0; i < mesh->mNumFaces; i++)
   {
     aiFace face = mesh->mFaces[i];
@@ -123,6 +135,9 @@ void Object::loadOBJ(string fileLocation)
     modelToWorld_ = glm::mat4();
 
     processNode(scene->mRootNode, scene, bounds_);
+
+    // keep a sorted list
+
 
     // scale down to unit size and put at the origin
     aiVector3D aiModelScale = (bounds_.mMax - bounds_.mMin);
@@ -309,26 +324,28 @@ void Object::loadBox(vec3 halfScale)
 
   indices_ =
   {
-  //  0,1,2, // Front
-  //  0,2,3,
-  //  0,5,1, // Bottom
-  //  0,4,5,
-  //  1,5,6, // Right
-  //  1,6,2,
-  //  4,0,3, // Left
-  //  4,3,7,
-  //  4,7,6, // Back
-  //  4,6,5,
-  //  3,2,6, // Top
-  //  3,6,7
-    0,1,2,3,0, 
-    4,7,3,2,   
-    6,7,4,     
-    5,6,5,     
-    1
+    0,1,2, // Front
+    0,2,3,
+    0,5,1, // Bottom
+    0,4,5,
+    1,5,6, // Right
+    1,6,2,
+    4,0,3, // Left
+    4,3,7,
+    4,7,6, // Back
+    4,6,5,
+    3,2,6, // Top
+    3,6,7
+    //0,1,2,3,0, 
+    //4,7,3,2,   
+    //6,7,4,     
+    //5,6,5,     
+    //1
   };
 
   initBuffers();
+
+
 }
 
 void Object::loadSphere(float radius, int divisions)
@@ -399,12 +416,26 @@ void Object::loadSphere(float radius, int divisions)
   }
 
   initBuffers();
+
+  // keep a sorte list
+  for (size_t i = 0; i < vertices_.size(); i++)
+  {
+    sortedX.push_back(&vertices_[i]);
+    sortedY.push_back(&vertices_[i]);
+    sortedZ.push_back(&vertices_[i]);
+  }
+  sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
+  sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
+  sort(sortedZ.begin(), sortedZ.end(), [&](Vertex* l, Vertex* r) {return l->position.z < r->position.z; });
 }
 
-
+// world transform  
 void Object::translate(glm::vec3 trans)
 {
-  modelToWorld_ = glm::translate(modelToWorld_, trans);
+  //modelToWorld_ = glm::translate(modelToWorld_, trans);
+  modelToWorld_[3][0] += trans.x;
+  modelToWorld_[3][1] += trans.y;
+  modelToWorld_[3][2] += trans.z;
 }
 
 void Object::rotate(float degrees, glm::vec3 center, glm::vec3 axis)
@@ -417,6 +448,11 @@ void Object::rotate(float degrees, glm::vec3 center, glm::vec3 axis)
 void Object::scale(glm::vec3 scale)
 {
   modelToWorld_ = glm::scale(modelToWorld_, scale);
+}
+
+glm::vec3 Object::modelToWorld(vec3 point)
+{
+  return vec3(modelToWorld_ * glm::vec4(point,1));
 }
 
 void Object::update()
@@ -477,6 +513,11 @@ glm::vec3 Object::getMinWorldPos()
 glm::vec3 Object::getMaxWorldPos()
 {
   return vec3(modelToWorld_* vec4(bounds_.mMax.x, bounds_.mMax.y, bounds_.mMax.z, 1));
+}
+
+const std::vector<Vertex>& Object::getVertices()
+{
+  return vertices_;
 }
 
 

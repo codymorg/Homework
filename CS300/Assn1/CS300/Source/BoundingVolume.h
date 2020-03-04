@@ -20,41 +20,53 @@
 class BoundingVolume : public Object
 {
 public:
-  BoundingVolume(Object* model, std::string name);
-  virtual bool split() = 0; // split this bounding volume into halves
+  BoundingVolume(Object* parent, std::string name);
 
   // public data
   BoundingVolume* right = nullptr;
   BoundingVolume* left = nullptr;
   glm::vec3 color;
-  Object* model = nullptr;
+  Object* parent = nullptr;
 
-protected:
+  enum class TopDownMode
+  {
+    vertexMax,
+    heightMax
+  };
+  TopDownMode topDownMode = TopDownMode::vertexMax;
+  int vertexMax = 400; // when using vertex mode
+  int heightMax = 7;   // when using height max mode
+
 
   // basic bounsing volume functions
   virtual void findCenter() = 0; // find the center of object
   virtual void enclose() = 0;    // determine how to encolse all points in volume
+
+  virtual bool split() = 0;
+
+protected:
 
 };
 
 class AABB : public BoundingVolume
 {
 public:
-  AABB(Object* model, std::string name);
+  AABB(Object* parent, std::string name);
 
   // hierarchy funcitons
   bool split();
-  AABB join(const BoundingVolume& sibling) const;
 
-protected:
 
   // overridden funcitons
   void findCenter();
+  void recalculateBounds(std::vector<Vertex*>& sorted, int minIndex, int maxIndex);
   void enclose();
 
+protected:
   // volume data
   glm::vec3 center_ = glm::vec3();
   glm::vec3 halfScale_; // radius measurment from center
+
 };
 
 

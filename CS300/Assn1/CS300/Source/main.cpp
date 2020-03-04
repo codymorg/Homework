@@ -161,16 +161,19 @@ void SceneSetup()
 {
   Object* obj = objectMgr->addObject("model");
   obj->setShader(ShaderType::Deferred);
-  obj->loadOBJ("Common/models/bunny.obj");
-  //obj->loadSphere(3, 50);
-
+  obj->loadSphere(1, 10);
+  obj->material.ambient = vec3(0, 0, 1);
+  
   Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
+  dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
 
   Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
-  bv->renderMode = GL_LINE_STRIP;
   bv->material.ambient = vec3(1, 0, 0);
-
+  bv->wiremode = true;
+  dynamic_cast<AABB*>(bv)->split();
+  dynamic_cast<AABB*>(bv)->left->split();
+  dynamic_cast<AABB*>(bv)->right->split();
 }
 
 void SceneUpdate()
@@ -179,9 +182,11 @@ void SceneUpdate()
   if (!objectMgr->isValid() || pauseSimulation)
     return;
 
-  if(pauseModel == true)
+  if (pauseModel == true)
+  {
     objectMgr->getFirstObjectByName("model")->rotate(1);
-  objectMgr->getFirstObjectByName("light")->rotate(-1, left * 3.0f);
+    objectMgr->getFirstObjectByName("light")->rotate(-1, left * 3.0f);
+  }
 }
 
 void SceneShutdown()
@@ -199,8 +204,8 @@ void InitGUI(GLFWwindow* window)
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(MessageCallback, 0);
 #endif
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
+  //glEnable(GL_CULL_FACE);
+  //glCullFace(GL_BACK);
   glEnable(GL_DEPTH_TEST);
   
   // context 
@@ -235,6 +240,11 @@ void ProcessInput(GLFWwindow* window)
     camera->translate(up * speed);
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
     camera->translate(down * speed);
+  if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+    camera->rotate(1, up);
+  if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+    camera->rotate(-1, up);
+
   
   // simulation states
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)

@@ -18,8 +18,7 @@
 #include <vector>
 
 #include "ShaderManager.h"
-
-typedef class Camera;
+typedef class Camera Camera;
 
 class Vertex
 {
@@ -48,6 +47,7 @@ public:
   void translate(glm::vec3 trans);
   void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0, 1, 0));
   void scale(glm::vec3 scale);
+  glm::vec3 modelToWorld(glm::vec3 point);
   virtual void draw();
   virtual void update();
 
@@ -62,6 +62,8 @@ public:
   glm::vec3 getWorldPosition();
   glm::vec3 getMinWorldPos();
   glm::vec3 getMaxWorldPos();
+  const std::vector<Vertex>& getVertices();
+
 
   // Setters
   void setShader(ShaderType type);
@@ -79,6 +81,9 @@ public:
     float     paddingIII = 0;
   }material;
 
+  std::vector<Vertex*> sortedX;
+  std::vector<Vertex*> sortedY;
+  std::vector<Vertex*> sortedZ;
 
 private:
 
