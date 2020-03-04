@@ -174,6 +174,11 @@ void SceneSetup()
   dynamic_cast<AABB*>(bv)->split();
   dynamic_cast<AABB*>(bv)->left->split();
   dynamic_cast<AABB*>(bv)->right->split();
+
+  dynamic_cast<AABB*>(bv)->left->left->split();
+  dynamic_cast<AABB*>(bv)->left->right->split();
+  dynamic_cast<AABB*>(bv)->right->left->split();
+  dynamic_cast<AABB*>(bv)->right->right->split();
 }
 
 void SceneUpdate()
@@ -419,7 +424,7 @@ int main()
 {
   // make a window
   GLFWwindow* window = nullptr;
-  if (WindowInit(3000 , 2000 , 4, 0, &window) == false)
+  if (WindowInit(1500 , 1000 , 4, 0, &window) == false)
     return -1;
   
   // setup GLFW and IMgui

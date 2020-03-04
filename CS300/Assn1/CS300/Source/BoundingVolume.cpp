@@ -11,12 +11,16 @@ typedef class Vertex Vertex;
 
 /////***** AABB *****/////
 
+void printVec3( string name,vec3 vec)
+{
+  printf("%s : %f\t%f\t%f\n",name.c_str(), vec.x, vec.y, vec.z);
+}
 
 AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
 {
   findCenter();
   enclose();
-  this->loadBox(halfScale_);
+  this->loadBox(vec3(1.0f));
   this->translate(center_);
 
   // copy sorted 
@@ -60,7 +64,8 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
     minVert.y = std::min(minVert.y, vert.position.y);
     minVert.z = std::min(minVert.z, vert.position.z);
   }
-
+  printVec3("min", minVert);
+  printVec3("max", maxVert);
   // sort our containers
   sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
   sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
@@ -70,8 +75,8 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
   // move the box into the right spot for drawing
   vec3 oldCenter = center_;               // world space
   vec3 temp = (maxVert + minVert) / 2.0f; // model space
-  center_ = parent->modelToWorld(temp);      // world space
-  halfScale_ = parent->modelToWorld(maxVert) - center_; // world space
+  center_ = temp;      // world space
+  halfScale_ = maxVert - center_; // world spacezc
   translate(-oldCenter);
   scale(halfScale_);
   translate(center_);
