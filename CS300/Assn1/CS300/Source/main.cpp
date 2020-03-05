@@ -161,7 +161,9 @@ void SceneSetup()
 {
   Object* obj = objectMgr->addObject("model");
   obj->setShader(ShaderType::Deferred);
-  obj->loadSphere(1, 10);
+  obj->loadFolder(".\\Common\\PowerPlant4");
+  //obj->loadModel("./Common/PowerPlant4/ppsection2/part_b/g4.ply");
+  //obj->loadSphere(1, 10);
   obj->material.ambient = vec3(0, 0, 1);
   
   Object* obj2 = objectMgr->addLight("light");
@@ -172,6 +174,10 @@ void SceneSetup()
   bv->material.ambient = vec3(1, 0, 0);
   bv->wiremode = true;
   
+  auto centerMarker =objectMgr->addObject("center");
+  centerMarker->loadSphere(.1f, 50);
+  centerMarker->setShader(ShaderType::Deferred);
+  centerMarker->material.diffuse = vec3(0, 1, 0);
   dynamic_cast<AABB*>(bv)->split(0);
 
 }
@@ -296,6 +302,7 @@ void UpdateGUI()
   }
 
   vec3 currentPosition = selectedObject->getWorldPosition();
+  vec3 currentScale = selectedObject->getWorldScale();
 
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
@@ -307,9 +314,10 @@ void UpdateGUI()
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
   // object options
-  bool changedObject =   ImGui::ListBox("Objects", &objectIndex, &objectMgr->getObjectNames()[0],objectMgr->getSize());
+  bool changedObject   = ImGui::ListBox("Objects", &objectIndex, &objectMgr->getObjectNames()[0],objectMgr->getSize());
   bool changedPosition = ImGui::DragFloat3("World Position", &currentPosition[0]);
-  bool changeModel =     ImGui::ListBox("Models", &selectedModel, &modelNames[0], int(modelNames.size()));
+  bool changedScale    = ImGui::DragFloat3("World Scale", &currentScale[0]);
+  bool changeModel     = ImGui::ListBox("Models", &selectedModel, &modelNames[0], int(modelNames.size()));
 
   // data
   bool changedLightData = false;
@@ -330,9 +338,9 @@ void UpdateGUI()
 
   // drawing mode options 
   ImGui::Text("Drawing Mode");
-  bool changetoWire =   ImGui::RadioButton("WireFrame", selectedObject->wiremode);
+  bool changetoWire   = ImGui::RadioButton("WireFrame", selectedObject->wiremode);
   bool changeFromWire = ImGui::RadioButton("Shaded", !selectedObject->wiremode);
-  bool changeDisplay =  ImGui::ListBox("Deferred display mode", &currentDisplayMode, &displayNames[0], displayNames.size());
+  bool changeDisplay  = ImGui::ListBox("Deferred display mode", &currentDisplayMode, &displayNames[0], displayNames.size());
 
   // light obtions
   bool changeDebugMode = ImGui::Button("Toggle Debug Drawing mode");
@@ -340,8 +348,8 @@ void UpdateGUI()
 
   // resetting options
   bool recompileShaders = ImGui::Button("Recompile Shaders");
-  bool resetCamera =      ImGui::Button("Reset Camera");
-  bool resetScene =       ImGui::Button("Reset Scene");
+  bool resetCamera      = ImGui::Button("Reset Camera");
+  bool resetScene       = ImGui::Button("Reset Scene");
 
 
   // end of gui options
@@ -355,9 +363,14 @@ void UpdateGUI()
     shaderMgr->getShader(ShaderType::DeferredLighting).updateDisplayMode(currentDisplayMode);
   }
 
+  if(changedPosition)
   {
     vec3 trans = selectedObject->getWorldPosition() - currentPosition;
     selectedObject->translate(trans);
+  }
+  if (changedScale)
+  {
+    selectedObject->scale(currentScale);
   }
   if (changetoWire || changeFromWire)
   {
@@ -430,7 +443,7 @@ int main()
   shaderMgr = ShaderManager::getShaderManager();
 
   // scene setup
-  camera =  new Camera(vec3(0, -4, -8), 30.0f, right);
+  camera =  new Camera(vec3(0, 0, -8), 0.0f, right);
 
   SceneSetup();
   while (!glfwWindowShouldClose(window))

@@ -108,7 +108,7 @@ vec3 pointLight(Light currentLight,
 
   // attenuation
   float att = min((1.0f / (attenuation.x  * lightMagnitude + attenuation.y * lightMagnitude + attenuation.z * lightMagnitude)), 1.0f);
-  
+  att=1.0f;
   // local color
   vec3 local = att * Iambient +  att * (Idiffuse + Ispecular);
   return local;

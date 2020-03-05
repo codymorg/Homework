@@ -15,7 +15,6 @@ typedef class Vertex Vertex;
 
 void printVec3( string name,vec3 vec)
 {
-  if(1)
     printf("%s : %f\t%f\t%f\n",name.c_str(), vec.x, vec.y, vec.z);
 }
 
@@ -23,7 +22,7 @@ AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
 {
   findCenter();
   enclose();
-  this->loadBox(vec3(1.0f));
+  this->loadBox(vec3(halfScale_));
   this->translate(center_);
 
   // copy sorted 
@@ -36,6 +35,27 @@ void AABB::findCenter()
 {
   // AABB uses unweighted center
   center_ = (parent->getMinWorldPos() + parent->getMaxWorldPos()) / 2.0f;
+  vec3 minVert(INT_MAX);
+  vec3 maxVert(INT_MIN);
+  for (auto vert : parent->getVertices())
+  {
+    maxVert.x = std::max(maxVert.x, vert.position.x);
+    maxVert.y = std::max(maxVert.y, vert.position.y);
+    maxVert.z = std::max(maxVert.z, vert.position.z);
+
+    minVert.x = std::min(minVert.x, vert.position.x);
+    minVert.y = std::min(minVert.y, vert.position.y);
+    minVert.z = std::min(minVert.z, vert.position.z);
+  }
+  vec3 min = parent->modelToWorld(minVert);
+  vec3 max = parent->modelToWorld(maxVert);
+  printVec3("min  ", min);
+  printVec3("max  ", max);
+  center_ = (max + min) / 2.0f;
+  halfScale_ = max - center_;
+  printVec3("center", center_);
+  printVec3("scale ", halfScale_); printf("\n");
+
 }
 
 // find the center of children boxes
@@ -48,7 +68,7 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
   this->sortedX.clear();
   this->sortedY.clear();
   this->sortedZ.clear();
-  printf("limitedbounds:\n\n");
+  //printf("limitedbounds:\n\n");
   for (int i = minIndex; i < maxIndex; i++)
   {
     Vertex& vert = *sorted[i];
@@ -57,8 +77,8 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
     this->sortedX.push_back(sorted[i]);
     this->sortedY.push_back(sorted[i]);
     this->sortedZ.push_back(sorted[i]);
-    printf("%i ", i);
-    printVec3("vert", vert.position);
+    //printf("%i ", i);
+    //printVec3("vert", vert.position);
     // get extrema
     maxVert.x = std::max(maxVert.x, vert.position.x);
     maxVert.y = std::max(maxVert.y, vert.position.y);
@@ -68,29 +88,34 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
     minVert.y = std::min(minVert.y, vert.position.y);
     minVert.z = std::min(minVert.z, vert.position.z);
   }
-  printVec3("min", minVert);
-  printVec3("max", maxVert);
+
   // sort our containers
   sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
   sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
   sort(sortedZ.begin(), sortedZ.end(), [&](Vertex* l, Vertex* r) {return l->position.z < r->position.z; });
 
+  Object* model = parent;
+  while (dynamic_cast<AABB*>(model))
+    model = dynamic_cast<AABB*>(model)->parent;
 
-  // move the box into the right spot for drawing
-  vec3 oldCenter = center_;               // world space
-  vec3 temp = (maxVert + minVert) / 2.0f; // model space
-  center_ = temp;      // world space
-  halfScale_ = maxVert - center_; // world spacezc
-  translate(-oldCenter);
-  scale(halfScale_);
-  translate(center_);
+  vec3 min = model->modelToWorld(minVert);
+  vec3 max = model->modelToWorld(maxVert);
+  printVec3("min  ", min);
+  printVec3("max  ", max);
+  center_ = (max + min) / 2.0f;
+  halfScale_ = max - center_;
+  this->resetTransform();
+  this->scale(halfScale_);
+  this->translate(center_);
   printVec3("center", center_);
-  printVec3("halfScale", halfScale_);
+  printVec3("scale", halfScale_); printf("\n");
 }
 
 void AABB::enclose()
 {
-  halfScale_ = vec3(parent->getMaxWorldPos() - center_);
+  //vec3 max = parent->getMaxWorldPos();
+  //halfScale_ = vec3(parent->getMaxWorldPos() - center_);
+  
 }
 
 // top down
@@ -107,6 +132,7 @@ bool AABB::split(int level)
     int cutDirection = (cutYZ + (cutXZ << 1) + (cutXY << 2));
     int index = (sortedX.size() / 2);
     int end = sortedX.size();
+    printf("size: %i running:\n  0 - %i\n  %i - %i\n", sortedX.size(), index-1, index, end-1);
 
     // make sure my children know who i am
     string number = std::to_string(level);

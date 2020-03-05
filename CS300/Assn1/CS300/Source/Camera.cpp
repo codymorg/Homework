@@ -33,7 +33,10 @@ Camera::Camera(vec3 position, float angle, vec3 axis)
 
 void Camera::translate(glm::vec3 translation)
 {
-  worldToCam = glm::translate(worldToCam, translation);
+  worldToCam[3][0] += translation.x;
+  worldToCam[3][1] += translation.y;
+  worldToCam[3][2] += translation.z;
+  //worldToCam = glm::translate(worldToCam, translation);
   position += translation;
 }
 

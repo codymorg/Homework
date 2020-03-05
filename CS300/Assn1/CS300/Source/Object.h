@@ -49,6 +49,7 @@ public:
   void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0, 1, 0));
   void scale(glm::vec3 scale);
   glm::vec3 modelToWorld(glm::vec3 point);
+  void resetTransform();
   virtual void draw();
   virtual void update();
 
@@ -61,6 +62,7 @@ public:
   int       getShaderProgram();
   Shader&   getShader();
   glm::vec3 getWorldPosition();
+  glm::vec3 getWorldScale();
   glm::vec3 getMinWorldPos();
   glm::vec3 getMaxWorldPos();
   const std::vector<Vertex>& getVertices();
@@ -85,21 +87,18 @@ public:
   std::vector<Vertex*> sortedX;
   std::vector<Vertex*> sortedY;
   std::vector<Vertex*> sortedZ;
+  aiVector3D centroid;
 
 private:
+  void updateSorted();
 
   // object data
   glm::mat4   preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
   glm::mat4   modelToWorld_ = glm::mat4(1.0f);
 
   // geometry data
-  std::vector<Vertex> vertices_ =
-  {
-    Vertex(glm::vec3(-0.5,-0.5,0)),
-    Vertex(glm::vec3(0.5,-0.5,0)),
-    Vertex(glm::vec3(0,0.5,0)),
-  };
-  std::vector<unsigned int> indices_ = { 0,1,2 };
+  std::vector<Vertex> vertices_;
+  std::vector<unsigned int> indices_;
   std::vector<glm::vec3>faceNormals_;
 
   // openGL stuff

@@ -23,6 +23,7 @@ using std::max;
 using std::sort;
 #include <iostream>
 using std::cout;
+#include <filesystem> // C++17
 
 #include <glm/common.hpp>
 #include <glm/glm.hpp>
@@ -79,6 +80,7 @@ void Object::processNode(aiNode* node, const aiScene* scene, aiAABB& maxBounding
 
 aiAABB Object::processMesh(aiMesh* mesh, const aiScene* scene)
 {
+  int indexAdjust = vertices_.size();
   for (unsigned int i = 0; i < mesh->mNumVertices; i++)
   {
     aiVector3D pos = mesh->mVertices[i];
@@ -89,25 +91,18 @@ aiAABB Object::processMesh(aiMesh* mesh, const aiScene* scene)
       aiNorm = mesh->mNormals[i];
       norm = vec3(aiNorm.x, aiNorm.y, aiNorm.z);
     }
+    
     vertices_.push_back(Vertex(glm::vec3(pos.x, pos.y, pos.z), norm));
-  }
-
-    // keep a sorte list
-  for (size_t i = 0; i < vertices_.size(); i++)
-  {
-    sortedX.push_back(&vertices_[i]);
-    sortedY.push_back(&vertices_[i]);
-    sortedZ.push_back(&vertices_[i]);
-    sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
-    sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
-    sort(sortedZ.begin(), sortedZ.end(), [&](Vertex* l, Vertex* r) {return l->position.z < r->position.z; });
   }
 
   for (unsigned int i = 0; i < mesh->mNumFaces; i++)
   {
     aiFace face = mesh->mFaces[i];
     for (unsigned int j = 0; j < face.mNumIndices; j++)
-      indices_.push_back(face.mIndices[j]);
+    {
+      indices_.push_back(face.mIndices[j] + indexAdjust);
+
+    }
   }
 
   return mesh->mAABB;
@@ -118,8 +113,8 @@ void Object::loadModel(string fileLocation)
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(fileLocation, 
     aiProcess_Triangulate | 
-    aiProcess_JoinIdenticalVertices |
     aiProcess_GenSmoothNormals |
+    aiProcess_JoinIdenticalVertices |
     aiProcess_OptimizeMeshes |
     aiProcess_GenBoundingBoxes
   );
@@ -130,8 +125,8 @@ void Object::loadModel(string fileLocation)
   }
   else
   {
-    vertices_.clear();
-    indices_.clear();
+    //vertices_.clear();
+    //indices_.clear();
     modelToWorld_ = glm::mat4();
 
     processNode(scene->mRootNode, scene, bounds_);
@@ -143,170 +138,50 @@ void Object::loadModel(string fileLocation)
     aiVector3D aiModelScale = (bounds_.mMax - bounds_.mMin);
     vec3 modelScale = vec3(aiModelScale.x, aiModelScale.y, aiModelScale.z);
     float maxScale = std::max(std::max(modelScale.x, modelScale.y), modelScale.z);
-    maxScale = 2 / maxScale; // unit size of 2
+    maxScale = 4 / maxScale; // unit size of 2
 
     // move to origin
-    aiVector3D centroid = (bounds_.mMin + bounds_.mMax) / 2.0f;
-    centroid *= maxScale;
-    translate(-vec3(centroid.x, centroid.y, centroid.z));
+    centroid = (bounds_.mMin * maxScale + bounds_.mMax * maxScale) / 2.0f;
+    //translate(-vec3(centroid.x, centroid.y, centroid.z));
     scale(vec3(maxScale));
     initBuffers();
   }
 }
 
-void Object::loadOBJfile(string fileLocation)
+void Object::loadFolder(std::string location)
 {
-  ifstream file(fileLocation);
+  // get list of all folders in directory
+  std::vector<std::string> folders;
+  std::vector<std::string> files;
 
-  // load vert data and normal data
-  if (file)
+  // it didnt like relative path for some reason
+  std::wstring path = std::filesystem::current_path().c_str();
+  path += L"\\Common\\PowerPlant4";
+
+  // get all the files
+  for (auto& entry : std::filesystem::recursive_directory_iterator(location))
   {
-    vector<float>verts; // vertex numbers
-
-    // bounding box
-    vec3 maxPos = vec3(INT_MIN, INT_MIN, INT_MIN);
-    vec3 minPos = vec3(INT_MAX, INT_MAX, INT_MAX);
-
-    // since the file is good - clear the old vertex data if any
-    vertices_.clear();
-    indices_.clear();
-    modelToWorld_ = glm::mat4();
-
-    string line;
-    while (getline(file, line))
-    {
-      if (line.substr(0, 2) == "v " || line.substr(0, 2) == "v\t")
-      {
-        std::istringstream objData(line.substr(2));
-        float vertexData;
-        for (size_t i = 0; i < 3; i++)
-        {
-          objData >> vertexData;
-          verts.push_back(vertexData);
-          minPos[i] = min(minPos[i], vertexData);
-          maxPos[i] = max(maxPos[i], vertexData);
-        }
-      }
-      else if (line.substr(0, 2) == "f ")
-      {
-        std::istringstream objData(line.substr(2));
-        std::string token;
-        int faceCount = 0;
-        vector<unsigned> fanIndices;
-
-        // if you have '//' delimiters you monster
-        if (line.find("//") != string::npos)
-        {
-          while (getline(objData, token, '/'))
-          {
-            int index;
-            std::istringstream substring(token);
-            substring >> index;
-
-            // add this face to the fan list if you have more than 3 faces
-            fanIndices.push_back(index - 1);
-            indices_.push_back(index - 1);
-
-            faceCount++;
-
-            // skip uv stuff
-            objData.get();
-            char peek = '\0';
-            while (peek != ' ' && peek != -1)
-            {
-              peek = objData.peek();
-              objData.get();
-            }
-          }
-        }
-
-        // if you have '\\' delimiters
-        else if (line.find("\\") != string::npos && line.find("\\par") == string::npos)
-        {
-          while (getline(objData, token, '\\'))
-          {
-            int index;
-            std::istringstream substring(token);
-            substring >> index;
-
-            fanIndices.push_back(index - 1);
-            faceCount++;
-
-            char peek = '\0';
-            while (peek != ' ' && peek != -1)
-            {
-              peek = objData.peek();
-              objData.get();
-            }
-            indices_.push_back(index - 1);
-          }
-        }
-
-        // if you have ' ' delimitation like a normal person
-        else
-        {
-          while (getline(objData, token, ' '))
-          {
-            int index;
-            std::istringstream substring(token);
-            substring >> index;
-            indices_.push_back(index - 1);
-            fanIndices.push_back(index - 1);
-
-            faceCount++;
-
-          }
-        }
-
-        if (faceCount > 3)
-        {
-          // shear off those fan faces
-          while (faceCount > 3)
-          {
-            indices_.pop_back();
-            faceCount--;
-          }
-
-          // convert fan to gl tris
-          unsigned triA = fanIndices[0];
-          for (unsigned i = 0; i < fanIndices.size() - 3; i++)
-          {
-            unsigned triB = fanIndices[2 + i];
-            unsigned triC = fanIndices[3 + i];
-            indices_.push_back(triA);
-            indices_.push_back(triB);
-            indices_.push_back(triC);
-          }
-        }
-
-      }
-    }
-
-    // scale down to unit size and put at the origin
-    vec3 centroid = (maxPos + minPos) / 2.0f;
-    float modelScale = ((maxPos - minPos).x + (maxPos - minPos).y + (maxPos - minPos).z) / 3;
-    scale(vec3(2 / modelScale));
-    translate(-centroid);
-
-    // load data into vertex struct
-    for (size_t i = 0; i < verts.size(); i += 3)
-    {
-      vec3 vertData(verts[i], verts[i + 1], verts[i + 2]);
-      vertices_.push_back(Vertex(vertData));
-    }
-    genVertexNormals();
-
-    initBuffers();
-
+    if (entry.is_directory())
+      folders.push_back(entry.path().string());
+    else if (entry.is_regular_file())
+      files.push_back(entry.path().string());
   }
-  else
+
+  // send everyone to loadmodel
+  for (auto file : files)
   {
-    cout << "error opening file: " << fileLocation << "\n";
+    std::cout << file << "\n";
+    loadModel(file);
   }
+  updateSorted();
 }
+
 
 void Object::loadBox(vec3 halfScale)
 {
+  scale(halfScale);
+  halfScale = vec3(1.0f);
+  this->renderMode = GL_LINE_STRIP;
   vertices_ =
   {
     Vertex(vec3(-halfScale.x, -halfScale.y,  halfScale.z), vec3(-halfScale.x, -halfScale.y,  halfScale.z)),
@@ -324,23 +199,24 @@ void Object::loadBox(vec3 halfScale)
 
   indices_ =
   {
-    0,1,2, // Front
-    0,2,3,
-    0,5,1, // Bottom
-    0,4,5,
-    1,5,6, // Right
-    1,6,2,
-    4,0,3, // Left
-    4,3,7,
-    4,7,6, // Back
-    4,6,5,
-    3,2,6, // Top
-    3,6,7
-    //0,1,2,3,0, 
-    //4,7,3,2,   
-    //6,7,4,     
-    //5,6,5,     
-    //1
+    //0,1,2, // Front
+    //0,2,3,
+    //0,5,1, // Bottom
+    //0,4,5,
+    //1,5,6, // Right
+    //1,6,2,
+    //4,0,3, // Left
+    //4,3,7,
+    //4,7,6, // Back
+    //4,6,5,
+    //3,2,6, // Top
+    //3,6,7
+    //lines
+    0,1,2,3,0, 
+    4,7,3,2,   
+    6,7,4,     
+    5,6,5,     
+    1
   };
 
   initBuffers();
@@ -418,15 +294,8 @@ void Object::loadSphere(float radius, int divisions)
   initBuffers();
 
   // keep a sorte list
-  for (size_t i = 0; i < vertices_.size(); i++)
-  {
-    sortedX.push_back(&vertices_[i]);
-    sortedY.push_back(&vertices_[i]);
-    sortedZ.push_back(&vertices_[i]);
-  }
-  sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
-  sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
-  sort(sortedZ.begin(), sortedZ.end(), [&](Vertex* l, Vertex* r) {return l->position.z < r->position.z; });
+  updateSorted();
+
 }
 
 // world transform  
@@ -447,12 +316,20 @@ void Object::rotate(float degrees, glm::vec3 center, glm::vec3 axis)
 
 void Object::scale(glm::vec3 scale)
 {
-  modelToWorld_ = glm::scale(modelToWorld_, scale);
+  //modelToWorld_ = glm::scale(modelToWorld_, scale);
+  modelToWorld_[0][0] = scale.x;
+  modelToWorld_[1][1] = scale.y;
+  modelToWorld_[2][2] = scale.z;
 }
 
 glm::vec3 Object::modelToWorld(vec3 point)
 {
   return vec3(modelToWorld_ * glm::vec4(point,1));
+}
+
+void Object::resetTransform()
+{
+  modelToWorld_ = glm::mat4();
 }
 
 void Object::update()
@@ -503,6 +380,11 @@ Shader& Object::getShader()
 vec3 Object::getWorldPosition()
 {
   return vec3(modelToWorld_[3]);
+}
+
+glm::vec3 Object::getWorldScale()
+{
+  return glm::vec3(modelToWorld_[0][0], modelToWorld_[1][1], modelToWorld_[2][2]);
 }
 
 glm::vec3 Object::getMinWorldPos()
@@ -599,6 +481,19 @@ void Object::genVertexNormals()
   {
     vert.normal = glm::normalize(vert.normal);
   }
+}
+
+void Object::updateSorted()
+{
+  for (size_t i = 0; i < vertices_.size(); i++)
+  {
+    sortedX.push_back(&vertices_[i]);
+    sortedY.push_back(&vertices_[i]);
+    sortedZ.push_back(&vertices_[i]);
+  }
+  sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
+  sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
+  sort(sortedZ.begin(), sortedZ.end(), [&](Vertex* l, Vertex* r) {return l->position.z < r->position.z; });
 }
 
 

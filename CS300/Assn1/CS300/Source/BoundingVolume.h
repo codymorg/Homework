@@ -34,7 +34,7 @@ public:
     heightMax
   };
   TopDownMode topDownMode = TopDownMode::vertexMax;
-  int vertexMax = 15; // when using vertex mode
+  int vertexMax = 500; // when using vertex mode
   int heightMax = 7;   // when using height max mode
 
 
