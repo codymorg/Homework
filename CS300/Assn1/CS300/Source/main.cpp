@@ -173,12 +173,13 @@ void SceneSetup()
   Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
   bv->material.ambient = vec3(1, 0, 0);
   bv->wiremode = true;
+  dynamic_cast<AABB*>(bv)->setTopDownMode(AABB::TopDownMode::heightMax);
+  dynamic_cast<AABB*>(bv)->split(0);
   
   auto centerMarker =objectMgr->addObject("center");
   centerMarker->loadSphere(.1f, 50);
   centerMarker->setShader(ShaderType::Deferred);
   centerMarker->material.diffuse = vec3(0, 1, 0);
-  dynamic_cast<AABB*>(bv)->split(0);
 
 }
 

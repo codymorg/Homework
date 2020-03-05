@@ -29,6 +29,10 @@ AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
   this->sortedX = object->sortedX;
   this->sortedY = object->sortedY;
   this->sortedZ = object->sortedZ;
+
+  AABB* parentBox = dynamic_cast<AABB*>(parent);
+  if (parentBox)
+    this->vertexMax = parentBox->vertexMax;
 }
 
 void AABB::findCenter()
@@ -123,7 +127,7 @@ bool AABB::split(int level)
 {
   cout << "level: " << level << "\n";
 
-  if (this->topDownMode == TopDownMode::vertexMax && sortedX.size() > vertexMax)
+  if (sortedX.size() > vertexMax)
   {
     // determine cut direction based on median data
     int cutYZ = halfScale_.x > halfScale_.y&& halfScale_.x > halfScale_.z; // vertical
@@ -189,4 +193,12 @@ bool AABB::split(int level)
 BoundingVolume::BoundingVolume(Object* object, string name) : Object(name)
 {
   this->parent = object;
+}
+
+void BoundingVolume::setTopDownMode(TopDownMode mode)
+{
+  topDownMode_ = mode;
+
+  if (this->topDownMode_ == TopDownMode::heightMax)
+    vertexMax = parent->getVertices().size() / (1 << (heightMax - 1));
 }

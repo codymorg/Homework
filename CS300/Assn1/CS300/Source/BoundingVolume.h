@@ -33,7 +33,7 @@ public:
     vertexMax,
     heightMax
   };
-  TopDownMode topDownMode = TopDownMode::vertexMax;
+  void setTopDownMode(TopDownMode mode);
   int vertexMax = 500; // when using vertex mode
   int heightMax = 7;   // when using height max mode
 
@@ -44,8 +44,8 @@ public:
 
   virtual bool split(int level) = 0;
 
-protected:
-
+private:
+  TopDownMode topDownMode_ = TopDownMode::vertexMax;
 };
 
 class AABB : public BoundingVolume
