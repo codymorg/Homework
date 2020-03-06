@@ -38,7 +38,7 @@ public:
 
   // object shape
   void loadModel(std::string location);
-  void loadOBJfile(std::string location);
+  void clearObject();
   void loadFolder(std::string location);
   void loadBox(glm::vec3 halfScale);
   void loadSphere(float radius, int divisions);

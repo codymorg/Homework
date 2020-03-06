@@ -53,6 +53,8 @@ class AABB : public BoundingVolume
 public:
   AABB(Object* parent, std::string name);
 
+  void drawAsSphere(bool isSphere);
+
   // hierarchy funcitons
   bool split(int level);
 
@@ -60,31 +62,15 @@ public:
   void findCenter();
   void recalculateBounds(std::vector<Vertex*>& sorted, int minIndex, int maxIndex);
   void enclose();
+  glm::vec3 center_ = glm::vec3();
 
 protected:
   // volume data
-  glm::vec3 center_ = glm::vec3();
   glm::vec3 halfScale_; // radius measurment from center
 
-};
-
-
-class Sphere : public BoundingVolume
-{
-  Sphere(std::string location);
-
-  // overridden funcitons
-  void findCenter();
-  void enclose();
-  bool split();
-
-
-  // hierarchy funcitons
-
 private:
-  // volume data
-  glm::vec3 center_ = glm::vec3();
-  float radius_ = 0;
+  bool isSphere_ = false;
 };
+
 
 #endif

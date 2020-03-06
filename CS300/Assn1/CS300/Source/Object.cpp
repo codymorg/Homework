@@ -148,6 +148,13 @@ void Object::loadModel(string fileLocation)
   }
 }
 
+void Object::clearObject()
+{
+  vertices_.clear();
+  indices_.clear();
+  //resetTransform();
+}
+
 void Object::loadFolder(std::string location)
 {
   // get list of all folders in directory

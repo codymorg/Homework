@@ -20,9 +20,21 @@ void printVec3( string name,vec3 vec)
 
 AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
 {
+  // tree properties for the children to enjoy
+  AABB* parentBox = dynamic_cast<AABB*>(parent);
+  if (parentBox)
+  {
+    this->vertexMax = parentBox->vertexMax;
+    this->isSphere_ = parentBox->isSphere_;
+  }
+
   findCenter();
   enclose();
-  this->loadBox(vec3(halfScale_));
+
+  if(isSphere_)
+    loadSphere(std::max(halfScale_.x, std::max(halfScale_.y, halfScale_.z)), 25);
+  else
+    this->loadBox(vec3(halfScale_));
   this->translate(center_);
 
   // copy sorted 
@@ -30,9 +42,31 @@ AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
   this->sortedY = object->sortedY;
   this->sortedZ = object->sortedZ;
 
-  AABB* parentBox = dynamic_cast<AABB*>(parent);
-  if (parentBox)
-    this->vertexMax = parentBox->vertexMax;
+
+
+}
+
+void AABB::drawAsSphere(bool isSphere)
+{
+  isSphere_ = isSphere;
+  if (isSphere)
+  {
+    loadSphere(0.5f, 25);
+    vec3 maxScale(glm::sqrt(halfScale_.x * halfScale_.x + halfScale_.y * halfScale_.y + halfScale_.z * halfScale_.z));
+    halfScale_ = maxScale;
+    this->scale(maxScale);
+  }
+  else
+    loadBox(halfScale_);
+
+  AABB* box = dynamic_cast<AABB*>(this);
+
+    printf("sphere %s\n", box->name.c_str());
+  if (box->left)
+  {
+    dynamic_cast<AABB*>(box->left)->drawAsSphere(isSphere);
+    dynamic_cast<AABB*>(box->right)->drawAsSphere(isSphere);
+  }
 }
 
 void AABB::findCenter()
