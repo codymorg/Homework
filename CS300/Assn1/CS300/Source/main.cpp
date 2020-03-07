@@ -38,6 +38,11 @@ static bool pauseSimulation = false;
 static bool pauseModel = true;
 static int selectedModel = 0;
 static int currentDisplayMode = 0;
+static Object* treeRoot = nullptr;
+static int currentTreeLevel = -1;
+static bool currentShape = 0; // 0 = aabb 1 = sphere
+static int currentTreeMode = 0;
+static int currentTDMode = 0;
 
 
 /////***** Window and OpenGL Management *****/////
@@ -155,7 +160,14 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 
 
 /////***** Scene Management *****/////
+std::vector<Object*>sceneObjects;
+void BVscene(int scene)
+{
+  for (auto old : sceneObjects)
+    old->drawMe = false;
 
+  sceneObjects[scene]->drawMe = true;
+}
 
 void SceneSetup()
 {
@@ -170,22 +182,23 @@ void SceneSetup()
   obj2->translate(right * 3.0f);
   dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
 
-  Object* bv = objectMgr->addVolume<AABB>(obj, "bv");
-  Object* bvc = objectMgr->addVolume<AABB>(obj, "bv");
-  bv->material.ambient = vec3(1, 0, 0);
-  //bv->wiremode = true;
-  dynamic_cast<AABB*>(bv)->heightMax = 7;
-  dynamic_cast<AABB*>(bv)->setTopDownMode(AABB::TopDownMode::heightMax);
-  dynamic_cast<AABB*>(bv)->split(0);
+  treeRoot = objectMgr->addVolume<AABB>(obj, "root");
+  treeRoot->material.ambient = vec3(1, 0, 0);
+  dynamic_cast<AABB*>(treeRoot)->heightMax = 7;
+  dynamic_cast<AABB*>(treeRoot)->setTopDownMode(AABB::TopDownMode::heightMax);
+  dynamic_cast<AABB*>(treeRoot)->split(0);
   printf("split complete\n");
-  dynamic_cast<AABB*>(bv)->drawAsSphere(true);
   
-  auto centerMarker =objectMgr->addObject("center");
-  centerMarker->loadSphere(.1f, 50);
-  centerMarker->translate(dynamic_cast<AABB*>(bv)->center_);
-  centerMarker->setShader(ShaderType::Deferred);
-  centerMarker->material.diffuse = vec3(0, 1, 0);
-
+  auto centroid = objectMgr->addVolume<Centroid>(obj, "centroid");
+  auto centroidb = objectMgr->addObject("centroid volume center");
+  centroidb->loadSphere(0.5f, 25);
+  centroidb->setShader(ShaderType::Deferred);
+  centroidb->translate(dynamic_cast<Centroid*>(centroid)->getCenter());
+  centroid->wiremode = true;
+  centroidb->wiremode = true;
+  centroid->drawMe = false;
+  centroidb->drawMe = false;
+  sceneObjects.push_back(centroid);
 }
 
 void SceneUpdate()
@@ -290,6 +303,18 @@ void UpdateGUI()
     "Specular",
   };
 
+  const std::vector<const char*> treeNames =
+  {
+    "Top Down",
+    "Bottom Up"
+  };
+
+  const std::vector<const char*> shapes =
+  {
+    "AABB",
+    "Unweighted-Center Sphere"
+  };
+
   // get all current state data
   int& objectIndex = objectMgr->selectedObject;
   Object* selectedObject = objectMgr->getSelected();
@@ -324,6 +349,21 @@ void UpdateGUI()
   bool changedPosition = ImGui::DragFloat3("World Position", &currentPosition[0]);
   bool changedScale    = ImGui::DragFloat3("World Scale", &currentScale[0]);
   bool changeModel     = ImGui::ListBox("Models", &selectedModel, &modelNames[0], int(modelNames.size()));
+
+  // tree options
+  AABB* root = dynamic_cast<AABB*>(treeRoot);
+  ImGui::Text("Tree Bounding Volume Shape");
+  bool changedTreelevel = ImGui::SliderInt("Top Down", &currentTreeLevel, -1, root->maxLevel);
+  bool changedTreeshape = ImGui::RadioButton("AABB", !currentShape);
+  changedTreeshape     |= ImGui::RadioButton("Sphere", currentShape);
+
+  bool changedTreeMode = false;
+  if (currentTreeMode == 0)
+  {
+    ImGui::Text("Top Down Tree Mode");
+    changedTreeMode  = ImGui::RadioButton("Max Vertex Count == 500", !currentTDMode);
+    changedTreeMode |= ImGui::RadioButton("Max Tree Height == 7", currentTDMode);
+  }
 
   // data
   bool changedLightData = false;
@@ -364,6 +404,33 @@ void UpdateGUI()
 
 
   // object effects
+
+  if (changedTreeMode)
+  {
+    BoundingVolume::TopDownMode mode;
+    if (currentTDMode == 0)
+    {
+      mode = BoundingVolume::TopDownMode::heightMax;
+        currentTDMode = 1;
+    }
+    else
+    {
+      mode = BoundingVolume::TopDownMode::vertexMax;
+      currentTDMode = 0;
+    }
+    root->setTopDownMode(mode);
+    resetScene = true;
+  }
+  if (changedTreeshape)
+  {
+    currentShape = !currentShape;
+    root->drawAsSphere(currentShape);
+  }
+  if (changedTreelevel)
+  {
+    AABB* root = dynamic_cast<AABB*>(treeRoot);
+    root->drawLevel(currentTreeLevel);
+  }
   if (changeDisplay)
   {
     shaderMgr->getShader(ShaderType::DeferredLighting).updateDisplayMode(currentDisplayMode);

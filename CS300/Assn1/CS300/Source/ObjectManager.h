@@ -80,7 +80,6 @@ public:
   int selectedObject = 0; // which object the GUI is looking at
   bool debugMode = false; // false: draw forward objects with depth, true: draw forward objects without depth ie on top
 
-  // deferred data
 
 
 private:

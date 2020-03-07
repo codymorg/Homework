@@ -57,6 +57,7 @@ public:
   std::string name;
   bool        wiremode = false;
   unsigned    renderMode = GL_TRIANGLES;
+  bool        drawMe = true;
 
   // Getters
   int       getShaderProgram();

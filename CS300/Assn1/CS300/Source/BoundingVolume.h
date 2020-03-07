@@ -37,12 +37,9 @@ public:
   int vertexMax = 500; // when using vertex mode
   int heightMax = 7;   // when using height max mode
 
-
   // basic bounsing volume functions
   virtual void findCenter() = 0; // find the center of object
-  virtual void enclose() = 0;    // determine how to encolse all points in volume
-
-  virtual bool split(int level) = 0;
+  virtual bool split(int level) { return false; };
 
 private:
   TopDownMode topDownMode_ = TopDownMode::vertexMax;
@@ -61,8 +58,11 @@ public:
   // overridden funcitons
   void findCenter();
   void recalculateBounds(std::vector<Vertex*>& sorted, int minIndex, int maxIndex);
-  void enclose();
   glm::vec3 center_ = glm::vec3();
+  int level = -2;
+  int maxLevel = -1;
+
+  void drawLevel(int onlyThisLevel); // -1 indicates draw all levels
 
 protected:
   // volume data
@@ -71,6 +71,21 @@ protected:
 private:
   bool isSphere_ = false;
 };
+
+class Centroid : public BoundingVolume
+{
+public :
+  Centroid(Object* parent, std::string name);
+
+  void findCenter();
+  void enclose();
+  const glm::vec3& getCenter();
+
+private:
+  glm::vec3 center_;
+  glm::vec3 halfScale_;
+};
+
 
 
 #endif

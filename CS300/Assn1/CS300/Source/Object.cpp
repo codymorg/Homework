@@ -50,7 +50,7 @@ Object::Object(std::string ID)
 {
   name = ID;
   modelToWorld_ = mat4(1.0f);
-
+  setShader(ShaderType::Deferred);
   // init openGL
   glGenVertexArrays(1, &vao_);
   glGenBuffers(1, &vbo_);
@@ -353,24 +353,27 @@ void Object::update()
 // draw this object using its own shader
 void Object::draw()
 {
-  // bind shader and vao
-  glUseProgram(shader_.getProgram());
-  glBindVertexArray(vao_);
+  if (drawMe)
+  {
+    // bind shader and vao
+    glUseProgram(shader_.getProgram());
+    glBindVertexArray(vao_);
 
-  // draw mode
-  if (!wiremode)
-    glPolygonMode(GL_FRONT, GL_FILL);
-  else
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // draw mode
+    if (!wiremode)
+      glPolygonMode(GL_FRONT, GL_FILL);
+    else
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  this->Object::update();
+    this->Object::update();
 
-  // draw
-  glDrawElements(renderMode, indices_.size(), GL_UNSIGNED_INT, 0);
+    // draw
+    glDrawElements(renderMode, indices_.size(), GL_UNSIGNED_INT, 0);
 
-  // unbind
-  glBindVertexArray(0);
-  glUseProgram(0);
+    // unbind
+    glBindVertexArray(0);
+    glUseProgram(0);
+  }
 }
 
 

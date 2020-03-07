@@ -155,7 +155,6 @@ Object* ObjectManager::addObject(std::string ID)
   objects_.push_back(new Object(ID));
   selectedObject = objects_.size() - 1;
   isValid_ = true;
-
   return objects_.back();
 }
 
@@ -355,6 +354,7 @@ unsigned ObjectManager::getSize()
 {
   return objects_.size();
 }
+
 
 void FBO::bind()
 {

@@ -29,7 +29,6 @@ AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
   }
 
   findCenter();
-  enclose();
 
   if(isSphere_)
     loadSphere(std::max(halfScale_.x, std::max(halfScale_.y, halfScale_.z)), 25);
@@ -87,12 +86,12 @@ void AABB::findCenter()
   }
   vec3 min = parent->modelToWorld(minVert);
   vec3 max = parent->modelToWorld(maxVert);
-  printVec3("min  ", min);
-  printVec3("max  ", max);
+  //printVec3("min  ", min);
+  //printVec3("max  ", max);
   center_ = (max + min) / 2.0f;
   halfScale_ = max - center_;
-  printVec3("center", center_);
-  printVec3("scale ", halfScale_); printf("\n");
+  //printVec3("center", center_);
+  //printVec3("scale ", halfScale_); printf("\n");
 
 }
 
@@ -138,31 +137,42 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
 
   vec3 min = model->modelToWorld(minVert);
   vec3 max = model->modelToWorld(maxVert);
-  printVec3("min  ", min);
-  printVec3("max  ", max);
+  //printVec3("min  ", min);
+  //printVec3("max  ", max);
   center_ = (max + min) / 2.0f;
   halfScale_ = max - center_;
   this->resetTransform();
   this->scale(halfScale_);
   this->translate(center_);
-  printVec3("center", center_);
-  printVec3("scale", halfScale_); printf("\n");
+  //printVec3("center", center_);
+  //printVec3("scale", halfScale_); printf("\n");
 }
 
-void AABB::enclose()
+
+void AABB::drawLevel(int onlyThisLevel)
 {
-  //vec3 max = parent->getMaxWorldPos();
-  //halfScale_ = vec3(parent->getMaxWorldPos() - center_);
-  
+  Object* obj = dynamic_cast<Object*>(this);
+  AABB* lefty = dynamic_cast<AABB*>(left);
+  AABB* righty = dynamic_cast<AABB*>(right);
+
+  // set my draw bool
+  obj->drawMe = onlyThisLevel == level;
+
+  // no kids = no recursion
+  if (!lefty)
+    return;
+
+  lefty->drawLevel(onlyThisLevel);
+  righty->drawLevel(onlyThisLevel);
 }
 
 // top down
 bool AABB::split(int level)
 {
-  cout << "level: " << level << "\n";
 
   if (sortedX.size() > vertexMax)
   {
+    cout << level << "\n";
     // determine cut direction based on median data
     int cutYZ = halfScale_.x > halfScale_.y&& halfScale_.x > halfScale_.z; // vertical
     int cutXZ = halfScale_.y > halfScale_.x&& halfScale_.y > halfScale_.z; // horizontal
@@ -170,10 +180,21 @@ bool AABB::split(int level)
     int cutDirection = (cutYZ + (cutXZ << 1) + (cutXY << 2));
     int index = (sortedX.size() / 2);
     int end = sortedX.size();
-    printf("size: %i running:\n  0 - %i\n  %i - %i\n", sortedX.size(), index-1, index, end-1);
+    //printf("size: %i running:\n  0 - %i\n  %i - %i\n", sortedX.size(), index-1, index, end-1);
 
     // make sure my children know who i am
     string number = std::to_string(level);
+    this->level = level;
+    AABB* root = dynamic_cast<AABB*>(this);
+    while (root->parent)
+    {
+      AABB* test = dynamic_cast<AABB*>(root->parent);
+      if (!test)
+        break;
+      else
+        root = dynamic_cast<AABB*>(root->parent);
+    }
+    root->maxLevel = std::max(level, root->maxLevel);
     Object* leftObj = ObjectManager::getObjectManager()->addVolume<AABB>(this, string("AABB_L_") + number);
     Object* rightObj = ObjectManager::getObjectManager()->addVolume<AABB>(this, string("AABB_R_") + number);
 
@@ -184,7 +205,7 @@ bool AABB::split(int level)
     // adopt my children
     this->left = dynamic_cast<AABB*>(leftObj);
     this->right = dynamic_cast<AABB*>(rightObj);
-    printf("cut direction: %i\n", cutDirection);
+    //printf("cut direction: %i\n", cutDirection);
     switch (cutDirection)
     {
       // they are all equal - just cut along YZ arbitrarily
@@ -209,11 +230,15 @@ bool AABB::split(int level)
       break;
     }
 
-    left->split(level+1);
-    right->split(level+1);
+    cout << " left ";
+    left->split(level + 1);
+    cout << " right ";
+    right->split(level + 1);
 
     return true; // there's more splitting that can be done
   }
+  else
+    cout << '\n';
 
   return false; // job's done
 }
@@ -236,3 +261,64 @@ void BoundingVolume::setTopDownMode(TopDownMode mode)
   if (this->topDownMode_ == TopDownMode::heightMax)
     vertexMax = parent->getVertices().size() / (1 << (heightMax - 1));
 }
+
+Centroid::Centroid(Object* parent, std::string name) : BoundingVolume(parent, name)
+{
+  // calculate center
+  findCenter();
+
+  // calculate extent
+  enclose();
+
+  // ball draw
+  translate(center_);
+  loadSphere(halfScale_.x, 25); // x == y == z
+
+}
+
+void Centroid::findCenter()
+{
+  // add up all model space points
+  for (auto vert : parent->getVertices())
+  {
+    center_ += vert.position;
+  }
+
+  // model space centroid
+  center_ /= parent->getVertices().size();
+
+  // centroid world space
+  center_ = parent->modelToWorld(center_);
+}
+
+float SquareDistance(vec3 a, vec3 b)
+{
+  vec3 temp = b - a;
+  return (temp.x * temp.x) + (temp.y * temp.y) + (temp.z * temp.z);
+}
+
+void Centroid::enclose()
+{
+  // find farthest point from our weighted center
+  vec3 maxV(INT_MIN);
+  float maxD = INT_MIN;
+  for (auto vert : parent->getVertices())
+  {
+    // these points are in model space - transform them before finding distance
+    vec3 world = parent->modelToWorld(vert.position);
+    float dist = SquareDistance(world, center_);
+    if (dist > maxD)
+    {
+      maxV = vert.position;
+      maxD = dist;
+    }
+  }
+
+  halfScale_ = vec3(glm::sqrt(maxD));
+}
+
+const vec3& Centroid::getCenter()
+{
+  return center_;
+}
+
