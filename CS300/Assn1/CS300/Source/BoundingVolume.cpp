@@ -244,10 +244,14 @@ bool AABB::split(int level)
 }
 
 
+float SquareDistance(vec3 a, vec3 b)
+{
+  vec3 temp = b - a;
+  return (temp.x * temp.x) + (temp.y * temp.y) + (temp.z * temp.z);
+}
 
-// bot up
 
-/////***** Sphere *****/////
+/////***** Centroid *****/////
 
 BoundingVolume::BoundingVolume(Object* object, string name) : Object(name)
 {
@@ -272,7 +276,8 @@ Centroid::Centroid(Object* parent, std::string name) : BoundingVolume(parent, na
 
   // ball draw
   translate(center_);
-  loadSphere(halfScale_.x, 25); // x == y == z
+  scale(halfScale_);
+  loadSphere(1, 25); // x == y == z
 
 }
 
@@ -289,12 +294,6 @@ void Centroid::findCenter()
 
   // centroid world space
   center_ = parent->modelToWorld(center_);
-}
-
-float SquareDistance(vec3 a, vec3 b)
-{
-  vec3 temp = b - a;
-  return (temp.x * temp.x) + (temp.y * temp.y) + (temp.z * temp.z);
 }
 
 void Centroid::enclose()
@@ -322,3 +321,133 @@ const vec3& Centroid::getCenter()
   return center_;
 }
 
+
+/////***** Ritter *****/////
+
+
+Ritter::Ritter(Object* parent, std::string name) : BoundingVolume(parent, name)
+{
+  // calculate center
+  findCenter();
+
+
+  // ball draw
+  translate(center_);
+  scale(halfScale_);
+  loadSphere(1, 25); // x == y == z
+}
+
+void Ritter::findCenter()
+{
+  // pick a point
+  vec3 pointa = parent->sortedX[sortedX.size() / 2]->position;
+  printVec3("reiter a", pointa);
+
+  // find greatest sq dist in model space
+  float maxD = 0;
+  vec3 pointb(INT_MIN);
+
+  for (auto point : parent->getVertices())
+  {
+    float dist = SquareDistance(point.position, pointa);
+    if (dist > maxD)
+    {
+      maxD = dist;
+      pointb = point.position;
+    }
+  }
+  printVec3("reiter b", pointb);
+
+  // find the fartheest point from that
+  maxD = 0;
+  vec3 pointc(INT_MIN);
+
+  for (auto point : parent->getVertices())
+  {
+    float dist = SquareDistance(point.position, pointb);
+    if (dist > maxD)
+    {
+      maxD = dist;
+      pointc = point.position;
+    }
+  }
+  printVec3("reiter c", pointc);
+
+  // are all points enclosed?
+  maxD = 0;
+  vec3 pointd(INT_MIN);
+  center_ = (pointc + pointb) / 2.0f;
+
+  for (auto point : parent->getVertices())
+  {
+    float dist = SquareDistance(point.position, center_);
+    if (dist > maxD)
+    {
+      maxD = dist;
+      pointd = point.position;
+    }
+  }
+  printVec3("reiter a", pointd);
+
+  // center of the two as world coords
+  printVec3("reiter center", center_);
+  center_ = (parent->modelToWorld(pointc) + parent->modelToWorld(pointb)) / 2.0f;
+
+
+  // radius is from center to one of those points
+  vec3 world = parent->modelToWorld(pointd);
+  vec3 scale (world - center_);
+  halfScale_ = vec3(std::max(std::abs(scale.x), std::max(std::abs(scale.y), std::abs(scale.z))) * 1.1f);
+
+}
+
+Ellipsoid::Ellipsoid(Object* parent, std::string name) : BoundingVolume(parent, name)
+{
+  // calculate center
+  findCenter();
+
+  // ball draw
+  translate(center_);
+  scale(halfScale_);
+  loadSphere(1, 25); // x != y == z
+}
+
+void Ellipsoid::findCenter()
+{
+  // find aabb center
+  vec3 minVert(INT_MAX);
+  vec3 maxVert(INT_MIN);
+  for (auto vert : parent->getVertices())
+  {
+    maxVert.x = std::max(maxVert.x, vert.position.x);
+    maxVert.y = std::max(maxVert.y, vert.position.y);
+    maxVert.z = std::max(maxVert.z, vert.position.z);
+
+    minVert.x = std::min(minVert.x, vert.position.x);
+    minVert.y = std::min(minVert.y, vert.position.y);
+    minVert.z = std::min(minVert.z, vert.position.z);
+  }
+  vec3 min = parent->modelToWorld(minVert);
+  vec3 max = parent->modelToWorld(maxVert);
+  center_ = (max + min) / 2.0f;
+
+  // find farthest point
+  float maxD = 0;
+  vec3 maxV;
+  for (auto point : parent->getVertices())
+  {
+    float dist = SquareDistance(point.position, vec3(minVert + maxVert) / 2.0f);
+    if(dist > maxD)
+    {
+      maxD = dist;
+      maxV = point.position;
+    }
+  }
+  maxV = vec3(parent->sortedX.back()->position.x, parent->sortedY.back()->position.y, parent->sortedZ.back()->position.x);
+  // scale is non uniform so keep it this wayu
+  vec3 world = parent->modelToWorld(maxV);
+  halfScale_ = (world - center_);
+  halfScale_.x = abs(halfScale_.x) + glm::sqrt(2) / 4;
+  halfScale_.y = abs(halfScale_.y) + glm::sqrt(2) / 4;
+  halfScale_.z = abs(halfScale_.z) + glm::sqrt(2) / 4;
+}

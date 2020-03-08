@@ -86,6 +86,32 @@ private:
   glm::vec3 halfScale_;
 };
 
+class Ritter : public BoundingVolume
+{
+public:
+  Ritter(Object* parent, std::string name);
+
+  void findCenter();
+  const glm::vec3& getCenter() { return center_; }
+
+private:
+  glm::vec3 center_;
+  glm::vec3 halfScale_;
+};
+
+class Ellipsoid : public BoundingVolume
+{
+public:
+  Ellipsoid(Object* parent, std::string name);
+
+  void findCenter();
+  const glm::vec3& getCenter() { return center_; }
+
+private:
+  glm::vec3 center_;
+  glm::vec3 halfScale_;
+};
+
 
 
 #endif

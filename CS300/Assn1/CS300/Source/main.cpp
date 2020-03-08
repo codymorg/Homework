@@ -33,16 +33,20 @@
 // managers and static variables
 static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
+static Object* treeRoot = nullptr;
 static Camera* camera = nullptr;
+
 static bool pauseSimulation = false;
 static bool pauseModel = true;
-static int selectedModel = 0;
-static int currentDisplayMode = 0;
-static Object* treeRoot = nullptr;
-static int currentTreeLevel = -1;
+static int  selectedModel = 0;
+
+static int  currentDisplayMode = 0;
+static int  currentTreeLevel = -10;
 static bool currentShape = 0; // 0 = aabb 1 = sphere
-static int currentTreeMode = 0;
-static int currentTDMode = 0;
+static int  currentTreeMode = 0;
+static int  currentTDMode = 0;
+static int  currentScene = 0;
+static int  oldScene = 0;
 
 
 /////***** Window and OpenGL Management *****/////
@@ -159,15 +163,6 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 }
 
 
-/////***** Scene Management *****/////
-std::vector<Object*>sceneObjects;
-void BVscene(int scene)
-{
-  for (auto old : sceneObjects)
-    old->drawMe = false;
-
-  sceneObjects[scene]->drawMe = true;
-}
 
 void SceneSetup()
 {
@@ -183,22 +178,25 @@ void SceneSetup()
   dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
 
   treeRoot = objectMgr->addVolume<AABB>(obj, "root");
+  dynamic_cast<AABB*>(treeRoot)->drawAsSphere(currentShape);
   treeRoot->material.ambient = vec3(1, 0, 0);
   dynamic_cast<AABB*>(treeRoot)->heightMax = 7;
-  dynamic_cast<AABB*>(treeRoot)->setTopDownMode(AABB::TopDownMode::heightMax);
-  dynamic_cast<AABB*>(treeRoot)->split(0);
+  dynamic_cast<AABB*>(treeRoot)->setTopDownMode((AABB::TopDownMode) currentTDMode);
+  //dynamic_cast<AABB*>(treeRoot)->split(0);
   printf("split complete\n");
   
-  auto centroid = objectMgr->addVolume<Centroid>(obj, "centroid");
-  auto centroidb = objectMgr->addObject("centroid volume center");
-  centroidb->loadSphere(0.5f, 25);
-  centroidb->setShader(ShaderType::Deferred);
-  centroidb->translate(dynamic_cast<Centroid*>(centroid)->getCenter());
+  auto centroid = objectMgr->addVolume<Centroid>(obj, "Centroid Sphere Method");
   centroid->wiremode = true;
-  centroidb->wiremode = true;
   centroid->drawMe = false;
-  centroidb->drawMe = false;
-  sceneObjects.push_back(centroid);
+
+  auto ritter = objectMgr->addVolume<Ritter>(obj, "Ritter Sphere Method");
+  ritter->wiremode = true;
+  ritter->drawMe = false;
+
+  auto ellipsoid = objectMgr->addVolume<Ellipsoid>(obj, "Ellipsoid Method");
+  ellipsoid->wiremode = true;
+  ellipsoid->drawMe = false;
+  
 }
 
 void SceneUpdate()
@@ -315,6 +313,13 @@ void UpdateGUI()
     "Unweighted-Center Sphere"
   };
 
+  const std::vector<const char*> scenes =
+  {
+    "Bounding Volume Hierarchy",
+    "Centroid Sphere Method",
+    "Ritter Sphere Method",
+    "Ellipsoid Method"
+  };
   // get all current state data
   int& objectIndex = objectMgr->selectedObject;
   Object* selectedObject = objectMgr->getSelected();
@@ -341,7 +346,7 @@ void UpdateGUI()
   ImGui::NewFrame();
 
   // text
-  ImGui::Begin("Welcome to CS350 Assignment 1!");
+  ImGui::Begin("Welcome to CS350 Assignment 2!");
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
   // object options
@@ -350,19 +355,30 @@ void UpdateGUI()
   bool changedScale    = ImGui::DragFloat3("World Scale", &currentScale[0]);
   bool changeModel     = ImGui::ListBox("Models", &selectedModel, &modelNames[0], int(modelNames.size()));
 
-  // tree options
-  AABB* root = dynamic_cast<AABB*>(treeRoot);
-  ImGui::Text("Tree Bounding Volume Shape");
-  bool changedTreelevel = ImGui::SliderInt("Top Down", &currentTreeLevel, -1, root->maxLevel);
-  bool changedTreeshape = ImGui::RadioButton("AABB", !currentShape);
-  changedTreeshape     |= ImGui::RadioButton("Sphere", currentShape);
 
+  // single BV options
+  ImGui::Text("Scene Selection");
+  bool changedScene = ImGui::SliderInt(scenes[currentScene], &currentScene, 0, scenes.size()-1);
+
+  // tree options
   bool changedTreeMode = false;
-  if (currentTreeMode == 0)
+  bool changedTreeshape = false;
+  bool changedTreelevel = false;
+  AABB* root = dynamic_cast<AABB*>(treeRoot);
+  if (currentScene == 0)
   {
-    ImGui::Text("Top Down Tree Mode");
-    changedTreeMode  = ImGui::RadioButton("Max Vertex Count == 500", !currentTDMode);
-    changedTreeMode |= ImGui::RadioButton("Max Tree Height == 7", currentTDMode);
+    ImGui::Text("Tree Bounding Volume Shape");
+    changedTreelevel = ImGui::SliderInt("Top Down", &currentTreeLevel, -1, root->maxLevel);
+    changedTreeshape |= ImGui::RadioButton("AABB", !currentShape);
+    changedTreeshape |= ImGui::RadioButton("Sphere", currentShape);
+
+    // just TD options
+    if (currentTreeMode == 0)
+    {
+      ImGui::Text("Top Down Tree Mode");
+      changedTreeMode  = ImGui::RadioButton("Max Vertex Count == 500", !currentTDMode);
+      changedTreeMode |= ImGui::RadioButton("Max Tree Height == 7", currentTDMode);
+    }
   }
 
   // data
@@ -404,8 +420,26 @@ void UpdateGUI()
 
 
   // object effects
+  if (changedScene)
+  {
+    // turn off old scene 0==tree though
+    if(oldScene -1 >= 0)
+      objectMgr->getFirstObjectByName(scenes[oldScene])->drawMe = false;
 
-  if (changedTreeMode)
+    switch (currentScene)
+    {
+    case 0:
+      root->drawLevel(currentTreeLevel);
+      break;
+
+    default:
+      root->drawLevel(-1);
+      objectMgr->getFirstObjectByName(scenes[currentScene])->drawMe = true;
+      break;
+    }
+    oldScene = currentScene;
+  }
+  if (currentTreeLevel == -10 || changedTreeMode)
   {
     BoundingVolume::TopDownMode mode;
     if (currentTDMode == 0)
@@ -419,7 +453,7 @@ void UpdateGUI()
       currentTDMode = 0;
     }
     root->setTopDownMode(mode);
-    resetScene = true;
+    changedTreelevel = true;
   }
   if (changedTreeshape)
   {
