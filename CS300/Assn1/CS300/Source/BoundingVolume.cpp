@@ -3,6 +3,8 @@
 using glm::vec3;
 using std::string;
 
+#include <cstdlib>
+using std::rand;
 #include <algorithm>
 #include <vector>
 using std::vector;
@@ -13,9 +15,13 @@ typedef class Vertex Vertex;
 
 /////***** AABB *****/////
 
-void printVec3( string name,vec3 vec)
+void printVec3( string name,vec3& vec)
 {
     printf("%s : %f\t%f\t%f\n",name.c_str(), vec.x, vec.y, vec.z);
+}
+float maxVec3(vec3& vec)
+{
+  return std::max(vec.x, std::max(vec.y, vec.z));
 }
 
 AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
@@ -30,8 +36,14 @@ AABB::AABB(Object* object, string name) : BoundingVolume(object, name)
 
   findCenter();
 
-  if(isSphere_)
-    loadSphere(std::max(halfScale_.x, std::max(halfScale_.y, halfScale_.z)), 25);
+  if (isSphere_)
+  {
+    loadSphere(0.5f, 25);
+    vec3 maxScale(glm::sqrt(halfScale_.x * halfScale_.x + halfScale_.y * halfScale_.y + halfScale_.z * halfScale_.z));
+    halfScale_ = vec3(maxVec3(maxScale));
+    this->scale(halfScale_);
+    printVec3("scale", halfScale_);
+  }
   else
     this->loadBox(vec3(halfScale_));
   this->translate(center_);
@@ -50,10 +62,11 @@ void AABB::drawAsSphere(bool isSphere)
   isSphere_ = isSphere;
   if (isSphere)
   {
-    loadSphere(0.5f, 25);
+    loadSphere(1.0f, 25);
     vec3 maxScale(glm::sqrt(halfScale_.x * halfScale_.x + halfScale_.y * halfScale_.y + halfScale_.z * halfScale_.z));
-    halfScale_ = maxScale;
+    halfScale_ = vec3(maxVec3(maxScale));
     this->scale(maxScale);
+    printVec3("scale", halfScale_);
   }
   else
     loadBox(halfScale_);
@@ -142,6 +155,8 @@ void AABB::recalculateBounds(vector<Vertex*>& sorted, int minIndex, int maxIndex
   center_ = (max + min) / 2.0f;
   halfScale_ = max - center_;
   this->resetTransform();
+  if (isSphere_)
+    halfScale_ = vec3(maxVec3(halfScale_));
   this->scale(halfScale_);
   this->translate(center_);
   //printVec3("center", center_);
@@ -166,10 +181,36 @@ void AABB::drawLevel(int onlyThisLevel)
   righty->drawLevel(onlyThisLevel);
 }
 
+void AABB::setColor(int level)
+{
+  vec3 color;
+
+  if (level % 3 == 0)
+  {
+    color.r += 0.5;
+  }
+  else if (level % 2 == 0)
+  {
+    color.g += 0.5;
+  }
+  else
+  {
+    color.b += 0.5;
+  }
+
+  if (level >= 4)
+  {
+    color.r = 1;
+  }
+
+  reinterpret_cast<Object*>(this)->material.ambient = color;
+  reinterpret_cast<Object*>(this)->material.diffuse = color;
+}
+
 // top down
 bool AABB::split(int level)
 {
-
+  setColor(level);
   if (sortedX.size() > vertexMax)
   {
     cout << level << "\n";

@@ -150,6 +150,18 @@ void ObjectManager::removeAllObjects()
   objects_.clear();
 }
 
+void ObjectManager::removeAllBut(std::string name)
+{
+  for (auto objIt = objects_.begin(); objIt < objects_.end();objIt++)
+  {
+    if ((*objIt)->name.find(name) == string::npos && (*objIt)->name.find("light") == string::npos)
+    {
+      auto delMe = objIt;
+      objects_.erase(delMe);
+    }
+  }
+}
+
 Object* ObjectManager::addObject(std::string ID)
 {
   objects_.push_back(new Object(ID));

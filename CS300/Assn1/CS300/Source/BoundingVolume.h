@@ -63,6 +63,7 @@ public:
   int maxLevel = -1;
 
   void drawLevel(int onlyThisLevel); // -1 indicates draw all levels
+  void setColor(int level);
 
 protected:
   // volume data

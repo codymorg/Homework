@@ -52,9 +52,13 @@ static int  oldScene = 0;
 /////***** Window and OpenGL Management *****/////
 
 
-bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window)
+bool WindowInit(int major, int minor, GLFWwindow** window)
 {
+  GLFWvidmode return_struct;
   GLenum error = glfwInit();
+  const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+  
+
   if (error == GLFW_FALSE)
   {
     char buffer[256];
@@ -63,7 +67,7 @@ bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window
   }
 
   // instance the window
-  *window = glfwCreateWindow(width, height, "CS350 Assignment 1 Cody Morgan", NULL, NULL);
+  *window = glfwCreateWindow(mode->width, mode->height, "CS350 Assignment 1 Cody Morgan", NULL, NULL);
   glfwWindowHint(GLFW_SAMPLES, 1); // change for anti-aliasing
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
@@ -84,7 +88,7 @@ bool WindowInit(int width, int height, int major, int minor, GLFWwindow** window
     cout << glewGetErrorString(error);
     return getchar();
   }
-  glViewport(0, 0, width, height);
+  glViewport(0, 0, mode->width, mode->height);
 
   // window is gtg
   return true;
@@ -178,11 +182,11 @@ void SceneSetup()
   dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
 
   treeRoot = objectMgr->addVolume<AABB>(obj, "root");
-  dynamic_cast<AABB*>(treeRoot)->drawAsSphere(currentShape);
   treeRoot->material.ambient = vec3(1, 0, 0);
+  dynamic_cast<AABB*>(treeRoot)->drawAsSphere(currentShape);
   dynamic_cast<AABB*>(treeRoot)->heightMax = 7;
   dynamic_cast<AABB*>(treeRoot)->setTopDownMode((AABB::TopDownMode) currentTDMode);
-  //dynamic_cast<AABB*>(treeRoot)->split(0);
+  dynamic_cast<AABB*>(treeRoot)->split(0);
   printf("split complete\n");
   
   auto centroid = objectMgr->addVolume<Centroid>(obj, "Centroid Sphere Method");
@@ -196,6 +200,14 @@ void SceneSetup()
   auto ellipsoid = objectMgr->addVolume<Ellipsoid>(obj, "Ellipsoid Method");
   ellipsoid->wiremode = true;
   ellipsoid->drawMe = false;
+  
+  auto Larsson = objectMgr->addVolume<Centroid>(obj, "Larsson Sphere Method");
+  Larsson->wiremode = true;
+  Larsson->drawMe = false;
+
+  auto pca = objectMgr->addVolume<Ritter>(obj, "PCA Sphere Method");
+  pca->wiremode = true;
+  pca->drawMe = false;
   
 }
 
@@ -318,7 +330,9 @@ void UpdateGUI()
     "Bounding Volume Hierarchy",
     "Centroid Sphere Method",
     "Ritter Sphere Method",
-    "Ellipsoid Method"
+    "Ellipsoid Method",
+    "Larsson Sphere Method",
+    "PCA Sphere Method"
   };
   // get all current state data
   int& objectIndex = objectMgr->selectedObject;
@@ -364,13 +378,19 @@ void UpdateGUI()
   bool changedTreeMode = false;
   bool changedTreeshape = false;
   bool changedTreelevel = false;
+  bool changedTreeMethod = false;
   AABB* root = dynamic_cast<AABB*>(treeRoot);
   if (currentScene == 0)
   {
-    ImGui::Text("Tree Bounding Volume Shape");
-    changedTreelevel = ImGui::SliderInt("Top Down", &currentTreeLevel, -1, root->maxLevel);
+    ImGui::Text("Tree Level View");
+    changedTreelevel = ImGui::SliderInt(treeNames[currentTreeMode], &currentTreeLevel, -1, root->maxLevel);
+    ImGui::Text("Tree Volume Shape");
     changedTreeshape |= ImGui::RadioButton("AABB", !currentShape);
     changedTreeshape |= ImGui::RadioButton("Sphere", currentShape);
+
+    ImGui::Text("Tree Bounding Volume Building method");
+    changedTreeMethod  = ImGui::RadioButton("Top Down", !currentTreeMode);
+    changedTreeMethod |= ImGui::RadioButton("Bottom Up", currentTreeMode);
 
     // just TD options
     if (currentTreeMode == 0)
@@ -420,6 +440,16 @@ void UpdateGUI()
 
 
   // object effects
+  if (changedTreeMethod)
+  {
+    if(currentTreeMode == 0)
+      currentTreeLevel = root->maxLevel;
+    else
+      currentTreeLevel = 0;
+
+    currentTreeMode = !currentTreeMode;
+    changedTreelevel = true;
+  }
   if (changedScene)
   {
     // turn off old scene 0==tree though
@@ -439,7 +469,12 @@ void UpdateGUI()
     }
     oldScene = currentScene;
   }
-  if (currentTreeLevel == -10 || changedTreeMode)
+  if (currentTreeLevel == -10)
+  {
+    currentTreeLevel = 0;
+    changedTreelevel = true;
+  }
+  if(changedTreeMode)
   {
     BoundingVolume::TopDownMode mode;
     if (currentTDMode == 0)
@@ -454,10 +489,13 @@ void UpdateGUI()
     }
     root->setTopDownMode(mode);
     changedTreelevel = true;
+    resetScene = true;
   }
   if (changedTreeshape)
   {
     currentShape = !currentShape;
+    resetScene = true;
+    root->split(0);
     root->drawAsSphere(currentShape);
   }
   if (changedTreelevel)
@@ -512,6 +550,7 @@ void UpdateGUI()
     SceneShutdown();
     SceneSetup();
     camera->reset();
+    currentTreeLevel = -10;
   }
 
 }
@@ -543,7 +582,7 @@ int main()
 {
   // make a window
   GLFWwindow* window = nullptr;
-  if (WindowInit(1500*2 , 1000*2 , 4, 0, &window) == false)
+  if (WindowInit(4, 0, &window) == false)
     return -1;
   
   // setup GLFW and IMgui

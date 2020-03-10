@@ -45,6 +45,7 @@ public:
 
   void    render(Camera& camera);
   void    removeAllObjects();
+  void    removeAllBut(std::string name);
   bool    isValid();
   Object* addObject(std::string ID = "anon_Obj");
   Object* addLight(std::string ID = "anon_Light");
