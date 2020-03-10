@@ -72,3 +72,17 @@
 /CS261/Assn2/RoboCatAction/RoboCatServer/Debug
 /CS261/Assn2/RoboCatAction/RoboCatServer/Release
 /CS300/Assn1/CS350/.vs
+*.md
+/CS261/Assn3/Node/node_modules/content-type/LICENSE
+/CS261/Assn3/RoboCatAction/.vs/RoboCat/v16
+/CS261/Assn3/RoboCatAction/Debug
+/CS261/Assn3/RoboCatAction/packages/cpprestsdk.v141.2.10.12.1
+/CS261/Assn3/RoboCatAction/Release
+/CS261/Assn3/RoboCatAction/RoboCat/Bin/Debug
+/CS261/Assn3/RoboCatAction/RoboCat/Debug
+/CS261/Assn3/RoboCatAction/RoboCat/Release
+/CS261/Assn3/RoboCatAction/RoboCat/x64/Debug
+/CS261/Assn3/RoboCatAction/RoboCatClient/Debug
+/CS261/Assn3/RoboCatAction/RoboCatClient/Release
+/CS261/Assn3/RoboCatAction/RoboCatServer/Debug
+/CS261/Assn3/RoboCatAction/RoboCatServer/Release
