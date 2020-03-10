@@ -4,7 +4,7 @@ std::unique_ptr< WindowManager >	WindowManager::sInstance;
 
 bool WindowManager::StaticInit()
 {
-	SDL_Window* wnd = SDL_CreateWindow( "Robo Cat Action!", 100, 100, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE );
+	SDL_Window* wnd = SDL_CreateWindow( "Robo Cat Action!", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 	
 	if (wnd == nullptr)
 	{

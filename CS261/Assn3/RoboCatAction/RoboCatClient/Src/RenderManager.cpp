@@ -40,6 +40,13 @@ void RenderManager::RemoveComponent( SpriteComponent* inComponent )
 	}
 }
 
+void RenderManager::AddLine(Vector2 start, Vector2 end, Vector3 color, float TTL)
+{
+  lines.push_back(Line(start, end, color, TTL));
+}
+
+
+
 int RenderManager::GetComponentIndex( SpriteComponent* inComponent ) const
 {
 	for( int i = 0, c = mComponents.size(); i < c; ++i )
@@ -67,13 +74,32 @@ void RenderManager::RenderComponents()
 	}
 }
 
+void RenderManager::RenderLines()
+{
+  for (int i = 0; i < lines.size(); i++)
+  {
+    Line& line = lines[i];
+    if (line.isValid)
+    {
+      line.update();
+      line.draw();
+    }
+    else
+    {
+      lines.erase(lines.begin() + i);
+    }
+  }
+}
+
 void RenderManager::Render()
 {
 	//
     // Clear the back buffer
     //
+  SDL_SetRenderDrawColor(GraphicsDriver::sInstance->GetRenderer(), 100, 149, 237, SDL_ALPHA_OPAQUE);
 	GraphicsDriver::sInstance->Clear();
 	
+  RenderManager::sInstance->RenderLines();
 	RenderManager::sInstance->RenderComponents();
 
 	HUD::sInstance->Render();
@@ -84,3 +110,29 @@ void RenderManager::Render()
 	GraphicsDriver::sInstance->Present();
 
 }
+
+Line::Line(Vector2 start, Vector2 end, Vector3 color, float TTL) 
+  : start_(start), end_(end), color_(color), TTL_(TTL)
+{
+
+  beginTime_ = std::chrono::high_resolution_clock::now();
+}
+
+void Line::update()
+{
+  auto current = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<float> diff = current - beginTime_;
+  if (diff.count() > TTL_)
+  {
+    isValid = false;
+  }
+
+}
+
+void Line::draw()
+{
+  auto renderer = GraphicsDriver::sInstance->GetRenderer();
+  SDL_SetRenderDrawColor(renderer, color_.mX, color_.mY, color_.mZ, SDL_ALPHA_OPAQUE);
+  SDL_RenderDrawLine(renderer, start_.mX, start_.mY, end_.mX, end_.mY);
+}
+

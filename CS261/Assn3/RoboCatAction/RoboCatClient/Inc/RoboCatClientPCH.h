@@ -1,3 +1,7 @@
+#pragma once
+#ifndef _ROBO_PCH
+#define _ROBO_PCH
+
 #include <RoboCatShared.h>
 
 #include <SDL.h>
@@ -21,4 +25,9 @@
 #include <ReplicationManagerClient.h>
 #include <NetworkManagerClient.h>
 #include <Client.h>
+
+
+Vector2 WorldToScreen(Vector3 position);
+
+#endif
 

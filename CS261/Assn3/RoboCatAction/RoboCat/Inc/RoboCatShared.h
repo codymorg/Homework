@@ -1,3 +1,7 @@
+#pragma once
+#ifndef _SHARED_ROBO
+#define _SHADED_ROBO
+
 #ifdef _WIN32
 	#define WIN32_LEAN_AND_MEAN
 	#define NOMINMAX
@@ -85,3 +89,13 @@ class GameObject;
 #include "ReplicationCommand.h"
 #include "NetworkManager.h"
 #include "Engine.h"
+
+//zoom hardcoded at 100...if we want to lock players on screen, this could be calculated from zoom
+const float HALF_WORLD_HEIGHT = 3.6f;
+const float HALF_WORLD_WIDTH = 6.4f;
+const unsigned SCREEN_WIDTH = 1280;
+const unsigned SCREEN_HEIGHT = 720;
+
+
+
+#endif

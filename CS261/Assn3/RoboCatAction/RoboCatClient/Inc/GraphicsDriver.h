@@ -1,3 +1,6 @@
+#pragma once
+#ifndef _GRAPHICS_DRIVER
+#define _GRAPHICS_DRIVER
 
 class GraphicsDriver
 {
@@ -22,3 +25,5 @@ private:
 	SDL_Renderer*			mRenderer;
 	SDL_Rect				mViewport;
 };
+
+#endif

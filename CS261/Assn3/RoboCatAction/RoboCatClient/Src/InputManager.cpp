@@ -1,4 +1,7 @@
 #include <RoboCatClientPCH.h>
+#include "SDL.h"
+#include "SDL_render.h"
+#include "GraphicsDriver.h"
 
 unique_ptr< InputManager >	InputManager::sInstance;
 
@@ -40,6 +43,8 @@ namespace
 	}
 }
 
+
+
 void InputManager::HandleInput( EInputAction inInputAction, int inKeyCode )
 {
 	switch( inKeyCode )
@@ -58,6 +63,7 @@ void InputManager::HandleInput( EInputAction inInputAction, int inKeyCode )
 		break;
 	case 'k':
 		UpdateDesireVariableFromKey( inInputAction, mCurrentState.mIsShooting );
+
 		break;
 	}
 

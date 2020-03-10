@@ -187,6 +187,15 @@ void RoboCatClient::DoClientSidePredictionAfterReplicationForLocalCat( uint32_t 
 
 void RoboCatClient::InterpolateClientSidePrediction( float inOldRotation, const Vector3& inOldLocation, const Vector3& inOldVelocity, bool inIsForRemoteCat )
 {
+  float rot = GetRotation();
+  Vector2 dir(cos(rot - RoboMath::PI /2), sin(rot - RoboMath::PI / 2));
+  std::cout << "direction " << dir << "\n";
+  dir.mX *= SCREEN_WIDTH;
+  dir.mY *= SCREEN_HEIGHT;
+  dir.mX += WorldToScreen(GetLocation()).mX;
+  dir.mY += WorldToScreen(GetLocation()).mY;
+  RenderManager::sInstance->AddLine(WorldToScreen(GetLocation()), dir, Vector3(255, 0, 0), 0.1f);
+
 	if( inOldRotation != GetRotation() && !inIsForRemoteCat )
 	{
 		LOG( "ERROR! Move replay ended with incorrect rotation!", 0 );

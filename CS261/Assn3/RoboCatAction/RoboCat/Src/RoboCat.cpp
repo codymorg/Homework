@@ -1,8 +1,7 @@
 #include <RoboCatPCH.h>
+#include <iostream>
 
-//zoom hardcoded at 100...if we want to lock players on screen, this could be calculated from zoom
-const float HALF_WORLD_HEIGHT = 3.6f;
-const float HALF_WORLD_WIDTH = 6.4f;
+
 
 RoboCat::RoboCat() :
 	GameObject(),
@@ -23,9 +22,14 @@ void RoboCat::ProcessInput( float inDeltaTime, const InputState& inInputState )
 {
 	//process our input....
 
-	//turning...
+	//turning but let's keep it on the unit circle shall we...
 	float newRotation = GetRotation() + inInputState.GetDesiredHorizontalDelta() * mMaxRotationSpeed * inDeltaTime;
-	SetRotation( newRotation );
+  if (newRotation >= 2 * RoboMath::PI)
+    newRotation -= 2 * RoboMath::PI;
+  else if (newRotation <= -2 * RoboMath::PI)
+    newRotation += 2 * RoboMath::PI;
+    
+  SetRotation( newRotation );
 
 	//moving...
 	float inputForwardDelta = inInputState.GetDesiredVerticalDelta();
@@ -33,8 +37,7 @@ void RoboCat::ProcessInput( float inDeltaTime, const InputState& inInputState )
 
 
 	mIsShooting = inInputState.IsShooting(); 
-
-
+  
 }
 
 void RoboCat::AdjustVelocityByThrust( float inDeltaTime )
@@ -47,6 +50,9 @@ void RoboCat::AdjustVelocityByThrust( float inDeltaTime )
 
 void RoboCat::SimulateMovement( float inDeltaTime )
 {
+  std::cout << "location: " << GetLocation() << "\n";
+  std::cout << "rotation: " << GetRotation() << "\n";
+
 	//simulate us...
 	AdjustVelocityByThrust( inDeltaTime );
 

@@ -1,4 +1,8 @@
+#pragma once
+#ifndef _MATHS
+#define _MATHS
 #include <math.h>
+#include <iostream>
 
 class Vector3
 {
@@ -75,6 +79,12 @@ public:
 		mZ -= inRight.mZ;
 		return *this;
 	}
+
+  friend std::ostream& operator<<(std::ostream& os, const Vector3& vec)
+  {
+    os << "(" << vec.mX << ", " << vec.mY << ", " << vec.mZ << ")";
+    return os;
+  }
 	
 	float Length()
 	{
@@ -141,6 +151,116 @@ public:
 	static const Vector3 UnitZ;
 };
 
+class Vector2
+{
+public:
+
+  float		mX, mY;
+
+  Vector2(float x, float y) :
+    mX(x),
+    mY(y)
+  {}
+
+  Vector2() :
+    mX(0.0f),
+    mY(0.0f)
+  {}
+
+  void Set(float x, float y)
+  {
+    mX = x;
+    mY = y;
+  }
+
+  friend Vector2 operator+(const Vector2& inLeft, const Vector2& inRight)
+  {
+    return Vector2(inLeft.mX + inRight.mX, inLeft.mY + inRight.mY);
+  }
+
+  friend Vector2 operator-(const Vector2& inLeft, const Vector2& inRight)
+  {
+    return Vector2(inLeft.mX - inRight.mX, inLeft.mY - inRight.mY);
+  }
+
+  // Component-wise multiplication
+  friend Vector2 operator*(const Vector2& inLeft, const Vector2& inRight)
+  {
+    return Vector2(inLeft.mX * inRight.mX, inLeft.mY * inRight.mY);
+  }
+
+  // Scalar multiply
+  friend Vector2 operator*(float inScalar, const Vector2& inVec)
+  {
+    return Vector2(inVec.mX * inScalar, inVec.mY * inScalar);
+  }
+
+  friend Vector2 operator*(const Vector2& inVec, float inScalar)
+  {
+    return Vector2(inVec.mX * inScalar, inVec.mY * inScalar);
+  }
+
+  Vector2& operator*=(float inScalar)
+  {
+    mX *= inScalar;
+    mY *= inScalar;
+    return *this;
+  }
+
+  Vector2& operator+=(const Vector2& inRight)
+  {
+    mX += inRight.mX;
+    mY += inRight.mY;
+    return *this;
+  }
+
+  Vector2& operator-=(const Vector2& inRight)
+  {
+    mX -= inRight.mX;
+    mY -= inRight.mY;
+    return *this;
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const Vector2& vec)
+  {
+    os << "(" << vec.mX << ", " << vec.mY  << ")";
+    return os;
+  }
+
+  float Length()
+  {
+    return sqrtf(mX * mX + mY * mY);
+  }
+
+  float LengthSq()
+  {
+    return mX * mX + mY * mY;
+  }
+
+
+  void Normalize()
+  {
+    float length = Length();
+    mX /= length;
+    mY /= length;
+  }
+
+  friend float Dot(const Vector2& inLeft, const Vector2& inRight)
+  {
+    return (inLeft.mX * inRight.mX + inLeft.mY * inRight.mY);
+  }
+
+
+  friend Vector2 Lerp(const Vector2& inA, const Vector2& inB, float t)
+  {
+    return Vector2(inA + t * (inB - inA));
+  }
+
+  static const Vector2 Zero;
+  static const Vector2 UnitX;
+  static const Vector2 UnitY;
+  static const Vector2 UnitZ;
+};
 
 class Quaternion
 {
@@ -199,3 +319,5 @@ namespace Colors
 	static const Vector3 LightPink( 1.0f, 0.71f, 0.76f );
 	static const Vector3 LightGreen( 0.56f, 0.93f, 0.56f );
 }
+
+#endif
