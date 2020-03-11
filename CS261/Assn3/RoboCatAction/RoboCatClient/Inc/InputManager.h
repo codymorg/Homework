@@ -10,6 +10,8 @@ public:
 	void HandleInput( EInputAction inInputAction, int inKeyCode );
 
 	const InputState& GetState()	const	{ return mCurrentState; }
+  InputState& GetState()	{ return mCurrentState; }
+
 
 	MoveList&			GetMoveList()		{ return mMoveList; }
 

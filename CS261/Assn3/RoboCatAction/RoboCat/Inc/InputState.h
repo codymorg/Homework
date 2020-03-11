@@ -17,7 +17,7 @@ public:
 
 	bool Write( OutputMemoryBitStream& inOutputStream ) const;
 	bool Read( InputMemoryBitStream& inInputStream );
-
+  bool hyperYarn = false;
 private:
 	friend class InputManager;
 
