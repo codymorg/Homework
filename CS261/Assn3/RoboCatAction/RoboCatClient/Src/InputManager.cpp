@@ -65,10 +65,7 @@ void InputManager::HandleInput( EInputAction inInputAction, int inKeyCode )
 		UpdateDesireVariableFromKey( inInputAction, mCurrentState.mIsShooting );
 		break;
   case 'l':
-    mCurrentState.hyperYarn = true;
-    break;
-  case 'p':
-    mCurrentState.hyperYarn = false;
+    mCurrentState.hyperYarn = inInputAction;
     break;
 	}
 

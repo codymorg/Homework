@@ -21,6 +21,7 @@ void RoboCatClient::HandleDying()
 	}
 }
 
+static int OBJECT_ID = 0;
 
 void RoboCatClient::Update()
 {
@@ -45,7 +46,7 @@ void RoboCatClient::Update()
         dir.mY *= SCREEN_HEIGHT * 2;
         dir.mX += WorldToScreen(GetLocation()).mX;
         dir.mY += WorldToScreen(GetLocation()).mY;
-        RenderManager::sInstance->AddLine(WorldToScreen(GetLocation()), dir, Vector3(0, 0, 255));
+        RenderManager::sInstance->AddLine(WorldToScreen(GetLocation()), dir, Vector3(0, 0, 255),2.0f, GetNetworkId());
       }
 
 			//and simulate!

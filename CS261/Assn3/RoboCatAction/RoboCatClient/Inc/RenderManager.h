@@ -7,16 +7,19 @@
 class Line
 {
 public:
-  Line(Vector2 start, Vector2 end, Vector3 color, float TTL);
+  Line(Vector2 start, Vector2 end, Vector3 color, float TTL, int ID);
 
   void update();
   void draw();
+  bool intersect(Vector2 center, float radius);
+
   bool isValid = true;
+  Vector3 color;
+  int networkID;
 
 private:
   Vector2 start_;
   Vector2 end_;
-  Vector3 color_;
   float TTL_;
   std::chrono::time_point<std::chrono::steady_clock> beginTime_;
 
@@ -35,16 +38,16 @@ public:
 	//vert inefficient method of tracking scene graph...
 	void AddComponent( SpriteComponent* inComponent );
 	void RemoveComponent( SpriteComponent* inComponent );
-  void AddLine(Vector2 start, Vector2 end, Vector3 color, float TTL = 2.0f);
+  void AddLine(Vector2 start, Vector2 end, Vector3 color, float TTL, int ID);
 	int	 GetComponentIndex( SpriteComponent* inComponent ) const;
 
+	//this can't be only place that holds on to component- it has to live inside a GameObject in the world
 	SDL_Rect						mViewTransform;
+	vector< SpriteComponent* >		mComponents;
 private:
 
 	RenderManager();
 
-	//this can't be only place that holds on to component- it has to live inside a GameObject in the world
-	vector< SpriteComponent* >		mComponents;
   vector<Line> lines;
 
 

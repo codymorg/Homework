@@ -1,3 +1,7 @@
+#pragma once
+#ifndef SpriteComponent__
+#define SpriteComponent__
+
 class SpriteComponent
 {
 public:
@@ -12,15 +16,17 @@ public:
 			Vector3		GetOrigin()					const			{ return mOrigin; }
 			void		SetOrigin( const Vector3& inOrigin )		{ mOrigin = inOrigin; }
 
+	GameObject*										mGameObject;
+	TexturePtr										mTexture;
 
 private:
 
 	Vector3											mOrigin;
 
-	TexturePtr										mTexture;
 
 	//don't want circular reference...
-	GameObject*										mGameObject;
 };
 
 typedef shared_ptr< SpriteComponent >	SpriteComponentPtr;
+
+#endif

@@ -1,4 +1,5 @@
 #include <RoboCatClientPCH.h>
+#include "SpriteComponent.h"
 
 std::unique_ptr< RenderManager >	RenderManager::sInstance;
 
@@ -40,9 +41,9 @@ void RenderManager::RemoveComponent( SpriteComponent* inComponent )
 	}
 }
 
-void RenderManager::AddLine(Vector2 start, Vector2 end, Vector3 color, float TTL)
+void RenderManager::AddLine(Vector2 start, Vector2 end, Vector3 color, float TTL, int ID)
 {
-  lines.push_back(Line(start, end, color, TTL));
+  lines.push_back(Line(start, end, color, TTL, ID));
 }
 
 
@@ -81,8 +82,30 @@ void RenderManager::RenderLines()
     Line& line = lines[i];
     if (line.isValid)
     {
+      for (auto sprite : RenderManager::sInstance->mComponents)
+      {
+        // dont shoot ourselves
+        if (sprite->mGameObject->GetNetworkId() != line.networkID)
+        {
+
+          // find where we are and how big the cat is
+          Vector2 center = WorldToScreen(sprite->mGameObject->GetLocation());
+          float objScale = sprite->mGameObject->GetScale();
+          int width = static_cast<int>(sprite->mTexture->GetWidth() * objScale);
+          int height = static_cast<int>(sprite->mTexture->GetHeight() * objScale);
+          int radius = std::max(width, height);
+
+          // let's just do circle line intersection since that's easy and CS350 has scarred me for life in reference to bounding volumes
+          if (line.intersect(center, radius/2))
+          {
+            line.intersect(center, radius / 2);
+            line.color = Vector3(255, 0, 0);
+          }
+        }
+      }
       line.update();
       line.draw();
+
     }
     else
     {
@@ -111,8 +134,8 @@ void RenderManager::Render()
 
 }
 
-Line::Line(Vector2 start, Vector2 end, Vector3 color, float TTL) 
-  : start_(start), end_(end), color_(color), TTL_(TTL)
+Line::Line(Vector2 start, Vector2 end, Vector3 color, float TTL, int ID) 
+  : start_(start), end_(end), color(color), TTL_(TTL), networkID(ID)
 {
 
   beginTime_ = std::chrono::high_resolution_clock::now();
@@ -132,7 +155,31 @@ void Line::update()
 void Line::draw()
 {
   auto renderer = GraphicsDriver::sInstance->GetRenderer();
-  SDL_SetRenderDrawColor(renderer, color_.mX, color_.mY, color_.mZ, SDL_ALPHA_OPAQUE);
+  SDL_SetRenderDrawColor(renderer, color.mX, color.mY, color.mZ, SDL_ALPHA_OPAQUE);
   SDL_RenderDrawLine(renderer, start_.mX, start_.mY, end_.mX, end_.mY);
+}
+
+bool Line::intersect(Vector2 center, float radius)
+{
+  float dx = start_.mX - end_.mX;
+  float dy = start_.mY - end_.mY;
+  float len = sqrt((dx * dx) + (dy * dy));
+  float dot = (((center.mX - start_.mX) * (end_.mX - start_.mX)) + ((center.mY - start_.mY) * (end_.mY - start_.mY))) / (len * len);
+  float x = start_.mX + (dot * (end_.mX - start_.mX));
+  float y = start_.mY + (dot * (end_.mY - start_.mY));
+
+  float d1x = start_.mX - x;
+  float d1y = start_.mY - y;
+  float d2x = end_.mX - x;
+  float d2y = end_.mY - y;
+
+  float dist1 = sqrt((d1x * d1x) + (d1y * d1y));
+  float dist2 = sqrt((d2x * d2x) + (d2y * d2y));
+
+  float distx = center.mX - x;
+  float disty = center.mY - y;
+  float dist = sqrt((distx * distx) + (disty * disty));
+
+  return dist < radius && (dist1 + dist2) <= (len+0.01f);
 }
 
