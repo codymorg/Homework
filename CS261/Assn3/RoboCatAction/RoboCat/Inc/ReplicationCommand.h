@@ -4,7 +4,8 @@ enum ReplicationAction
 	RA_Update,
 	RA_Destroy,
 	RA_RPC,
-	RA_MAX
+	RA_MAX,
+  RA_HYPERYARN
 };
 
 

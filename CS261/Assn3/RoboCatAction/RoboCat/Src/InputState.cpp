@@ -33,7 +33,9 @@ bool InputState::Write( OutputMemoryBitStream& inOutputStream ) const
 {
 	WriteSignedBinaryValue( inOutputStream, GetDesiredHorizontalDelta() );
 	WriteSignedBinaryValue( inOutputStream, GetDesiredVerticalDelta() );
+
 	inOutputStream.Write( mIsShooting );
+
 
 	return false;
 }

@@ -43,7 +43,15 @@ void RenderManager::RemoveComponent( SpriteComponent* inComponent )
 
 void RenderManager::AddLine(Vector2 start, Vector2 end, Vector3 color, float TTL, int ID)
 {
-  lines.push_back(Line(start, end, color, TTL, ID));
+  auto state = InputManager::sInstance->GetState();
+  if (state.hyperYarnColor.mX == -1.0f && state.hyperYarnColor.mY != 1.0f)
+  {
+    InputManager::sInstance->GetState().hyperYarnColor.mY = 1.0f;
+    InputManager::sInstance->GetState().validateHyperYarnOnServer = true;
+    InputManager::sInstance->GetState().hyperYarnHit = 0;
+
+    lines.push_back(Line(start, end, color, TTL, ID));
+  }
 }
 
 
@@ -98,8 +106,17 @@ void RenderManager::RenderLines()
           // let's just do circle line intersection since that's easy and CS350 has scarred me for life in reference to bounding volumes
           if (line.intersect(center, radius/2))
           {
-            line.intersect(center, radius / 2);
             line.color = Vector3(255, 0, 0);
+            InputManager::sInstance->GetState().hyperYarnHit = 1;
+            std::cout << "hit! " << InputManager::sInstance->GetState().hyperYarnHit << "\n";
+          }
+          else
+          {
+            std::cout << "miss!" << InputManager::sInstance->GetState().hyperYarnHit << "\n";
+          }
+          if (InputManager::sInstance->GetState().hyperYarnColor.mX != -1.0f)
+          {
+            line.color = InputManager::sInstance->GetState().hyperYarnColor;
           }
         }
       }
@@ -110,6 +127,8 @@ void RenderManager::RenderLines()
     else
     {
       lines.erase(lines.begin() + i);
+      InputManager::sInstance->GetState().hyperYarnColor = Vector3(-1.0f, -1.0f, -1.0f);
+
     }
   }
 }

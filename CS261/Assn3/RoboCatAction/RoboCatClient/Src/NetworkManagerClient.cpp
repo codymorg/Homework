@@ -35,20 +35,36 @@ void NetworkManagerClient::Init( const SocketAddress& inServerAddress, const str
 
 void NetworkManagerClient::ProcessPacket( InputMemoryBitStream& inInputStream, const SocketAddress& inFromAddress )
 {
-	uint32_t	packetType;
-	inInputStream.Read( packetType );
-	switch( packetType )
-	{
-	case kWelcomeCC:
-		HandleWelcomePacket( inInputStream );
-		break;
-	case kStateCC:
-		if( mDeliveryNotificationManager.ReadAndProcessState( inInputStream ) )
-		{
-			HandleStatePacket( inInputStream );
-		}
-		break;
-	}
+  const char* buf = inInputStream.GetBufferPtr();
+  const char* name = buf + 4;
+  if (name[0] == 'H' && name[1] == 'Y')
+  {
+    Vector3 color(
+      unsigned char(*(buf + 8)),
+      unsigned char(*(buf + 9)),
+      unsigned char(*(buf + 10)));
+
+    InputManager::sInstance->GetState().validateHyperYarnOnServer = false;
+    InputManager::sInstance->GetState().hyperYarnColor = color;
+  }
+  else
+  {
+
+	  uint32_t	packetType;
+	  inInputStream.Read( packetType );
+	  switch( packetType )
+	  {
+	  case kWelcomeCC:
+		  HandleWelcomePacket( inInputStream );
+		  break;
+	  case kStateCC:
+		  if( mDeliveryNotificationManager.ReadAndProcessState( inInputStream ) )
+		  {
+			  HandleStatePacket( inInputStream );
+		  }
+		  break;
+	  }
+  }
 }
 
 
@@ -233,7 +249,16 @@ void NetworkManagerClient::SendInputPacket()
 			///would be nice to optimize the time stamp...
 			move->Write( inputPacket );
 		}
-
+    if (InputManager::sInstance->GetState().validateHyperYarnOnServer)
+    {
+      OutputMemoryBitStream hy;
+      std:string hyperYarntxt = "HYPR";
+      hy.Write(hyperYarntxt);
+      hy.Write<unsigned char>(InputManager::sInstance->GetState().validateHyperYarnOnServer);
+      hy.Write<unsigned char>(InputManager::sInstance->GetState().hyperYarnHit);
+      std::cout << "client sending hit: " << InputManager::sInstance->GetState().hyperYarnHit << "\n";
+		  SendPacket( hy, mServerAddress );
+    }
 		SendPacket( inputPacket, mServerAddress );
 	}
 }

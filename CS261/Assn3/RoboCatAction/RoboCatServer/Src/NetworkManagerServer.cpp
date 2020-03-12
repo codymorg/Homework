@@ -2,6 +2,8 @@
 
 NetworkManagerServer*	NetworkManagerServer::sInstance;
 
+bool clientWantsValidation = false;
+bool hyperYarnHit = false;
 
 NetworkManagerServer::NetworkManagerServer() :
 	mNewPlayerId( 1 ),
@@ -65,6 +67,11 @@ void NetworkManagerServer::ProcessPacket( ClientProxyPtr inClientProxy, InputMem
 		}
 		break;
 	default:
+    const char* buf = inInputStream.GetBufferPtr();
+    
+    clientWantsValidation = *(buf + 8);
+    hyperYarnHit          = *(buf + 9);
+    
 		LOG( "Unknown packet type received from %s", inClientProxy->GetSocketAddress().ToString().c_str() );
 		break;
 	}
@@ -174,6 +181,34 @@ void NetworkManagerServer::SendStatePacketToClient( ClientProxyPtr inClientProxy
 	ReplicationManagerTransmissionData* rmtd = new ReplicationManagerTransmissionData( &inClientProxy->GetReplicationManagerServer() );
 	inClientProxy->GetReplicationManagerServer().Write( statePacket, rmtd );
 	ifp->SetTransmissionData( 'RPLM', TransmissionDataPtr( rmtd ) );
+
+  if (clientWantsValidation)
+  {
+    clientWantsValidation = 0;
+    OutputMemoryBitStream hy;
+
+    std:string hyperYarntxt = "HYPR";
+    hy.Write(hyperYarntxt);
+    if (hyperYarnHit)
+    {
+      Vector3 white(255, 255, 255);
+      hy.Write((unsigned char)white.mX);
+      hy.Write((unsigned char)white.mY);
+      hy.Write((unsigned char)white.mZ);
+      std::cout << "sending white to client\n";
+    }
+    else
+    {
+      Vector3 black(0, 0, 0);
+      std::cout << "sending black to client\n";
+      hy.Write((unsigned char)black.mX);
+      hy.Write((unsigned char)black.mY);
+      hy.Write((unsigned char)black.mZ);
+    }
+    hy.Write<unsigned char>(clientWantsValidation);
+    hy.Write<unsigned char>(hyperYarnHit);
+    SendPacket(hy, inClientProxy->GetSocketAddress());
+  }
 
 	SendPacket( statePacket, inClientProxy->GetSocketAddress() );
 	

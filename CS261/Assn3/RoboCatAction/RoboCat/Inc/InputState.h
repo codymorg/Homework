@@ -1,4 +1,4 @@
-
+#include "RoboMath.h"
 class InputState
 {
 public:
@@ -18,6 +18,9 @@ public:
 	bool Write( OutputMemoryBitStream& inOutputStream ) const;
 	bool Read( InputMemoryBitStream& inInputStream );
   bool hyperYarn = false;
+  bool validateHyperYarnOnServer = false;
+  bool hyperYarnHit = false;
+  Vector3 hyperYarnColor = Vector3(-1.0f,-1.0f,-1.0f);
 private:
 	friend class InputManager;
 

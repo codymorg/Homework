@@ -7,7 +7,8 @@ int WINAPI WinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 {
 	UNREFERENCED_PARAMETER( hPrevInstance );
 	UNREFERENCED_PARAMETER( lpCmdLine );
-	
+  AllocConsole();
+  freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
 	if( Server::StaticInit() )
 	{
 		return Server::sInstance->Run();

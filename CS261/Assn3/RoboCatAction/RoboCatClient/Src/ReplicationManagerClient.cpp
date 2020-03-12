@@ -22,10 +22,9 @@ void ReplicationManagerClient::Read( InputMemoryBitStream& inInputStream )
 		case RA_Destroy:
 			ReadAndDoDestroyAction( inInputStream, networkId );
 			break;
+
 		}
-
 	}
-
 }
 
 void ReplicationManagerClient::ReadAndDoCreateAction( InputMemoryBitStream& inInputStream, int inNetworkId )
