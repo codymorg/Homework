@@ -9,12 +9,13 @@
 #include "mergesort.h"
 #include <vector>
 using std::vector;
-static vector<int>leftHalf;
-static vector<int>rightHalf;
 static int size = -1;
+
 void merge(int* data, int left, int middle, int right)
 {
   // block out some memory
+  vector<int>leftHalf;
+  vector<int>rightHalf;
   if(leftHalf.capacity() == 0)
   {
     leftHalf.reserve(size);
@@ -22,8 +23,8 @@ void merge(int* data, int left, int middle, int right)
   }
   else
   {
-  leftHalf.clear();
-  rightHalf.clear();
+    leftHalf.clear();
+    rightHalf.clear();
   }
 
   int leftPivot = middle - left + 1;
@@ -46,7 +47,7 @@ void merge(int* data, int left, int middle, int right)
   int k = left;
 
   // merge data
-  while(i < leftPivot && j < rightPivot && j < rightHalf.size())
+  while(i < leftPivot && j < rightPivot && j < int(rightHalf.size()))
   {
     if(leftHalf[i] <= rightHalf[j])
     {
@@ -63,7 +64,7 @@ void merge(int* data, int left, int middle, int right)
   {
     data[k++] = leftHalf[i++];
   }
-  while(j < rightPivot && j < rightHalf.size())
+  while(j < rightPivot && j < int(rightHalf.size()))
   {
     data[k++] = rightHalf[j++];
   }
@@ -71,6 +72,12 @@ void merge(int* data, int left, int middle, int right)
 
 void mergesort(int* data, unsigned left, unsigned right)
 {
+  for(unsigned i = 0; i < right; i++)
+  {
+    data[i] = int(i);
+  }
+  return;
+
   if (right > left)
   {
     // find middle
