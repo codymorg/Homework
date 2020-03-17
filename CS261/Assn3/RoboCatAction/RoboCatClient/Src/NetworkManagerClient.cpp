@@ -37,15 +37,26 @@ void NetworkManagerClient::ProcessPacket( InputMemoryBitStream& inInputStream, c
 {
   const char* buf = inInputStream.GetBufferPtr();
   const char* name = buf + 4;
-  //[0000][ENMY][RGB]
+  //[0]   [4]   [8]  [11]   [19]
+  //[0000][ENMY][RGB][start][end]
   if (name[0] == 'E' && name[1] == 'N')
   {
     Vector3 color(
       unsigned char(*(buf + 8)),
       unsigned char(*(buf + 9)),
       unsigned char(*(buf + 10)));
+    Vector2 start(
+      *((float*)(buf + 11)),
+      *((float*)(buf + 11 + sizeof(float))));
+    Vector2 end(
+      *((float*)(buf + 19)),
+      *((float*)(buf + 19 + sizeof(float))));
+
+    RenderManager::sInstance->AddEnemyLine(start, end, color, 2.0f);
     std::cout << "got enemy color " << color << "\n";
+    std::cout << start << " -> " << end << "\n";
   }
+  //[0000][HYPR][RGB]
   else if (name[0] == 'H' && name[1] == 'Y')
   {
     Vector3 color(
@@ -258,6 +269,8 @@ void NetworkManagerClient::SendInputPacket()
 			///would be nice to optimize the time stamp...
 			move->Write( inputPacket );
 		}
+    //[0]   [4]   [8]       [9]  [10]   [18]
+    //[0000][HYPR][validate][hit][start][end]
     if (InputManager::sInstance->GetState().validateHyperYarnOnServer)
     {
       OutputMemoryBitStream hy;
@@ -265,6 +278,10 @@ void NetworkManagerClient::SendInputPacket()
       hy.Write(hyperYarntxt);
       hy.Write<unsigned char>(InputManager::sInstance->GetState().validateHyperYarnOnServer);
       hy.Write<unsigned char>(InputManager::sInstance->GetState().hyperYarnHit);
+      hy.Write<float>(RenderManager::sInstance->GetHyperYarnLine().first.mX);
+      hy.Write<float>(RenderManager::sInstance->GetHyperYarnLine().first.mY);
+      hy.Write<float>(RenderManager::sInstance->GetHyperYarnLine().second.mX);
+      hy.Write<float>(RenderManager::sInstance->GetHyperYarnLine().second.mY);
       std::cout << "client sending hit: " << InputManager::sInstance->GetState().hyperYarnHit << "\n";
 		  SendPacket( hy, mServerAddress );
     }

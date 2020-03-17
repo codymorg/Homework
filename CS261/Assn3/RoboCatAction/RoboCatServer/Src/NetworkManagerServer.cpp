@@ -1,10 +1,18 @@
 #include <RoboCatServerPCH.h>
 
 NetworkManagerServer*	NetworkManagerServer::sInstance;
+struct EnemyLine
+{
+  EnemyLine(ClientProxyPtr c, bool h, Vector2 s, Vector2 e) :client(c), hit(h), start(s), end(e) {}
 
+  ClientProxyPtr client;
+  bool hit;
+  Vector2 start;
+  Vector2 end;
+};
 bool clientWantsValidation = false;
 bool hyperYarnHit = false;
-std::vector<std::pair<ClientProxyPtr, bool>> enemyLines;
+std::vector<EnemyLine> enemyLines;
 bool sentEnemyPackets = false;
 
 NetworkManagerServer::NetworkManagerServer() :
@@ -69,13 +77,21 @@ void NetworkManagerServer::ProcessPacket( ClientProxyPtr inClientProxy, InputMem
 		}
 		break;
 	default:
+    //[0]   [4]   [8]       [9]  [10]   [18]
+    //[0000][HYPR][validate][hit][start][end]
     const char* buf = inInputStream.GetBufferPtr();
+    Vector2 start;
+    Vector2 end;
     
     clientWantsValidation = *(buf + 8);
     hyperYarnHit          = *(buf + 9);
+    start.mX              = *((float*)(buf + 10));
+    start.mY              = *((float*)(buf + 10 + sizeof(float)));    
+    end.mX                = *((float*)(buf + 18));
+    end.mY                = *((float*)(buf + 18 + sizeof(float)));
 
     // setup ENMY packet
-    enemyLines.push_back(std::make_pair(inClientProxy, hyperYarnHit));
+    enemyLines.push_back(EnemyLine(inClientProxy, hyperYarnHit,start, end));
     
 		LOG( "Unknown packet type received from %s", inClientProxy->GetSocketAddress().ToString().c_str() );
 		break;
@@ -223,17 +239,19 @@ void NetworkManagerServer::SendStatePacketToClient( ClientProxyPtr inClientProxy
   }
 
   // send ENMY packet to everyone else
-  for (auto client : enemyLines)
+  //[0]   [4]   [8]  [11]   [19]
+  //[0000][ENMY][RGB][start][end]
+  for (auto enemy : enemyLines)
   {
     // dont send ENMY packets to ourselves
-    if (client.first != inClientProxy)
+    if (enemy.client != inClientProxy)
     {
       OutputMemoryBitStream hy;
 
       std::string hyperYarntxt = "ENMY";
       hy.Write(hyperYarntxt);
 
-      if (client.second) //hyperyarn hit
+      if (enemy.hit) //hyperyarn hit
       {
         Vector3 white(255, 255, 255);
         hy.Write((unsigned char)white.mX);
@@ -249,6 +267,10 @@ void NetworkManagerServer::SendStatePacketToClient( ClientProxyPtr inClientProxy
         hy.Write((unsigned char)black.mY);
         hy.Write((unsigned char)black.mZ);
       }
+      hy.Write<float>(enemy.start.mX);
+      hy.Write<float>(enemy.start.mY);
+      hy.Write<float>(enemy.end.mX);
+      hy.Write<float>(enemy.end.mY);
       sentEnemyPackets = true;
       SendPacket(hy, inClientProxy->GetSocketAddress());
     }

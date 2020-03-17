@@ -44,14 +44,19 @@ void RenderManager::RemoveComponent( SpriteComponent* inComponent )
 void RenderManager::AddLine(Vector2 start, Vector2 end, Vector3 color, float TTL, int ID)
 {
   auto state = InputManager::sInstance->GetState();
-  if (state.hyperYarnColor.mX == -1.0f && state.hyperYarnColor.mY != 1.0f)
+  if (!hyperYarnActive)
   {
-    InputManager::sInstance->GetState().hyperYarnColor.mY = 1.0f;
     InputManager::sInstance->GetState().validateHyperYarnOnServer = true;
-    InputManager::sInstance->GetState().hyperYarnHit = 0;
+    InputManager::sInstance->GetState().hyperYarnHit = false;
+    hyperYarnActive = true;
 
     lines.push_back(Line(start, end, color, TTL, ID));
   }
+}
+
+void RenderManager::AddEnemyLine(Vector2 start, Vector2 end, Vector3 color, float TTL)
+{
+  lines.push_back(Line(start, end, color, TTL, -1));
 }
 
 
@@ -90,7 +95,8 @@ void RenderManager::RenderLines()
     Line& line = lines[i];
     if (line.isValid)
     {
-      for (auto sprite : RenderManager::sInstance->mComponents)
+      if(line.networkID != -1)
+        for (auto sprite : RenderManager::sInstance->mComponents)
       {
         auto cat = sprite->mGameObject->GetAsCat();
         // dont shoot ourselves
@@ -128,8 +134,22 @@ void RenderManager::RenderLines()
     else
     {
       lines.erase(lines.begin() + i);
-      InputManager::sInstance->GetState().hyperYarnColor = Vector3(-1.0f, -1.0f, -1.0f);
+      if (line.networkID != -1)
+      {
+        InputManager::sInstance->GetState().hyperYarnColor = Vector3(-1.0f, -1.0f, -1.0f);
+        hyperYarnActive = false;
+      }
+    }
+  }
+}
 
+std::pair<Vector2, Vector2> RenderManager::GetHyperYarnLine()
+{
+  for (auto line : lines)
+  {
+    if (line.networkID != -1)
+    {
+      return std::make_pair(line.start_, line.end_);
     }
   }
 }
