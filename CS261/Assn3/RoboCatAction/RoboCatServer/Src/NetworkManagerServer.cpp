@@ -4,6 +4,8 @@ NetworkManagerServer*	NetworkManagerServer::sInstance;
 
 bool clientWantsValidation = false;
 bool hyperYarnHit = false;
+std::vector<std::pair<ClientProxyPtr, bool>> enemyLines;
+bool sentEnemyPackets = false;
 
 NetworkManagerServer::NetworkManagerServer() :
 	mNewPlayerId( 1 ),
@@ -71,6 +73,9 @@ void NetworkManagerServer::ProcessPacket( ClientProxyPtr inClientProxy, InputMem
     
     clientWantsValidation = *(buf + 8);
     hyperYarnHit          = *(buf + 9);
+
+    // setup ENMY packet
+    enemyLines.push_back(std::make_pair(inClientProxy, hyperYarnHit));
     
 		LOG( "Unknown packet type received from %s", inClientProxy->GetSocketAddress().ToString().c_str() );
 		break;
@@ -151,6 +156,12 @@ void NetworkManagerServer::SendOutgoingPackets()
 			SendStatePacketToClient( clientProxy );
 		}
 	}
+  if (sentEnemyPackets)
+  {
+    enemyLines.clear();
+    sentEnemyPackets = false;
+  }
+
 }
 
 void NetworkManagerServer::UpdateAllClients()
@@ -182,6 +193,7 @@ void NetworkManagerServer::SendStatePacketToClient( ClientProxyPtr inClientProxy
 	inClientProxy->GetReplicationManagerServer().Write( statePacket, rmtd );
 	ifp->SetTransmissionData( 'RPLM', TransmissionDataPtr( rmtd ) );
 
+  // sending HYPR packet back to originator
   if (clientWantsValidation)
   {
     clientWantsValidation = 0;
@@ -208,6 +220,38 @@ void NetworkManagerServer::SendStatePacketToClient( ClientProxyPtr inClientProxy
     hy.Write<unsigned char>(clientWantsValidation);
     hy.Write<unsigned char>(hyperYarnHit);
     SendPacket(hy, inClientProxy->GetSocketAddress());
+  }
+
+  // send ENMY packet to everyone else
+  for (auto client : enemyLines)
+  {
+    // dont send ENMY packets to ourselves
+    if (client.first != inClientProxy)
+    {
+      OutputMemoryBitStream hy;
+
+      std::string hyperYarntxt = "ENMY";
+      hy.Write(hyperYarntxt);
+
+      if (client.second) //hyperyarn hit
+      {
+        Vector3 white(255, 255, 255);
+        hy.Write((unsigned char)white.mX);
+        hy.Write((unsigned char)white.mY);
+        hy.Write((unsigned char)white.mZ);
+        std::cout << "sending white to enemy\n";
+      }
+      else
+      {
+        Vector3 black(0, 0, 0);
+        std::cout << "sending black to enemy\n";
+        hy.Write((unsigned char)black.mX);
+        hy.Write((unsigned char)black.mY);
+        hy.Write((unsigned char)black.mZ);
+      }
+      sentEnemyPackets = true;
+      SendPacket(hy, inClientProxy->GetSocketAddress());
+    }
   }
 
 	SendPacket( statePacket, inClientProxy->GetSocketAddress() );

@@ -37,7 +37,16 @@ void NetworkManagerClient::ProcessPacket( InputMemoryBitStream& inInputStream, c
 {
   const char* buf = inInputStream.GetBufferPtr();
   const char* name = buf + 4;
-  if (name[0] == 'H' && name[1] == 'Y')
+  //[0000][ENMY][RGB]
+  if (name[0] == 'E' && name[1] == 'N')
+  {
+    Vector3 color(
+      unsigned char(*(buf + 8)),
+      unsigned char(*(buf + 9)),
+      unsigned char(*(buf + 10)));
+    std::cout << "got enemy color " << color << "\n";
+  }
+  else if (name[0] == 'H' && name[1] == 'Y')
   {
     Vector3 color(
       unsigned char(*(buf + 8)),

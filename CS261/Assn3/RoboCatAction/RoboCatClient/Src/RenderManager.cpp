@@ -92,8 +92,9 @@ void RenderManager::RenderLines()
     {
       for (auto sprite : RenderManager::sInstance->mComponents)
       {
+        auto cat = sprite->mGameObject->GetAsCat();
         // dont shoot ourselves
-        if (sprite->mGameObject->GetNetworkId() != line.networkID)
+        if (sprite->mGameObject->GetNetworkId() != line.networkID && cat != nullptr)
         {
 
           // find where we are and how big the cat is
@@ -108,11 +109,11 @@ void RenderManager::RenderLines()
           {
             line.color = Vector3(255, 0, 0);
             InputManager::sInstance->GetState().hyperYarnHit = 1;
-            std::cout << "hit! " << InputManager::sInstance->GetState().hyperYarnHit << "\n";
+            //std::cout << "hit! " << InputManager::sInstance->GetState().hyperYarnHit << "\n";
           }
           else
           {
-            std::cout << "miss!" << InputManager::sInstance->GetState().hyperYarnHit << "\n";
+            //std::cout << "miss!" << InputManager::sInstance->GetState().hyperYarnHit << "\n";
           }
           if (InputManager::sInstance->GetState().hyperYarnColor.mX != -1.0f)
           {
