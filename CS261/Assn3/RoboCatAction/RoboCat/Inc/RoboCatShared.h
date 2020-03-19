@@ -82,6 +82,7 @@ class GameObject;
 #include "Timing.h"
 #include "Mouse.h"
 #include "Yarn.h"
+#include "grenade.h"
 #include "StringUtils.h"
 #include "ScoreBoardManager.h"
 

@@ -1,3 +1,7 @@
+#pragma once
+#ifndef RCS_H
+#define RCS_H
+
 enum ECatControlType
 {
 	ESCT_Human,
@@ -30,3 +34,4 @@ private:
 	float		mTimeBetweenShots;
 
 };
+#endif
