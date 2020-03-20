@@ -64,6 +64,9 @@ void InputManager::HandleInput( EInputAction inInputAction, int inKeyCode )
 	case 'k':
 		UpdateDesireVariableFromKey( inInputAction, mCurrentState.mIsShooting );
 		break;
+  case 'g':
+    UpdateDesireVariableFromKey(inInputAction, mCurrentState.grenadeOut);
+    break;
   case 'l':
     mCurrentState.hyperYarn = inInputAction;
     break;

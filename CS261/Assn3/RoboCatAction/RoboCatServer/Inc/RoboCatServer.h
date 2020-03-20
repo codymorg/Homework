@@ -26,6 +26,8 @@ protected:
 private:
 
 	void HandleShooting();
+  void HandleGrenade();
+
 
 	ECatControlType	mCatControlType;
 
