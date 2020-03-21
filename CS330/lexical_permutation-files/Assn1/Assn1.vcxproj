@@ -19,38 +19,55 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\convhull_BF-files\driver.cpp" />
-    <ClCompile Include="..\..\convhull_BF-files\hull-bruteforce.cpp" />
+    <ClCompile Include="..\..\e_dijkstra-files\driver.cpp" />
+    <ClCompile Include="..\..\e_dijkstra-files\e-dijkstra.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\convhull_BF-files\handout.txt" />
+    <ClInclude Include="..\..\e_dijkstra-files\e-dijkstra.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\convhull_BF-files\hull-bruteforce.h" />
+    <Text Include="..\..\e_dijkstra-files\handout.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\convhull_BF-files\Makefile" />
-    <None Include="..\..\convhull_BF-files\Makefile2" />
-    <None Include="..\..\convhull_BF-files\out0" />
-    <None Include="..\..\convhull_BF-files\out1" />
-    <None Include="..\..\convhull_BF-files\out10" />
-    <None Include="..\..\convhull_BF-files\out11" />
-    <None Include="..\..\convhull_BF-files\out12" />
-    <None Include="..\..\convhull_BF-files\out13" />
-    <None Include="..\..\convhull_BF-files\out2" />
-    <None Include="..\..\convhull_BF-files\out3" />
-    <None Include="..\..\convhull_BF-files\out4" />
-    <None Include="..\..\convhull_BF-files\out5" />
-    <None Include="..\..\convhull_BF-files\out6" />
-    <None Include="..\..\convhull_BF-files\out7" />
-    <None Include="..\..\convhull_BF-files\out8" />
-    <None Include="..\..\convhull_BF-files\out9" />
-    <None Include="..\..\convhull_BF-files\points1" />
-    <None Include="..\..\convhull_BF-files\points2" />
-    <None Include="..\..\convhull_BF-files\points3" />
-    <None Include="..\..\convhull_BF-files\points4" />
-    <None Include="..\..\convhull_BF-files\points5" />
-    <None Include="..\..\convhull_BF-files\points6" />
+    <None Include="..\..\e_dijkstra-files\in0" />
+    <None Include="..\..\e_dijkstra-files\in1" />
+    <None Include="..\..\e_dijkstra-files\in1.dot.pdf" />
+    <None Include="..\..\e_dijkstra-files\in2" />
+    <None Include="..\..\e_dijkstra-files\in3" />
+    <None Include="..\..\e_dijkstra-files\in4" />
+    <None Include="..\..\e_dijkstra-files\in5" />
+    <None Include="..\..\e_dijkstra-files\Makefile" />
+    <None Include="..\..\e_dijkstra-files\Makefile2" />
+    <None Include="..\..\e_dijkstra-files\out0" />
+    <None Include="..\..\e_dijkstra-files\out1" />
+    <None Include="..\..\e_dijkstra-files\out10" />
+    <None Include="..\..\e_dijkstra-files\out11" />
+    <None Include="..\..\e_dijkstra-files\out12" />
+    <None Include="..\..\e_dijkstra-files\out13" />
+    <None Include="..\..\e_dijkstra-files\out14" />
+    <None Include="..\..\e_dijkstra-files\out15" />
+    <None Include="..\..\e_dijkstra-files\out16" />
+    <None Include="..\..\e_dijkstra-files\out17" />
+    <None Include="..\..\e_dijkstra-files\out18" />
+    <None Include="..\..\e_dijkstra-files\out19" />
+    <None Include="..\..\e_dijkstra-files\out2" />
+    <None Include="..\..\e_dijkstra-files\out20" />
+    <None Include="..\..\e_dijkstra-files\out21" />
+    <None Include="..\..\e_dijkstra-files\out22" />
+    <None Include="..\..\e_dijkstra-files\out23" />
+    <None Include="..\..\e_dijkstra-files\out24" />
+    <None Include="..\..\e_dijkstra-files\out25" />
+    <None Include="..\..\e_dijkstra-files\out26" />
+    <None Include="..\..\e_dijkstra-files\out27" />
+    <None Include="..\..\e_dijkstra-files\out28" />
+    <None Include="..\..\e_dijkstra-files\out29" />
+    <None Include="..\..\e_dijkstra-files\out3" />
+    <None Include="..\..\e_dijkstra-files\out4" />
+    <None Include="..\..\e_dijkstra-files\out5" />
+    <None Include="..\..\e_dijkstra-files\out6" />
+    <None Include="..\..\e_dijkstra-files\out7" />
+    <None Include="..\..\e_dijkstra-files\out8" />
+    <None Include="..\..\e_dijkstra-files\out9" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
