@@ -4,6 +4,7 @@
 
 #include <string>
 #include <map> 
+#include <chrono>
 
 void test0() { std::cout << e_dijkstra_solver( "in0" ) << std::endl; }
 void test1() { std::cout << e_dijkstra_solver( "in1" ) << std::endl; }
@@ -23,7 +24,11 @@ void (*pTests[])( ) = {
 int main(int argc, char ** argv) {
   for(auto i : pTests)
   {
-    i();
+    auto start = std::chrono::steady_clock::now();
+    pTests[5]();
+    auto end = std::chrono::steady_clock::now();
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms\n";
+
   }
 
     return 0;

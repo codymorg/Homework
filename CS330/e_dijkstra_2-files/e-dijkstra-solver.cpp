@@ -9,20 +9,33 @@ using std::ifstream;
 #include <sstream>
 using std::istringstream;
 #include <iostream>
+#include <algorithm>
+using std::min;
+using std::max;
+#include <list>
+using std::list;
 
-#define COUT if(true)std::cout
+
+#ifndef INT_MAX
+#define INT_MAX 2147483647
+#define INT_MIN -2147483647
+#endif
+#define COUT if(false)std::cout
 
 static vector<vector<int>> grid;
 static int recharges;
 static int range;
 static bool isPossible;
-
+static vector<int> visisted;
+static int maxRange = INT_MIN;
+static int minRange = INT_MAX;
 class Node
 {
 public:
   Node(int name, int fuel, int recharges, vector<int>& currentPath) :
-    name_(name), fuel_(fuel), recharges_(recharges), valid_(true)
+    name_(name), fuel_(fuel), recharges_(recharges), valid_(true), connections_()
   {
+    connections_.reserve(5);
     // is this node valid?
     if (fuel_ < 0)
     {
@@ -45,15 +58,34 @@ public:
         //COUT << "\tinsufficient fuel to reach " << name << "\n";
       }
     }
-    COUT << "car status <";
-    for (auto i : currentPath)
-      COUT << i << " ";
-    COUT << ">" << " " << fuel_ << " " << recharges_ << "\n";
+    //COUT << "car status <";
+    //for (auto i : currentPath)
+    //  COUT << i << " ";
+    //COUT << ">" << " " << fuel_ << " " << recharges_ << "\n";
 
     if (valid_)
     {
+      visisted[name_]++;
+      //COUT << "visited: ";
+      bool isDone = true;
+      for (auto i : visisted)
+      {
+        //std::cout << i << ' ';
+        if (i == 0)
+        {
+          isDone = false;
+          break;
+        }
+      }
+      //std::cout << "\n";
+      if (isDone)
+      {
+        isPossible = true;
+        return;
+      }
+
       // look at all the roads from here
-      for (int i = 0; i < grid.size(); i++)
+      for (int i = 0; i < int(grid.size()); i++)
       {
         int road = grid[name_][i];
         // valid roads
@@ -77,16 +109,16 @@ public:
             else
             {
               isPossible = false;
-              for (auto i : currentPath)
-              {
-                if (i == currentPath.back())
-                {
-                  COUT << "[" << i << "]";
-                }
-                else
-                  COUT << i << " ";
-              }
-              COUT << "\n";
+              //for (auto i : currentPath)
+              //{
+              //  if (i == currentPath.back())
+              //  {
+              //    COUT << "[" << i << "]";
+              //  }
+              //  else
+              //    COUT << i << " ";
+              //}
+              //COUT << "\n";
               currentPath.pop_back();
             }
           }
@@ -103,10 +135,10 @@ public:
 
 
 private:
-  bool valid_;
+  int name_;
   int fuel_;
   int recharges_;
-  int name_;
+  bool valid_;
   vector<Node>connections_;
 };
 
@@ -144,34 +176,81 @@ void LoadFile(const string& file)
 
       grid[nodeA][nodeB] = weight;
       grid[nodeB][nodeA] = weight;
+      maxRange = max(grid[nodeA][nodeB], maxRange);
+      minRange = min(grid[nodeA][nodeB], minRange);
     }
     myfile.close();
   }
-  else
-  {
-    COUT << file << "failed to open\n";
-  }
 }
 
-bool CanReachAll(int start, int rangeGuess)
+bool CanReachAll(int rng)
 {
-  range = rangeGuess;
-  isPossible = false;
-  vector<int> path{ start };
-  Node root(start, rangeGuess, recharges, path);
+  range = rng;
+
+  for (int i = 0; i < int(grid.size()); i++)
+  {
+    isPossible = true;
+    vector<int> path{ i };
+    visisted.clear();
+    visisted.resize(grid.size());
+    COUT << "starting from " << i << "\n";
+    Node root(i, range, recharges, path);
+    COUT << "  visited: ";
+    bool isDone = true;
+    for (auto i : visisted)
+    {
+      COUT << i << ' ';
+      if (i == 0)
+        isDone = false;
+    }
+    COUT << "\n\n";
+    if (isDone)
+    {
+      isPossible = true;
+    }
+
+    if (isPossible == false)
+      break;
+  }
   return isPossible;
 }
 
 int e_dijkstra_solver(char const* input)
 {
   string in = input;
-  string file ="C:/Users/Cody/source/repos/Homework/CS330/e_dijkstra_2-files/" + in;
-  LoadFile(file);
-  for (auto i = 0; i < grid.size(); i++)
+  if(0)
+    in = "C:/Users/Cody/source/repos/Homework/CS330/e_dijkstra_2-files/" + in;
+  LoadFile(in);
+  int left = minRange;
+  int right = maxRange;
+  int minFuel = 0;
+  while(left != right)
   {
-    bool canReach = CanReachAll(i,300);
-    COUT << ":::   Can Reach all nodes from " <<i << " : " << std::boolalpha << canReach << "\n\n";
+    int fuelGuess = (left + right) / 2;
+    COUT << "guessing " << fuelGuess << "\n";
+    bool canReach = CanReachAll(fuelGuess);
+    COUT << ":::   Can Reach all nodes " << " : " << std::boolalpha << canReach << "\n\n";
+    if(left == fuelGuess)
+    {
+      minFuel = right;
+      break;
+    }
+    else if(right == fuelGuess)
+    {
+      minFuel = left;
+      break;
+    }
+    if(!canReach)
+    {
+      left = fuelGuess;
+    }
+    else
+    {
+      right = fuelGuess;
+    }
   }
 
-  return 0;
+  COUT << "min fuel required: " << minFuel << "\n";
+
+  return minFuel;
 }
