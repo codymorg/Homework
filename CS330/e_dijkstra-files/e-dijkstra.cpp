@@ -13,12 +13,15 @@ static vector<vector<int>> grid;
 static int recharges;
 static int range;
 static bool isPossible;
+static vector<int> visisted;
+
+#define COUT if(0)std::cout
 
 class Node
 {
 public:
   Node(int name, int fuel, int recharges, vector<int>& currentPath) :
-    name_(name), fuel_(fuel), recharges_(recharges), valid_(true)
+    name_(name), fuel_(fuel), recharges_(recharges), valid_(true), connections_()
   {
     // is this node valid?
     if (fuel_ < 0)
@@ -28,7 +31,7 @@ public:
         if (grid[name][*(currentPath.end()-2)] > range)
         {
           valid_ = false;
-          //std::cout << "\ttoo far for vehicle to ever reach " << name << "\n";
+          //COUT << "\ttoo far for vehicle to ever reach " << name << "\n";
         }
         else
         {
@@ -39,18 +42,34 @@ public:
       else
       {
         valid_ = false;
-        //std::cout << "\tinsufficient fuel to reach " << name << "\n";
+        //COUT << "\tinsufficient fuel to reach " << name << "\n";
       }
     }
-    std::cout << "car status <";
-    for (auto i : currentPath)
-      std::cout << i << " ";
-    std::cout << ">" << " " << fuel_ << " " << recharges_ << "\n";
+    //COUT << "car status <";
+    //for (auto i : currentPath)
+    //  COUT << i << " ";
+    //COUT << ">" << " " << fuel_ << " " << recharges_ << "\n";
 
     if (valid_)
     {
+      visisted[name_]++;
+      //COUT << "visited: ";
+      bool isDone = true;
+      for (auto i : visisted)
+      {
+        //std::cout << i << ' ';
+        if (i == 0)
+          isDone = false;
+      }
+      //std::cout << "\n";
+      if (isDone)
+      {
+        isPossible = true;
+        return;
+      }
+
       // look at all the roads from here
-      for (int i = 0; i < grid.size(); i++)
+      for (int i = 0; i < int(grid.size()); i++)
       {
         int road = grid[name_][i];
         // valid roads
@@ -74,16 +93,16 @@ public:
             else
             {
               isPossible = false;
-              for (auto i : currentPath)
-              {
-                if (i == currentPath.back())
-                {
-                  std::cout << "[" << i << "]";
-                }
-                else
-                  std::cout << i << " ";
-              }
-              std::cout << "\n";
+              //for (auto i : currentPath)
+              //{
+              //  if (i == currentPath.back())
+              //  {
+              //    COUT << "[" << i << "]";
+              //  }
+              //  else
+              //    COUT << i << " ";
+              //}
+              //COUT << "\n";
               currentPath.pop_back();
             }
           }
@@ -100,10 +119,10 @@ public:
 
 
 private:
-  bool valid_;
+  int name_;
   int fuel_;
   int recharges_;
-  int name_;
+  bool valid_;
   vector<Node>connections_;
 };
 
@@ -152,7 +171,31 @@ bool e_dijkstra(char const* input, int rng)
 {
   range = rng;
   LoadFile(input);
-  vector<int> path{ 0 };
-  Node root(0, range, recharges, path);
+  
+  for (int i = 0; i < int(grid.size()); i++)
+  {
+    isPossible = true;
+    vector<int> path{i};
+    visisted.clear();
+    visisted.resize(grid.size());
+    Node root(i, range, recharges, path);
+    //COUT << "visited: ";
+    bool isDone = true;
+    for (auto i : visisted)
+    {
+      COUT << i << ' ';
+      if (i == 0)
+        isDone = false;
+    }
+    COUT << "\n";
+    if (isDone)
+    {
+      isPossible = true;
+    }
+
+    //std::cout << "RESULT ::: from " << i << " " <<  std::boolalpha << isPossible << "\n";
+    if (isPossible == false)
+      break;
+  }
   return isPossible;
 }
