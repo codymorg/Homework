@@ -19,38 +19,41 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\convhull_BF-files\driver.cpp" />
-    <ClCompile Include="..\..\convhull_BF-files\hull-bruteforce.cpp" />
+    <ClInclude Include="..\..\closest_pair_dc-files\closestpair.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\convhull_BF-files\handout.txt" />
+    <ClCompile Include="..\..\closest_pair_dc-files\closestpair.cpp" />
+    <ClCompile Include="..\..\closest_pair_dc-files\driver.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\convhull_BF-files\hull-bruteforce.h" />
+    <Text Include="..\..\closest_pair_dc-files\handout.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\convhull_BF-files\Makefile" />
-    <None Include="..\..\convhull_BF-files\Makefile2" />
-    <None Include="..\..\convhull_BF-files\out0" />
-    <None Include="..\..\convhull_BF-files\out1" />
-    <None Include="..\..\convhull_BF-files\out10" />
-    <None Include="..\..\convhull_BF-files\out11" />
-    <None Include="..\..\convhull_BF-files\out12" />
-    <None Include="..\..\convhull_BF-files\out13" />
-    <None Include="..\..\convhull_BF-files\out2" />
-    <None Include="..\..\convhull_BF-files\out3" />
-    <None Include="..\..\convhull_BF-files\out4" />
-    <None Include="..\..\convhull_BF-files\out5" />
-    <None Include="..\..\convhull_BF-files\out6" />
-    <None Include="..\..\convhull_BF-files\out7" />
-    <None Include="..\..\convhull_BF-files\out8" />
-    <None Include="..\..\convhull_BF-files\out9" />
-    <None Include="..\..\convhull_BF-files\points1" />
-    <None Include="..\..\convhull_BF-files\points2" />
-    <None Include="..\..\convhull_BF-files\points3" />
-    <None Include="..\..\convhull_BF-files\points4" />
-    <None Include="..\..\convhull_BF-files\points5" />
-    <None Include="..\..\convhull_BF-files\points6" />
+    <None Include="..\..\closest_pair_dc-files\Makefile" />
+    <None Include="..\..\closest_pair_dc-files\Makefile2" />
+    <None Include="..\..\closest_pair_dc-files\out0" />
+    <None Include="..\..\closest_pair_dc-files\out1" />
+    <None Include="..\..\closest_pair_dc-files\out10" />
+    <None Include="..\..\closest_pair_dc-files\out11" />
+    <None Include="..\..\closest_pair_dc-files\out12" />
+    <None Include="..\..\closest_pair_dc-files\out13" />
+    <None Include="..\..\closest_pair_dc-files\out14" />
+    <None Include="..\..\closest_pair_dc-files\out2" />
+    <None Include="..\..\closest_pair_dc-files\out3" />
+    <None Include="..\..\closest_pair_dc-files\out4" />
+    <None Include="..\..\closest_pair_dc-files\out5" />
+    <None Include="..\..\closest_pair_dc-files\out6" />
+    <None Include="..\..\closest_pair_dc-files\out7" />
+    <None Include="..\..\closest_pair_dc-files\out8" />
+    <None Include="..\..\closest_pair_dc-files\out9" />
+    <None Include="..\..\closest_pair_dc-files\points1" />
+    <None Include="..\..\closest_pair_dc-files\points2" />
+    <None Include="..\..\closest_pair_dc-files\points3" />
+    <None Include="..\..\closest_pair_dc-files\points4" />
+    <None Include="..\..\closest_pair_dc-files\points5" />
+    <None Include="..\..\closest_pair_dc-files\points6" />
+    <None Include="..\..\closest_pair_dc-files\points7" />
+    <None Include="..\..\closest_pair_dc-files\points8" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

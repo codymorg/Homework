@@ -15,88 +15,97 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\convhull_BF-files\driver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\convhull_BF-files\hull-bruteforce.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\..\convhull_BF-files\handout.txt">
-      <Filter>Source Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\convhull_BF-files\hull-bruteforce.h">
+    <ClInclude Include="..\..\closest_pair_dc-files\closestpair.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\convhull_BF-files\Makefile">
+    <ClCompile Include="..\..\closest_pair_dc-files\driver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\closest_pair_dc-files\closestpair.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\closest_pair_dc-files\handout.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\closest_pair_dc-files\Makefile">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\Makefile2">
+    <None Include="..\..\closest_pair_dc-files\Makefile2">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out0">
+    <None Include="..\..\closest_pair_dc-files\out0">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out1">
+    <None Include="..\..\closest_pair_dc-files\out1">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out2">
+    <None Include="..\..\closest_pair_dc-files\out2">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out3">
+    <None Include="..\..\closest_pair_dc-files\out3">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out4">
+    <None Include="..\..\closest_pair_dc-files\out4">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out5">
+    <None Include="..\..\closest_pair_dc-files\out5">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out6">
+    <None Include="..\..\closest_pair_dc-files\out6">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out7">
+    <None Include="..\..\closest_pair_dc-files\out7">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out8">
+    <None Include="..\..\closest_pair_dc-files\out8">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out9">
+    <None Include="..\..\closest_pair_dc-files\out9">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out10">
+    <None Include="..\..\closest_pair_dc-files\out10">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out11">
+    <None Include="..\..\closest_pair_dc-files\out11">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out12">
+    <None Include="..\..\closest_pair_dc-files\out12">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\out13">
+    <None Include="..\..\closest_pair_dc-files\out13">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\points1">
+    <None Include="..\..\closest_pair_dc-files\out14">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\points2">
+    <None Include="..\..\closest_pair_dc-files\points1">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\points3">
+    <None Include="..\..\closest_pair_dc-files\points2">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\points4">
+    <None Include="..\..\closest_pair_dc-files\points3">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\points5">
+    <None Include="..\..\closest_pair_dc-files\points4">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\convhull_BF-files\points6">
+    <None Include="..\..\closest_pair_dc-files\points5">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\closest_pair_dc-files\points6">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\closest_pair_dc-files\points7">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\closest_pair_dc-files\points8">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
