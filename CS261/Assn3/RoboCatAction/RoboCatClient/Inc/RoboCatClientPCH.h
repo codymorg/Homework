@@ -18,6 +18,7 @@
 #include <RoboCatClient.h>
 #include <MouseClient.h>
 #include <YarnClient.h>
+#include "grenadeClient.h"
 
 #include <HUD.h>
 

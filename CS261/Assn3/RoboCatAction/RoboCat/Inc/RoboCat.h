@@ -67,6 +67,7 @@ protected:
 	int					mHealth;
 
 	bool				mIsShooting;
+  bool grenade_rc;
 
 	
 

@@ -21,6 +21,7 @@ public:
   bool validateHyperYarnOnServer = false;
   bool hyperYarnHit = false;
   Vector3 hyperYarnColor = Vector3(-1.0f,-1.0f,-1.0f);
+  bool grenadeOut = false;
 private:
 	friend class InputManager;
 

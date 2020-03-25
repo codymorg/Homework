@@ -44,14 +44,19 @@ void RenderManager::RemoveComponent( SpriteComponent* inComponent )
 void RenderManager::AddLine(Vector2 start, Vector2 end, Vector3 color, float TTL, int ID)
 {
   auto state = InputManager::sInstance->GetState();
-  if (state.hyperYarnColor.mX == -1.0f && state.hyperYarnColor.mY != 1.0f)
+  if (!hyperYarnActive)
   {
-    InputManager::sInstance->GetState().hyperYarnColor.mY = 1.0f;
     InputManager::sInstance->GetState().validateHyperYarnOnServer = true;
-    InputManager::sInstance->GetState().hyperYarnHit = 0;
+    InputManager::sInstance->GetState().hyperYarnHit = false;
+    hyperYarnActive = true;
 
     lines.push_back(Line(start, end, color, TTL, ID));
   }
+}
+
+void RenderManager::AddEnemyLine(Vector2 start, Vector2 end, Vector3 color, float TTL)
+{
+  lines.push_back(Line(start, end, color, TTL, -1));
 }
 
 
@@ -90,36 +95,41 @@ void RenderManager::RenderLines()
     Line& line = lines[i];
     if (line.isValid)
     {
-      for (auto sprite : RenderManager::sInstance->mComponents)
+      if (line.networkID != -1)
       {
-        // dont shoot ourselves
-        if (sprite->mGameObject->GetNetworkId() != line.networkID)
+        for (auto sprite : RenderManager::sInstance->mComponents)
         {
+          auto cat = sprite->mGameObject->GetAsCat();
+          // dont shoot ourselves
+          if (sprite->mGameObject->GetNetworkId() != line.networkID && cat != nullptr)
+          {
 
-          // find where we are and how big the cat is
-          Vector2 center = WorldToScreen(sprite->mGameObject->GetLocation());
-          float objScale = sprite->mGameObject->GetScale();
-          int width = static_cast<int>(sprite->mTexture->GetWidth() * objScale);
-          int height = static_cast<int>(sprite->mTexture->GetHeight() * objScale);
-          int radius = std::max(width, height);
+            // find where we are and how big the cat is
+            Vector2 center = WorldToScreen(sprite->mGameObject->GetLocation());
+            float objScale = sprite->mGameObject->GetScale();
+            int width = static_cast<int>(sprite->mTexture->GetWidth() * objScale);
+            int height = static_cast<int>(sprite->mTexture->GetHeight() * objScale);
+            int radius = std::max(width, height);
 
-          // let's just do circle line intersection since that's easy and CS350 has scarred me for life in reference to bounding volumes
-          if (line.intersect(center, radius/2))
-          {
-            line.color = Vector3(255, 0, 0);
-            InputManager::sInstance->GetState().hyperYarnHit = 1;
-            std::cout << "hit! " << InputManager::sInstance->GetState().hyperYarnHit << "\n";
-          }
-          else
-          {
-            std::cout << "miss!" << InputManager::sInstance->GetState().hyperYarnHit << "\n";
-          }
-          if (InputManager::sInstance->GetState().hyperYarnColor.mX != -1.0f)
-          {
-            line.color = InputManager::sInstance->GetState().hyperYarnColor;
+            // let's just do circle line intersection since that's easy and CS350 has scarred me for life in reference to bounding volumes
+            if (line.intersect(center, radius/2))
+            {
+              line.color = Vector3(255, 0, 0);
+              InputManager::sInstance->GetState().hyperYarnHit = 1;
+              //std::cout << "hit! " << InputManager::sInstance->GetState().hyperYarnHit << "\n";
+            }
+            else
+            {
+              //std::cout << "miss!" << InputManager::sInstance->GetState().hyperYarnHit << "\n";
+            }
+            if (InputManager::sInstance->GetState().hyperYarnColor.mX != -1.0f)
+            {
+              line.color = InputManager::sInstance->GetState().hyperYarnColor;
+            }
           }
         }
       }
+
       line.update();
       line.draw();
 
@@ -127,8 +137,22 @@ void RenderManager::RenderLines()
     else
     {
       lines.erase(lines.begin() + i);
-      InputManager::sInstance->GetState().hyperYarnColor = Vector3(-1.0f, -1.0f, -1.0f);
+      if (line.networkID != -1)
+      {
+        InputManager::sInstance->GetState().hyperYarnColor = Vector3(-1.0f, -1.0f, -1.0f);
+        hyperYarnActive = false;
+      }
+    }
+  }
+}
 
+std::pair<Vector2, Vector2> RenderManager::GetHyperYarnLine()
+{
+  for (auto line : lines)
+  {
+    if (line.networkID != -1)
+    {
+      return std::make_pair(line.start_, line.end_);
     }
   }
 }

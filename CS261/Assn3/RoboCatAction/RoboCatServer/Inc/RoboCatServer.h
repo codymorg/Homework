@@ -1,3 +1,7 @@
+#pragma once
+#ifndef RCS_H
+#define RCS_H
+
 enum ECatControlType
 {
 	ESCT_Human,
@@ -22,6 +26,8 @@ protected:
 private:
 
 	void HandleShooting();
+  void HandleGrenade();
+
 
 	ECatControlType	mCatControlType;
 
@@ -30,3 +36,4 @@ private:
 	float		mTimeBetweenShots;
 
 };
+#endif

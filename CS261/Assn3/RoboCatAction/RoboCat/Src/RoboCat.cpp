@@ -37,6 +37,7 @@ void RoboCat::ProcessInput( float inDeltaTime, const InputState& inInputState )
 
 
 	mIsShooting = inInputState.IsShooting(); 
+  grenade_rc = inInputState.grenadeOut;
 
 
   

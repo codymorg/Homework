@@ -50,6 +50,7 @@ void RoboCatServer::Update()
 	}
 
 	HandleShooting();
+  HandleGrenade();
 
 	if( !RoboMath::Is2DVectorEqual( oldLocation, GetLocation() ) ||
 		!RoboMath::Is2DVectorEqual( oldVelocity, GetVelocity() ) ||
@@ -70,8 +71,24 @@ void RoboCatServer::HandleShooting()
 
 		//fire!
 		YarnPtr yarn = std::static_pointer_cast< Yarn >( GameObjectRegistry::sInstance->CreateGameObject( 'YARN' ) );
+		//GrenadePtr yarn = std::static_pointer_cast< Grenade >( GameObjectRegistry::sInstance->CreateGameObject( 'GREN' ) );
 		yarn->InitFromShooter( this );
 	}
+}
+
+void RoboCatServer::HandleGrenade()
+{
+  float time = Timing::sInstance.GetFrameStartTime();
+  if (grenade_rc && Timing::sInstance.GetFrameStartTime() > mTimeOfNextShot)
+  {
+    //not exact, but okay
+    mTimeOfNextShot = time + mTimeBetweenShots;
+
+    //fire!
+    //YarnPtr yarn = std::static_pointer_cast< Yarn >( GameObjectRegistry::sInstance->CreateGameObject( 'YARN' ) );
+    GrenadePtr yarn = std::static_pointer_cast<Grenade>(GameObjectRegistry::sInstance->CreateGameObject('GREN'));
+    yarn->InitFromShooter(this);
+  }
 }
 
 void RoboCatServer::TakeDamage( int inDamagingPlayerId )
