@@ -19,55 +19,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\e_dijkstra-files\driver.cpp" />
-    <ClCompile Include="..\..\e_dijkstra-files\e-dijkstra.cpp" />
+    <ClCompile Include="..\..\e_dijkstra_2-files\driver.cpp" />
+    <ClCompile Include="..\..\e_dijkstra_2-files\e-dijkstra-solver.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\e_dijkstra-files\e-dijkstra.h" />
+    <ClInclude Include="..\..\e_dijkstra_2-files\e-dijkstra-solver.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\e_dijkstra-files\handout.txt" />
+    <Text Include="..\..\e_dijkstra_2-files\handout.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\e_dijkstra-files\in0" />
-    <None Include="..\..\e_dijkstra-files\in1" />
-    <None Include="..\..\e_dijkstra-files\in1.dot.pdf" />
-    <None Include="..\..\e_dijkstra-files\in2" />
-    <None Include="..\..\e_dijkstra-files\in3" />
-    <None Include="..\..\e_dijkstra-files\in4" />
-    <None Include="..\..\e_dijkstra-files\in5" />
-    <None Include="..\..\e_dijkstra-files\Makefile" />
-    <None Include="..\..\e_dijkstra-files\Makefile2" />
-    <None Include="..\..\e_dijkstra-files\out0" />
-    <None Include="..\..\e_dijkstra-files\out1" />
-    <None Include="..\..\e_dijkstra-files\out10" />
-    <None Include="..\..\e_dijkstra-files\out11" />
-    <None Include="..\..\e_dijkstra-files\out12" />
-    <None Include="..\..\e_dijkstra-files\out13" />
-    <None Include="..\..\e_dijkstra-files\out14" />
-    <None Include="..\..\e_dijkstra-files\out15" />
-    <None Include="..\..\e_dijkstra-files\out16" />
-    <None Include="..\..\e_dijkstra-files\out17" />
-    <None Include="..\..\e_dijkstra-files\out18" />
-    <None Include="..\..\e_dijkstra-files\out19" />
-    <None Include="..\..\e_dijkstra-files\out2" />
-    <None Include="..\..\e_dijkstra-files\out20" />
-    <None Include="..\..\e_dijkstra-files\out21" />
-    <None Include="..\..\e_dijkstra-files\out22" />
-    <None Include="..\..\e_dijkstra-files\out23" />
-    <None Include="..\..\e_dijkstra-files\out24" />
-    <None Include="..\..\e_dijkstra-files\out25" />
-    <None Include="..\..\e_dijkstra-files\out26" />
-    <None Include="..\..\e_dijkstra-files\out27" />
-    <None Include="..\..\e_dijkstra-files\out28" />
-    <None Include="..\..\e_dijkstra-files\out29" />
-    <None Include="..\..\e_dijkstra-files\out3" />
-    <None Include="..\..\e_dijkstra-files\out4" />
-    <None Include="..\..\e_dijkstra-files\out5" />
-    <None Include="..\..\e_dijkstra-files\out6" />
-    <None Include="..\..\e_dijkstra-files\out7" />
-    <None Include="..\..\e_dijkstra-files\out8" />
-    <None Include="..\..\e_dijkstra-files\out9" />
+    <None Include="..\..\e_dijkstra_2-files\in0" />
+    <None Include="..\..\e_dijkstra_2-files\in1" />
+    <None Include="..\..\e_dijkstra_2-files\in2" />
+    <None Include="..\..\e_dijkstra_2-files\in3" />
+    <None Include="..\..\e_dijkstra_2-files\in4" />
+    <None Include="..\..\e_dijkstra_2-files\in5" />
+    <None Include="..\..\e_dijkstra_2-files\in6" />
+    <None Include="..\..\e_dijkstra_2-files\in7" />
+    <None Include="..\..\e_dijkstra_2-files\Makefile" />
+    <None Include="..\..\e_dijkstra_2-files\Makefile2" />
+    <None Include="..\..\e_dijkstra_2-files\out0" />
+    <None Include="..\..\e_dijkstra_2-files\out1" />
+    <None Include="..\..\e_dijkstra_2-files\out2" />
+    <None Include="..\..\e_dijkstra_2-files\out3" />
+    <None Include="..\..\e_dijkstra_2-files\out4" />
+    <None Include="..\..\e_dijkstra_2-files\out5" />
+    <None Include="..\..\e_dijkstra_2-files\out6" />
+    <None Include="..\..\e_dijkstra_2-files\out7" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
