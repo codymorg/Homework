@@ -1,0 +1,325 @@
+{
+	"info": {
+		"_postman_id": "65f39025-53c6-44a1-ac42-03f72092e650",
+		"name": "CS261 Redis Lab",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Post a score for a game",
+			"item": [
+				{
+					"name": "Add a new player's score for new game succeeds",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "89acbef3-1e23-4c1f-869c-31f4a0d164b5",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"\r",
+									"pm.test(\"status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test('should return test game', function() {\r",
+									"    pm.expect(jsonData).to.have.property('name');\r",
+									"    pm.expect(jsonData.name).to.eql(pm.environment.get(\"gameName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score datas', function() {\r",
+									"    pm.expect(jsonData).to.have.property('scores');\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score data for the first user', function() {\r",
+									"    let testScore = parseInt(pm.environment.get(\"score\"));\r",
+									"    pm.expect(jsonData.scores).to.have.property(pm.environment.get(\"playerName\"));\r",
+									"    pm.expect(jsonData.scores[pm.environment.get(\"playerName\")]).to.equal(testScore);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3afe25c2-e3ac-4a52-a264-c353a95daa8b",
+								"exec": [
+									"var digits = '' + Math.floor((Math.random() * 100000));",
+									"pm.environment.set(\"gameName\", \"game\" + digits);",
+									"pm.environment.set(\"playerName\", \"player\" + digits);",
+									"pm.environment.set(\"score\", digits);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"score\" : {{score}}\n}"
+						},
+						"url": "http://{{address}}:{{port}}/scoresLab/games/{{gameName}}/scores/{{playerName}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Add another player's score for existing game succeeds",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "89acbef3-1e23-4c1f-869c-31f4a0d164b5",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"\r",
+									"pm.test(\"status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test('should return test game', function() {\r",
+									"    pm.expect(jsonData).to.have.property('name');\r",
+									"    pm.expect(jsonData.name).to.eql(pm.environment.get(\"gameName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score datas', function() {\r",
+									"    pm.expect(jsonData).to.have.property('scores');\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score data for the first user', function() {\r",
+									"    let testScore = parseInt(pm.environment.get(\"score\"));\r",
+									"    pm.expect(jsonData.scores).to.have.property(pm.environment.get(\"playerName\"));\r",
+									"    pm.expect(jsonData.scores[pm.environment.get(\"playerName\")]).to.equal(testScore);\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score data for the second user', function() {\r",
+									"    let testScore = parseInt(pm.environment.get(\"anotherScore\"));\r",
+									"    pm.expect(jsonData.scores).to.have.property(pm.environment.get(\"anotherPlayerName\"));\r",
+									"    pm.expect(jsonData.scores[pm.environment.get(\"anotherPlayerName\")]).to.equal(testScore);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3afe25c2-e3ac-4a52-a264-c353a95daa8b",
+								"exec": [
+									"var digits = '' + Math.floor((Math.random() * 100000));",
+									"pm.environment.set(\"anotherPlayerName\", \"player\" + digits);",
+									"pm.environment.set(\"anotherScore\", digits);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"score\" : {{anotherScore}}\n}"
+						},
+						"url": "http://{{address}}:{{port}}/scoresLab/games/{{gameName}}/scores/{{anotherPlayerName}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Updating score for existing player on existing game succeeds",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "89acbef3-1e23-4c1f-869c-31f4a0d164b5",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"\r",
+									"pm.test(\"status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test('should return test game', function() {\r",
+									"    pm.expect(jsonData).to.have.property('name');\r",
+									"    pm.expect(jsonData.name).to.eql(pm.environment.get(\"gameName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score datas', function() {\r",
+									"    pm.expect(jsonData).to.have.property('scores');\r",
+									"});\r",
+									"\r",
+									"pm.test('should have updated score data for the first user', function() {\r",
+									"    let testScore = parseInt(pm.environment.get(\"originalPlayerNewScore\"));\r",
+									"    pm.expect(jsonData.scores).to.have.property(pm.environment.get(\"playerName\"));\r",
+									"    pm.expect(jsonData.scores[pm.environment.get(\"playerName\")]).to.equal(testScore);\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score data for the second user', function() {\r",
+									"    let testScore = parseInt(pm.environment.get(\"anotherScore\"));\r",
+									"    pm.expect(jsonData.scores).to.have.property(pm.environment.get(\"anotherPlayerName\"));\r",
+									"    pm.expect(jsonData.scores[pm.environment.get(\"anotherPlayerName\")]).to.equal(testScore);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3afe25c2-e3ac-4a52-a264-c353a95daa8b",
+								"exec": [
+									"var digits = '' + Math.floor((Math.random() * 100000));",
+									"pm.environment.set(\"originalPlayerNewScore\", digits);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"score\" : {{originalPlayerNewScore}}\n}"
+						},
+						"url": "http://{{address}}:{{port}}/scoresLab/games/{{gameName}}/scores/{{playerName}}"
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d7f3f648-e03f-4efb-9c4a-54a2a4788dd1",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "8e31a231-2114-4d42-b80d-4be246acfd38",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Retrieve scores",
+			"item": [
+				{
+					"name": "Request scores for existing game succeeds",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5a3a7ff-5a45-4ddd-aa22-ad9d83854330",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"\r",
+									"pm.test(\"status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test('should return test game', function() {\r",
+									"    pm.expect(jsonData).to.have.property('name');\r",
+									"    pm.expect(jsonData.name).to.eql(pm.environment.get(\"gameName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score datas', function() {\r",
+									"    pm.expect(jsonData).to.have.property('scores');\r",
+									"});\r",
+									"\r",
+									"pm.test('should have updated score data for the first user', function() {\r",
+									"    let testScore = parseInt(pm.environment.get(\"originalPlayerNewScore\"));\r",
+									"    pm.expect(jsonData.scores).to.have.property(pm.environment.get(\"playerName\"));\r",
+									"    pm.expect(jsonData.scores[pm.environment.get(\"playerName\")]).to.equal(testScore);\r",
+									"});\r",
+									"\r",
+									"pm.test('should have score data for the second user', function() {\r",
+									"    let testScore = parseInt(pm.environment.get(\"anotherScore\"));\r",
+									"    pm.expect(jsonData.scores).to.have.property(pm.environment.get(\"anotherPlayerName\"));\r",
+									"    pm.expect(jsonData.scores[pm.environment.get(\"anotherPlayerName\")]).to.equal(testScore);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://{{address}}:{{port}}/scoresLab/games/{{gameName}}/scores"
+					},
+					"response": []
+				},
+				{
+					"name": "Request scores for incorrect game fails",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b5a3a7ff-5a45-4ddd-aa22-ad9d83854330",
+								"exec": [
+									"pm.test(\"status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://{{address}}:{{port}}/scoresLab/games/{{gameName}}{{gameName}}/scores"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"variable": [
+		{
+			"id": "e23e8b87-a06c-4943-802c-862dac41f36a",
+			"key": "address",
+			"value": "localhost",
+			"type": "string"
+		},
+		{
+			"id": "a7498db9-9824-468a-890f-964ef27592d3",
+			"key": "port",
+			"value": "4000",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
