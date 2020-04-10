@@ -8,12 +8,11 @@ INCLUDEDIR3=./SDL/include
 
 GPPPARAMS=$(GPP_SWITCHES) -I$(INCLUDEDIR1) -I$(INCLUDEDIR2) -I$(INCLUDEDIR3)
 
+
 server:
 	g++ $(GPPPARAMS) -c RoboCat/Src/*.cpp
-	g++ $(GPPPARAMS) -c RoboCatServer/Src/*.cpp
-
-
-	g++ -o $(EXE) *.o
+	g++ $(GPPPARAMS) -c RoboCatServer/Src/*.cpp -l crypto
+	g++ -o $(EXE) *.o -l crypto
 
 clean:
 	rm *.o

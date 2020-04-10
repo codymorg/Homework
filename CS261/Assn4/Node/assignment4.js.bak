@@ -1,5 +1,5 @@
 /** require all modules */
-let express = require('express')
+let express = require('express');
 
 let {User, Session } = require("./ServerClasses.js")
 let { ExtractName } = require("./ServerFunctions.js")
@@ -12,18 +12,15 @@ let REDIS_SERVER     = process.env.REDIS_SERVER
 let REDIS_PORT       = process.env.REDIS_PORT      
 let EXPRESS_PORT     = process.env.EXPRESS_PORT    
 let SESSION_DURATION = process.env.SESSION_DURATION
-let SHARED_SECRET    = process.env.SHARED_SECRET
-let GAME_SEVER       = '127.0.0.1:3300'
-
-if(NODE_ENV         == null) {NODE_ENV         = 'testing mode'             }
-if(MONGO_SERVER     == null) {MONGO_SERVER     = 'mongodb://localhost:27017'}
-if(MONGO_DB_NAME    == null) {MONGO_DB_NAME    = 'userDB_test'              }
-if(REDIS_SERVER     == null) {REDIS_SERVER     = '127.0.0.1'                }
-if(REDIS_PORT       == null) {REDIS_PORT       = 6379                       }
-if(EXPRESS_PORT     == null) {EXPRESS_PORT     = 3100                       }
-if(SESSION_DURATION == null) {SESSION_DURATION = 10                         }
-if(SHARED_SECRET    == null) {SHARED_SECRET    = 'CS261S20'                 }
-                    
+if(NODE_ENV == null){
+    NODE_ENV         = 'testing mode',
+    MONGO_SERVER     = 'mongodb://localhost:27017',
+    MONGO_DB_NAME    = 'userDB_test',
+    REDIS_SERVER     = '127.0.0.1',
+    REDIS_PORT       = 6379,
+    EXPRESS_PORT     = 3100,
+    SESSION_DURATION = 10
+}
 /** set up server traits */
 let app = express();
 app.listen(EXPRESS_PORT)
@@ -393,7 +390,7 @@ mongoClient.connect(() => {
                             res.sendStatus(500)
                         }
                         else {
-                            result[key].server = GAME_SEVER
+                            result[key].server = "127.0.0.1:3300"
                             res.send(result[key])
                         }
                     }
