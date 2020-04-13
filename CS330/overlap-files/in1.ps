@@ -1,0 +1,444 @@
+%!PS-Adobe-3.0
+%%Title: (in1.ps)
+%%LanguageLevel: 1
+%%Creator: PostScript::Simple perl module version 0.09
+%%CreationDate: Tue Nov  5 13:51:26 2019
+%%For: Console
+%%DocumentMedia: Letter 612 792 0 ( ) ( )
+%%Orientation: Portrait
+%%Pages: 1
+%%EndComments
+%%BeginProlog
+/ll 1 def systemdict /languagelevel known {
+/ll languagelevel def } if
+%%BeginResource: PostScript::Simple-REENCODEFONT
+/STARTDIFFENC { mark } bind def
+/ENDDIFFENC { 
+
+% /NewEnc BaseEnc STARTDIFFENC number or glyphname ... ENDDIFFENC -
+	counttomark 2 add -1 roll 256 array copy
+	/TempEncode exch def
+
+	% pointer for sequential encodings
+	/EncodePointer 0 def
+	{
+		% Get the bottom object
+		counttomark -1 roll
+		% Is it a mark?
+		dup type dup /marktype eq {
+			% End of encoding
+			pop pop exit
+		} {
+			/nametype eq {
+			% Insert the name at EncodePointer 
+
+			% and increment the pointer.
+			TempEncode EncodePointer 3 -1 roll put
+			/EncodePointer EncodePointer 1 add def
+			} {
+			% Set the EncodePointer to the number
+			/EncodePointer exch def
+			} ifelse
+		} ifelse
+	} loop
+
+	TempEncode def
+} bind def
+
+% Define ISO Latin1 encoding if it doesnt exist
+/ISOLatin1Encoding where {
+%	(ISOLatin1 exists!) =
+	pop
+} {
+	(ISOLatin1 does not exist, creating...) =
+	/ISOLatin1Encoding StandardEncoding STARTDIFFENC
+		144 /dotlessi /grave /acute /circumflex /tilde 
+		/macron /breve /dotaccent /dieresis /.notdef /ring 
+		/cedilla /.notdef /hungarumlaut /ogonek /caron /space 
+		/exclamdown /cent /sterling /currency /yen /brokenbar 
+		/section /dieresis /copyright /ordfeminine 
+		/guillemotleft /logicalnot /hyphen /registered 
+		/macron /degree /plusminus /twosuperior 
+		/threesuperior /acute /mu /paragraph /periodcentered 
+		/cedilla /onesuperior /ordmasculine /guillemotright 
+		/onequarter /onehalf /threequarters /questiondown 
+		/Agrave /Aacute /Acircumflex /Atilde /Adieresis 
+		/Aring /AE /Ccedilla /Egrave /Eacute /Ecircumflex 
+		/Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+		/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde 
+		/Odieresis /multiply /Oslash /Ugrave /Uacute 
+		/Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+		/agrave /aacute /acircumflex /atilde /adieresis 
+		/aring /ae /ccedilla /egrave /eacute /ecircumflex 
+		/edieresis /igrave /iacute /icircumflex /idieresis 
+		/eth /ntilde /ograve /oacute /ocircumflex /otilde 
+		/odieresis /divide /oslash /ugrave /uacute 
+		/ucircumflex /udieresis /yacute /thorn /ydieresis
+	ENDDIFFENC
+} ifelse
+
+% Name: Re-encode Font
+% Description: Creates a new font using the named encoding. 
+
+/REENCODEFONT { % /Newfont NewEncoding /Oldfont
+	findfont dup length 4 add dict
+	begin
+		{ % forall
+			1 index /FID ne 
+			2 index /UniqueID ne and
+			2 index /XUID ne and
+			{ def } { pop pop } ifelse
+		} forall
+		/Encoding exch def
+		% defs for DPS
+		/BitmapWidths false def
+		/ExactSize 0 def
+		/InBetweenSize 0 def
+		/TransformedChar 0 def
+		currentdict
+	end
+	definefont pop
+} bind def
+
+% Reencode the std fonts: 
+/Courier-iso ISOLatin1Encoding /Courier REENCODEFONT
+/Courier-Bold-iso ISOLatin1Encoding /Courier-Bold REENCODEFONT
+/Courier-BoldOblique-iso ISOLatin1Encoding /Courier-BoldOblique REENCODEFONT
+/Courier-Oblique-iso ISOLatin1Encoding /Courier-Oblique REENCODEFONT
+/Helvetica-iso ISOLatin1Encoding /Helvetica REENCODEFONT
+/Helvetica-Bold-iso ISOLatin1Encoding /Helvetica-Bold REENCODEFONT
+/Helvetica-BoldOblique-iso ISOLatin1Encoding /Helvetica-BoldOblique REENCODEFONT
+/Helvetica-Oblique-iso ISOLatin1Encoding /Helvetica-Oblique REENCODEFONT
+/Times-Roman-iso ISOLatin1Encoding /Times-Roman REENCODEFONT
+/Times-Bold-iso ISOLatin1Encoding /Times-Bold REENCODEFONT
+/Times-BoldItalic-iso ISOLatin1Encoding /Times-BoldItalic REENCODEFONT
+/Times-Italic-iso ISOLatin1Encoding /Times-Italic REENCODEFONT
+/Symbol-iso ISOLatin1Encoding /Symbol REENCODEFONT
+%%EndResource
+%%BeginResource: PostScript::Simple-box
+/box {
+  newpath 3 copy pop exch 4 copy pop pop
+  8 copy pop pop pop pop exch pop exch
+  3 copy pop pop exch moveto lineto
+  lineto lineto pop pop pop pop closepath
+} bind def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+/umm {72 mul 25.4 div} def
+ll 2 ge { << /PageSize [ 612 792 ] /ImagingBBox null >> setpagedevice } if
+%%EndSetup
+%%Page: 1 1
+%%BeginPageSetup
+/pagelevel save def
+%%EndPageSetup
+0 0 0 setrgbcolor
+/ArialBold-iso findfont 8 scalefont setfont
+newpath
+5 umm 5 umm moveto
+205 umm 5 umm lineto stroke
+newpath
+205 umm 5 umm moveto
+(X)   show stroke 
+newpath
+5 umm 5 umm moveto
+5 umm 265 umm lineto stroke
+newpath
+5 umm 265 umm moveto
+(Y)   show stroke 
+0.01 umm setlinewidth
+newpath
+5 umm 5 umm moveto
+5 umm 265 umm lineto stroke
+newpath
+10 umm 7 umm moveto
+(0)   show stroke 
+newpath
+15 umm 5 umm moveto
+15 umm 265 umm lineto stroke
+newpath
+20 umm 7 umm moveto
+(1)   show stroke 
+newpath
+25 umm 5 umm moveto
+25 umm 265 umm lineto stroke
+newpath
+30 umm 7 umm moveto
+(2)   show stroke 
+newpath
+35 umm 5 umm moveto
+35 umm 265 umm lineto stroke
+newpath
+40 umm 7 umm moveto
+(3)   show stroke 
+newpath
+45 umm 5 umm moveto
+45 umm 265 umm lineto stroke
+newpath
+50 umm 7 umm moveto
+(4)   show stroke 
+newpath
+55 umm 5 umm moveto
+55 umm 265 umm lineto stroke
+newpath
+60 umm 7 umm moveto
+(5)   show stroke 
+newpath
+65 umm 5 umm moveto
+65 umm 265 umm lineto stroke
+newpath
+70 umm 7 umm moveto
+(6)   show stroke 
+newpath
+75 umm 5 umm moveto
+75 umm 265 umm lineto stroke
+newpath
+80 umm 7 umm moveto
+(7)   show stroke 
+newpath
+85 umm 5 umm moveto
+85 umm 265 umm lineto stroke
+newpath
+90 umm 7 umm moveto
+(8)   show stroke 
+newpath
+95 umm 5 umm moveto
+95 umm 265 umm lineto stroke
+newpath
+100 umm 7 umm moveto
+(9)   show stroke 
+newpath
+105 umm 5 umm moveto
+105 umm 265 umm lineto stroke
+newpath
+110 umm 7 umm moveto
+(10)   show stroke 
+newpath
+115 umm 5 umm moveto
+115 umm 265 umm lineto stroke
+newpath
+120 umm 7 umm moveto
+(11)   show stroke 
+newpath
+125 umm 5 umm moveto
+125 umm 265 umm lineto stroke
+newpath
+130 umm 7 umm moveto
+(12)   show stroke 
+newpath
+135 umm 5 umm moveto
+135 umm 265 umm lineto stroke
+newpath
+140 umm 7 umm moveto
+(13)   show stroke 
+newpath
+145 umm 5 umm moveto
+145 umm 265 umm lineto stroke
+newpath
+150 umm 7 umm moveto
+(14)   show stroke 
+newpath
+155 umm 5 umm moveto
+155 umm 265 umm lineto stroke
+newpath
+160 umm 7 umm moveto
+(15)   show stroke 
+newpath
+165 umm 5 umm moveto
+165 umm 265 umm lineto stroke
+newpath
+170 umm 7 umm moveto
+(16)   show stroke 
+newpath
+175 umm 5 umm moveto
+175 umm 265 umm lineto stroke
+newpath
+180 umm 7 umm moveto
+(17)   show stroke 
+newpath
+185 umm 5 umm moveto
+185 umm 265 umm lineto stroke
+newpath
+190 umm 7 umm moveto
+(18)   show stroke 
+newpath
+195 umm 5 umm moveto
+195 umm 265 umm lineto stroke
+newpath
+200 umm 7 umm moveto
+(19)   show stroke 
+newpath
+205 umm 5 umm moveto
+205 umm 265 umm lineto stroke
+newpath
+210 umm 7 umm moveto
+(20)   show stroke 
+newpath
+5 umm 5 umm moveto
+205 umm 5 umm lineto stroke
+newpath
+7 umm 10 umm moveto
+(0)   show stroke 
+newpath
+5 umm 15 umm moveto
+205 umm 15 umm lineto stroke
+newpath
+7 umm 20 umm moveto
+(1)   show stroke 
+newpath
+5 umm 25 umm moveto
+205 umm 25 umm lineto stroke
+newpath
+7 umm 30 umm moveto
+(2)   show stroke 
+newpath
+5 umm 35 umm moveto
+205 umm 35 umm lineto stroke
+newpath
+7 umm 40 umm moveto
+(3)   show stroke 
+newpath
+5 umm 45 umm moveto
+205 umm 45 umm lineto stroke
+newpath
+7 umm 50 umm moveto
+(4)   show stroke 
+newpath
+5 umm 55 umm moveto
+205 umm 55 umm lineto stroke
+newpath
+7 umm 60 umm moveto
+(5)   show stroke 
+newpath
+5 umm 65 umm moveto
+205 umm 65 umm lineto stroke
+newpath
+7 umm 70 umm moveto
+(6)   show stroke 
+newpath
+5 umm 75 umm moveto
+205 umm 75 umm lineto stroke
+newpath
+7 umm 80 umm moveto
+(7)   show stroke 
+newpath
+5 umm 85 umm moveto
+205 umm 85 umm lineto stroke
+newpath
+7 umm 90 umm moveto
+(8)   show stroke 
+newpath
+5 umm 95 umm moveto
+205 umm 95 umm lineto stroke
+newpath
+7 umm 100 umm moveto
+(9)   show stroke 
+newpath
+5 umm 105 umm moveto
+205 umm 105 umm lineto stroke
+newpath
+7 umm 110 umm moveto
+(10)   show stroke 
+newpath
+5 umm 115 umm moveto
+205 umm 115 umm lineto stroke
+newpath
+7 umm 120 umm moveto
+(11)   show stroke 
+newpath
+5 umm 125 umm moveto
+205 umm 125 umm lineto stroke
+newpath
+7 umm 130 umm moveto
+(12)   show stroke 
+newpath
+5 umm 135 umm moveto
+205 umm 135 umm lineto stroke
+newpath
+7 umm 140 umm moveto
+(13)   show stroke 
+newpath
+5 umm 145 umm moveto
+205 umm 145 umm lineto stroke
+newpath
+7 umm 150 umm moveto
+(14)   show stroke 
+newpath
+5 umm 155 umm moveto
+205 umm 155 umm lineto stroke
+newpath
+7 umm 160 umm moveto
+(15)   show stroke 
+newpath
+5 umm 165 umm moveto
+205 umm 165 umm lineto stroke
+newpath
+7 umm 170 umm moveto
+(16)   show stroke 
+newpath
+5 umm 175 umm moveto
+205 umm 175 umm lineto stroke
+newpath
+7 umm 180 umm moveto
+(17)   show stroke 
+newpath
+5 umm 185 umm moveto
+205 umm 185 umm lineto stroke
+newpath
+7 umm 190 umm moveto
+(18)   show stroke 
+newpath
+5 umm 195 umm moveto
+205 umm 195 umm lineto stroke
+newpath
+7 umm 200 umm moveto
+(19)   show stroke 
+newpath
+5 umm 205 umm moveto
+205 umm 205 umm lineto stroke
+newpath
+7 umm 210 umm moveto
+(20)   show stroke 
+newpath
+5 umm 215 umm moveto
+205 umm 215 umm lineto stroke
+newpath
+7 umm 220 umm moveto
+(21)   show stroke 
+newpath
+5 umm 225 umm moveto
+205 umm 225 umm lineto stroke
+newpath
+7 umm 230 umm moveto
+(22)   show stroke 
+newpath
+5 umm 235 umm moveto
+205 umm 235 umm lineto stroke
+newpath
+7 umm 240 umm moveto
+(23)   show stroke 
+newpath
+5 umm 245 umm moveto
+205 umm 245 umm lineto stroke
+newpath
+7 umm 250 umm moveto
+(24)   show stroke 
+newpath
+5 umm 255 umm moveto
+205 umm 255 umm lineto stroke
+newpath
+7 umm 260 umm moveto
+(25)   show stroke 
+0.5 umm setlinewidth
+0.8 0 0 setrgbcolor
+5 umm 5 umm 115 umm 115 umm box stroke
+0 0 0.8 setrgbcolor
+15 umm 15 umm 125 umm 125 umm box stroke
+0 0.8 0 setrgbcolor
+25 umm 25 umm 135 umm 135 umm box stroke
+1 0 1 setrgbcolor
+35 umm 35 umm 145 umm 145 umm box stroke
+%%PageTrailer
+pagelevel restore
+showpage
+%%EOF

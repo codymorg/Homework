@@ -1,0 +1,236 @@
+%!PS-Adobe-3.0
+%%Title: (in2.ps)
+%%LanguageLevel: 1
+%%Creator: PostScript::Simple perl module version 0.09
+%%CreationDate: Tue Nov  5 14:44:06 2019
+%%For: Console
+%%DocumentMedia: Letter 612 792 0 ( ) ( )
+%%Orientation: Portrait
+%%Pages: 1
+%%EndComments
+%%BeginProlog
+/ll 1 def systemdict /languagelevel known {
+/ll languagelevel def } if
+%%BeginResource: PostScript::Simple-REENCODEFONT
+/STARTDIFFENC { mark } bind def
+/ENDDIFFENC { 
+
+% /NewEnc BaseEnc STARTDIFFENC number or glyphname ... ENDDIFFENC -
+	counttomark 2 add -1 roll 256 array copy
+	/TempEncode exch def
+
+	% pointer for sequential encodings
+	/EncodePointer 0 def
+	{
+		% Get the bottom object
+		counttomark -1 roll
+		% Is it a mark?
+		dup type dup /marktype eq {
+			% End of encoding
+			pop pop exit
+		} {
+			/nametype eq {
+			% Insert the name at EncodePointer 
+
+			% and increment the pointer.
+			TempEncode EncodePointer 3 -1 roll put
+			/EncodePointer EncodePointer 1 add def
+			} {
+			% Set the EncodePointer to the number
+			/EncodePointer exch def
+			} ifelse
+		} ifelse
+	} loop
+
+	TempEncode def
+} bind def
+
+% Define ISO Latin1 encoding if it doesnt exist
+/ISOLatin1Encoding where {
+%	(ISOLatin1 exists!) =
+	pop
+} {
+	(ISOLatin1 does not exist, creating...) =
+	/ISOLatin1Encoding StandardEncoding STARTDIFFENC
+		144 /dotlessi /grave /acute /circumflex /tilde 
+		/macron /breve /dotaccent /dieresis /.notdef /ring 
+		/cedilla /.notdef /hungarumlaut /ogonek /caron /space 
+		/exclamdown /cent /sterling /currency /yen /brokenbar 
+		/section /dieresis /copyright /ordfeminine 
+		/guillemotleft /logicalnot /hyphen /registered 
+		/macron /degree /plusminus /twosuperior 
+		/threesuperior /acute /mu /paragraph /periodcentered 
+		/cedilla /onesuperior /ordmasculine /guillemotright 
+		/onequarter /onehalf /threequarters /questiondown 
+		/Agrave /Aacute /Acircumflex /Atilde /Adieresis 
+		/Aring /AE /Ccedilla /Egrave /Eacute /Ecircumflex 
+		/Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+		/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde 
+		/Odieresis /multiply /Oslash /Ugrave /Uacute 
+		/Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+		/agrave /aacute /acircumflex /atilde /adieresis 
+		/aring /ae /ccedilla /egrave /eacute /ecircumflex 
+		/edieresis /igrave /iacute /icircumflex /idieresis 
+		/eth /ntilde /ograve /oacute /ocircumflex /otilde 
+		/odieresis /divide /oslash /ugrave /uacute 
+		/ucircumflex /udieresis /yacute /thorn /ydieresis
+	ENDDIFFENC
+} ifelse
+
+% Name: Re-encode Font
+% Description: Creates a new font using the named encoding. 
+
+/REENCODEFONT { % /Newfont NewEncoding /Oldfont
+	findfont dup length 4 add dict
+	begin
+		{ % forall
+			1 index /FID ne 
+			2 index /UniqueID ne and
+			2 index /XUID ne and
+			{ def } { pop pop } ifelse
+		} forall
+		/Encoding exch def
+		% defs for DPS
+		/BitmapWidths false def
+		/ExactSize 0 def
+		/InBetweenSize 0 def
+		/TransformedChar 0 def
+		currentdict
+	end
+	definefont pop
+} bind def
+
+% Reencode the std fonts: 
+/Courier-iso ISOLatin1Encoding /Courier REENCODEFONT
+/Courier-Bold-iso ISOLatin1Encoding /Courier-Bold REENCODEFONT
+/Courier-BoldOblique-iso ISOLatin1Encoding /Courier-BoldOblique REENCODEFONT
+/Courier-Oblique-iso ISOLatin1Encoding /Courier-Oblique REENCODEFONT
+/Helvetica-iso ISOLatin1Encoding /Helvetica REENCODEFONT
+/Helvetica-Bold-iso ISOLatin1Encoding /Helvetica-Bold REENCODEFONT
+/Helvetica-BoldOblique-iso ISOLatin1Encoding /Helvetica-BoldOblique REENCODEFONT
+/Helvetica-Oblique-iso ISOLatin1Encoding /Helvetica-Oblique REENCODEFONT
+/Times-Roman-iso ISOLatin1Encoding /Times-Roman REENCODEFONT
+/Times-Bold-iso ISOLatin1Encoding /Times-Bold REENCODEFONT
+/Times-BoldItalic-iso ISOLatin1Encoding /Times-BoldItalic REENCODEFONT
+/Times-Italic-iso ISOLatin1Encoding /Times-Italic REENCODEFONT
+/Symbol-iso ISOLatin1Encoding /Symbol REENCODEFONT
+%%EndResource
+%%BeginResource: PostScript::Simple-box
+/box {
+  newpath 3 copy pop exch 4 copy pop pop
+  8 copy pop pop pop pop exch pop exch
+  3 copy pop pop exch moveto lineto
+  lineto lineto pop pop pop pop closepath
+} bind def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+/umm {72 mul 25.4 div} def
+ll 2 ge { << /PageSize [ 612 792 ] /ImagingBBox null >> setpagedevice } if
+%%EndSetup
+%%Page: 1 1
+%%BeginPageSetup
+/pagelevel save def
+%%EndPageSetup
+0 0 0 setrgbcolor
+/ArialBold-iso findfont 8 scalefont setfont
+newpath
+5 umm 5 umm moveto
+205 umm 5 umm lineto stroke
+newpath
+205 umm 5 umm moveto
+(X)   show stroke 
+newpath
+5 umm 5 umm moveto
+5 umm 265 umm lineto stroke
+newpath
+5 umm 265 umm moveto
+(Y)   show stroke 
+0.01 umm setlinewidth
+newpath
+5 umm 5 umm moveto
+5 umm 265 umm lineto stroke
+newpath
+25 umm 7 umm moveto
+(0)   show stroke 
+newpath
+45 umm 5 umm moveto
+45 umm 265 umm lineto stroke
+newpath
+65 umm 7 umm moveto
+(1)   show stroke 
+newpath
+85 umm 5 umm moveto
+85 umm 265 umm lineto stroke
+newpath
+105 umm 7 umm moveto
+(2)   show stroke 
+newpath
+125 umm 5 umm moveto
+125 umm 265 umm lineto stroke
+newpath
+145 umm 7 umm moveto
+(3)   show stroke 
+newpath
+165 umm 5 umm moveto
+165 umm 265 umm lineto stroke
+newpath
+185 umm 7 umm moveto
+(4)   show stroke 
+newpath
+205 umm 5 umm moveto
+205 umm 265 umm lineto stroke
+newpath
+225 umm 7 umm moveto
+(5)   show stroke 
+newpath
+5 umm 5 umm moveto
+205 umm 5 umm lineto stroke
+newpath
+7 umm 25 umm moveto
+(0)   show stroke 
+newpath
+5 umm 45 umm moveto
+205 umm 45 umm lineto stroke
+newpath
+7 umm 65 umm moveto
+(1)   show stroke 
+newpath
+5 umm 85 umm moveto
+205 umm 85 umm lineto stroke
+newpath
+7 umm 105 umm moveto
+(2)   show stroke 
+newpath
+5 umm 125 umm moveto
+205 umm 125 umm lineto stroke
+newpath
+7 umm 145 umm moveto
+(3)   show stroke 
+newpath
+5 umm 165 umm moveto
+205 umm 165 umm lineto stroke
+newpath
+7 umm 185 umm moveto
+(4)   show stroke 
+newpath
+5 umm 205 umm moveto
+205 umm 205 umm lineto stroke
+newpath
+7 umm 225 umm moveto
+(5)   show stroke 
+newpath
+5 umm 245 umm moveto
+205 umm 245 umm lineto stroke
+newpath
+7 umm 265 umm moveto
+(6)   show stroke 
+0.5 umm setlinewidth
+0.8 0 0 setrgbcolor
+5 umm 5 umm 205 umm 205 umm box stroke
+0 0 0.8 setrgbcolor
+45 umm 45 umm 165 umm 165 umm box stroke
+%%PageTrailer
+pagelevel restore
+showpage
+%%EOF
