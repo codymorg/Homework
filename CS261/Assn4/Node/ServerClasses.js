@@ -24,7 +24,7 @@ class Session {
         const IDRange_ = 10000
         this.IDRange = 5
         this.token = (Math.round(Math.random() * IDRange_) + IDRange_ + 1).toString() // [10001, 20001]
-        this.username = name
+        this.key = name
         this.session = (Math.round(Math.random() * IDRange_)).toString()             // [0, 10000]
     }
 }
