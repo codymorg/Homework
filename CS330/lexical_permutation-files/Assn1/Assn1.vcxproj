@@ -19,34 +19,42 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\e_dijkstra_2-files\driver.cpp" />
-    <ClCompile Include="..\..\e_dijkstra_2-files\e-dijkstra-solver.cpp" />
+    <ClCompile Include="..\..\overlap-files\driver.cpp" />
+    <ClCompile Include="..\..\overlap-files\overlap.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\e_dijkstra_2-files\e-dijkstra-solver.h" />
+    <Text Include="..\..\overlap-files\handout.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\e_dijkstra_2-files\handout.txt" />
+    <None Include="..\..\overlap-files\in0" />
+    <None Include="..\..\overlap-files\in0.ps" />
+    <None Include="..\..\overlap-files\in1" />
+    <None Include="..\..\overlap-files\in1.ps" />
+    <None Include="..\..\overlap-files\in2" />
+    <None Include="..\..\overlap-files\in2.ps" />
+    <None Include="..\..\overlap-files\in3" />
+    <None Include="..\..\overlap-files\in4" />
+    <None Include="..\..\overlap-files\in5" />
+    <None Include="..\..\overlap-files\in6" />
+    <None Include="..\..\overlap-files\in7" />
+    <None Include="..\..\overlap-files\in8" />
+    <None Include="..\..\overlap-files\in_scan" />
+    <None Include="..\..\overlap-files\in_scan_10" />
+    <None Include="..\..\overlap-files\Makefile" />
+    <None Include="..\..\overlap-files\Makefile2" />
+    <None Include="..\..\overlap-files\out0" />
+    <None Include="..\..\overlap-files\out1" />
+    <None Include="..\..\overlap-files\out10" />
+    <None Include="..\..\overlap-files\out2" />
+    <None Include="..\..\overlap-files\out3" />
+    <None Include="..\..\overlap-files\out4" />
+    <None Include="..\..\overlap-files\out5" />
+    <None Include="..\..\overlap-files\out6" />
+    <None Include="..\..\overlap-files\out7" />
+    <None Include="..\..\overlap-files\out8" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\e_dijkstra_2-files\in0" />
-    <None Include="..\..\e_dijkstra_2-files\in1" />
-    <None Include="..\..\e_dijkstra_2-files\in2" />
-    <None Include="..\..\e_dijkstra_2-files\in3" />
-    <None Include="..\..\e_dijkstra_2-files\in4" />
-    <None Include="..\..\e_dijkstra_2-files\in5" />
-    <None Include="..\..\e_dijkstra_2-files\in6" />
-    <None Include="..\..\e_dijkstra_2-files\in7" />
-    <None Include="..\..\e_dijkstra_2-files\Makefile" />
-    <None Include="..\..\e_dijkstra_2-files\Makefile2" />
-    <None Include="..\..\e_dijkstra_2-files\out0" />
-    <None Include="..\..\e_dijkstra_2-files\out1" />
-    <None Include="..\..\e_dijkstra_2-files\out2" />
-    <None Include="..\..\e_dijkstra_2-files\out3" />
-    <None Include="..\..\e_dijkstra_2-files\out4" />
-    <None Include="..\..\e_dijkstra_2-files\out5" />
-    <None Include="..\..\e_dijkstra_2-files\out6" />
-    <None Include="..\..\e_dijkstra_2-files\out7" />
+    <ClInclude Include="..\..\overlap-files\overlap.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
