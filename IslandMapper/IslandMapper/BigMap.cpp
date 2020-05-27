@@ -1,16 +1,13 @@
-#ifndef cimg_imagepath
 #define cimg_imagepath "Maps/"
-#endif
 
 #include "BigMap.h"
 using std::string;
 #include <iostream>
 using std::cout;
 
-
 BigMap::BigMap(std::string file) : file_(file)
 {
-  image_ = cimg_library::CImg<>(file_.c_str()).normalize(0, 255).resize(-100, -100, 1, 3);
+  image_ = cimg_library::CImg<unsigned char>(file_.c_str()).normalize(0, 255).resize(-100, -100, 1, 3);
   for (int i = file_.size(); i >= 0; i--)
   {
     if (file_[i] == '.')
@@ -98,12 +95,12 @@ void BigMap::findIslands()
 #endif
 }
 
-void BigMap::drawGrid()
+void BigMap::drawGrid(int count)
 {
-  for (size_t i = 1; i < 26; i++)
+  for (size_t i = 1; i < count; i++)
   {
-    image_.draw_line((i / 26.0f) * image_.width(), 0, (i / 26.0f) * image_.width(), image_.height(), purple, 1);
-    image_.draw_line(0, (i / 26.0f) * image_.height(), image_.width(), (i / 26.0f) * image_.height(), purple, 1);
+    image_.draw_line((i / float(count)) * image_.width(), 0, (i / float(count)) * image_.width(), image_.height(), purple, 1);
+    image_.draw_line(0, (i / float(count)) * image_.height(), image_.width(), (i / float(count)) * image_.height(), purple, 1);
   }
   image_.save(debugFile_.c_str());
 }

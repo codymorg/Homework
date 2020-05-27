@@ -15,7 +15,7 @@ public:
 
   auto isMatch(const TreasureMap& treasure)->std::pair<char, int>;
   void findIslands();
-  void drawGrid();
+  void drawGrid(int count);
 
 private:
   int boxSize = 164;
