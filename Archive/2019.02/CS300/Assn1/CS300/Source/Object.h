@@ -77,7 +77,7 @@ public:
   void genVertexNormals();
   struct MaterialData
   {
-    glm::vec3 ambient = glm::vec3(1);
+    glm::vec3 ambient = glm::vec3(0);
     float     paddingI = 0;
     glm::vec3 diffuse = glm::vec3(1);
     float     paddingII = 0;
