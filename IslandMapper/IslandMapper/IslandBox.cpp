@@ -1,6 +1,11 @@
 #include "IslandBox.h"
 
 
+IslandBox::IslandBox()
+{
+  IslandBox(0, 0, 0, 0);
+}
+
 bool IslandBox::isInBox(unsigned xPos, unsigned yPos) const
 {
   return xPos >= x && xPos <= x + w && yPos >= y && yPos <= y + h;
