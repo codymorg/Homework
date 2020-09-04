@@ -3,6 +3,7 @@
 #include "BigMap.h"
 using std::string;
 #include <iostream>
+#include <fstream>
 using std::cout;
 
 BigMap::BigMap(std::string file) : file_(file)
@@ -20,7 +21,7 @@ BigMap::BigMap(std::string file) : file_(file)
   }
 }
 
-auto BigMap::isMatch(const TreasureMap& treasure) -> std::pair<char, int>
+auto BigMap::isMatch(const TreasureMap& treasure) -> IslandBox&
 {
 #ifdef _DEBUG
   cout << "checking for island...\n";
@@ -73,23 +74,65 @@ auto BigMap::isMatch(const TreasureMap& treasure) -> std::pair<char, int>
       << convertCoords(island.x, island.y).first << "," << convertCoords(island.x, island.y).second << "): " << islandCOunt<< "\n" ;
 #endif
   }
-  return convertCoords(bestMatch.x, bestMatch.y);
+  return bestMatch;
 }
 
 void BigMap::findIslands()
 {
-  // scan looking for black pixels
-  for (int y = 0; y < image_.height(); y++)
+  // scan each purple box
+  int boxes = 8;
+
+  for (int h = 0; h < boxes; h++)
   {
-    for (int x = 0; x < image_.width(); x++)
+    int yStart = float(h) / boxes * image_.height();
+    for (int w = 0; w < boxes; w++)
     {
-      // black pixel
-      if (isBlack(x,y))
+      if (h == 7 && w == 7)
+        break;
+      int minPoint[2]{ INT_MAX, INT_MAX };
+      int maxPoint[2]{ INT_MIN, INT_MIN };
+      bool first = true;
+
+      for (int y = yStart; y < ((image_.height() / boxes) + yStart); y++)
       {
-        boxIsland(x, y);
+        int xStart = (float(w) / boxes) * image_.width();
+        int negStart = (float(w + 1) / boxes) * image_.width();
+        int xCount = image_.width() / boxes;
+        int blackX = hasBlack(xStart, y, xCount, true);
+
+        if (blackX >= 0)
+        {
+          minPoint[0] = std::min(minPoint[0], blackX);
+          minPoint[1] = std::min(minPoint[1], y);
+#ifdef _DEBUG
+          if (first)
+          {
+            image_.draw_circle(blackX, y, 2, blue, 1);
+            first = false;
+          }
+#endif
+        }
+
+        int negX = hasBlack(negStart, y, xCount, true, true);
+        if (negX >= 0)
+        {
+          maxPoint[0] = std::max(maxPoint[0], negX);
+          maxPoint[1] = std::max(maxPoint[1], y);
+        }
       }
+
+      IslandBox box(minPoint[0], minPoint[1], maxPoint[0] - minPoint[0], maxPoint[1] - minPoint[1]);
+
+#ifdef _DEBUG
+      //cout << "found island #" << islandBoxes.size() << " in box [" << w << "," << h << "]\n";
+      box.draw(green, image_);
+#endif
+      box.location = names[islandBoxes.size()].first;
+      box.name = names[islandBoxes.size()].second;
+      islandBoxes.push_back(box);
     }
   }
+
 #ifdef _DEBUG
   image_.save(debugFile_.c_str());
 #endif
@@ -103,6 +146,21 @@ void BigMap::drawGrid(int count)
     image_.draw_line(0, (i / float(count)) * image_.height(), image_.width(), (i / float(count)) * image_.height(), purple, 1);
   }
   image_.save(debugFile_.c_str());
+}
+
+void BigMap::loadIslandNames()
+{
+  string line;
+  std::ifstream myfile("Maps/locations.txt");
+  if (myfile.is_open())
+  {
+    while (getline(myfile, line))
+    {
+      names.push_back(make_pair(line.substr(0, 3), line.substr(4)));
+    }
+    myfile.close();
+  }
+  else cout << "Unable to open file";
 }
 
 // assumes monochrome
@@ -128,14 +186,25 @@ bool BigMap::isColor(unsigned char* color, unsigned char* min, unsigned char* ma
   return true;
 }
 
-bool BigMap::hasBlack(int startX, int startY, int count, bool alongX)
+int BigMap::hasBlack(int startX, int startY, int count, bool alongX, bool reverse)
 {
   if (alongX)
   {
-    for (int x = startX; x < (startX + count) && x < image_.width(); x++)
+    if (reverse)
     {
-      if (isBlack(x, startY))
-        return true;
+      for (int x = startX; x >= 0 && startX - x < count; x--)
+      {
+        if (isBlack(x, startY))
+          return x;
+      }
+    }
+    else
+    {
+      for (int x = startX; x < (startX + count) && x < image_.width(); x++)
+      {
+        if (isBlack(x, startY))
+          return x;
+      }
     }
   }
   else
@@ -143,61 +212,14 @@ bool BigMap::hasBlack(int startX, int startY, int count, bool alongX)
     for (int y = startY; y < (startY + count) && y < image_.height(); y++)
     {
       if (isBlack(startX, y))
-        return true;
+        return y;
     }
   }
 
-  return false;
+  return -1;
 }
 
-int BigMap::boxIsland(int xPos, int yPos)
-{
-  // make sure this point isn't a part of an island already
-  for (auto& island : islandBoxes)
-  {
-    if (island.isInBox(xPos, yPos))
-      return island.x + island.w;
-  }
-#ifdef _DEBUG
-  cout << "found island " << islandBoxes.size() + 1 << " at " << "(" << xPos << "," << yPos << ")\n";
-  image_.draw_circle(xPos, yPos, 2, blue, 1);
-#endif
 
-  int TL[2] = { -1, yPos };
-  int BR[2] = { -1, -1 };
-  
-  // find farthest black pixel to the left and right
-  int start = std::max(0, xPos - (boxSize / 2));
-  for (int x = start; x < xPos + (boxSize / 2); x++)
-  {
-    bool isblack = hasBlack(x, yPos, boxSize, false);
-    if (isblack)
-    {
-      if (TL[0] == -1)
-        TL[0] = x;
-      else
-        BR[0] = x;
-    }
-  }
-  //find lowest y position
-  for (int y = yPos; y < (yPos + boxSize) && y < image_.height(); y++)
-  {
-    if (hasBlack(TL[0], y, BR[0] - TL[0], true))
-      BR[1] = y;
-  }
-#ifdef _DEBUG
-  IslandBox bounds(start, yPos, boxSize, boxSize);
-  bounds.draw(green, image_);
-#endif
-  islandBoxes.push_back(IslandBox(TL[0], TL[1], BR[0] - TL[0], BR[1] - TL[1]));
-  
-  // draw for debugging
-#ifdef _DEBUG
-  islandBoxes.back().draw(red, image_);
-#endif
-
-  return std::max(BR[1], yPos);
-}
 
 std::pair<char, int> BigMap::convertCoords(int x, int y)
 {

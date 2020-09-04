@@ -13,11 +13,13 @@ class BigMap
 public:
   BigMap(std::string file);
 
-  auto isMatch(const TreasureMap& treasure)->std::pair<char, int>;
+  auto isMatch(const TreasureMap& treasure)->IslandBox&;
   void findIslands();
   void drawGrid(int count);
+  void loadIslandNames();
 
 private:
+  std::vector<std::pair<std::string, std::string>>names;
   int boxSize = 164;
   std::string file_;
   std::string debugFile_;
@@ -27,8 +29,7 @@ private:
 
   bool isBlack(int x, int y);
   bool isColor(unsigned char* color, unsigned char* min, unsigned char* max);
-  bool hasBlack(int startX, int startY, int count, bool alongX);
-  int boxIsland(int xPos, int yPos);
+  int hasBlack(int startX, int startY, int count, bool alongX, bool reverse = false);
   std::pair<char, int> convertCoords(int x, int y);
 };
 

@@ -3,6 +3,9 @@ using std::string;
 #include <iostream>
 using std::cout;
 #include <sstream>
+#include "TreasureMap.h"
+#include "BigMap.h"
+
 #pragma warning( disable : 4996)
 
 
@@ -19,6 +22,13 @@ HotKey::HotKey(char key) : key_(key)
 
 bool HotKey::update()
 {
+  // load big map
+  std::cout << "loading big map\n";
+  BigMap map("Maps/BigMap3.bmp");
+  map.loadIslandNames();
+  map.findIslands();
+
+  cout << "\nSystem Ready\n";
   MSG msg = { 0 };
   while (GetMessage(&msg, NULL, 0, 0) != 0)
   {
@@ -26,6 +36,21 @@ bool HotKey::update()
     {
       cout << "WM_HOTKEY " << key_ <<" received\n";
       screenShot();
+
+      // load treasure map
+      cout << "locating island...\n";
+      TreasureMap treasure("Maps/treasure.bmp");
+      treasure.preprocess();      //000
+      treasure.buildIslandMask(); //001
+      treasure.findIsland();      //002
+      treasure.postprocess();
+
+      // compare treasure map to big map
+      auto match = map.isMatch(treasure);
+      std::cout << "\n\n" << match.name << " is at: " << match.location << "\n";
+      cout << "\nSystem Ready\n";
+
+
     }
   }
   
@@ -56,7 +81,8 @@ void HotKey::screenShot()
   DeleteDC(hMemoryDC);
   DeleteDC(hScreenDC);
 
-  WriteBMP(hBitmap, hScreenDC, string("screenShot.bmp"));
+  WriteBMP(hBitmap, hScreenDC, string("Maps/treasure.bmp"));
+
 }
 
 void HotKey::WriteBMP(HBITMAP hBitMap, HDC hDC, string filename)
