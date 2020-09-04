@@ -73,6 +73,7 @@
 /CS261/Assn2/RoboCatAction/RoboCatServer/Release
 /CS300/Assn1/CS350/.vs
 *.md
+*.ini
 /CS261/Assn3/Node/node_modules/content-type/LICENSE
 /CS261/Assn3/RoboCatAction/.vs/RoboCat/v16
 /CS261/Assn3/RoboCatAction/Debug
