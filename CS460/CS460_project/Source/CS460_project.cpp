@@ -159,7 +159,7 @@ void SceneSetup()
   Object* obj = objectMgr->addObject("model");
   obj->setShader(ShaderType::Phong);
   //obj->loadSphere(1, 50);
-  obj->loadModel("C:/Users/Cody/Desktop/fbx/Dragon.fbx");
+  obj->loadModel("C:/Users/codym/source/repos/Homework/CS460/CS460_project/Common/models/Dragon.fbx");
   obj->material.diffuse = vec3(0.1, 0.2, 0.3);
   obj->material.ambient = vec3(0.1, 0.1, 0.1);
 
