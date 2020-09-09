@@ -84,13 +84,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CS460_project.cpp" />
     <ClCompile Include="imGui\imgui.cpp" />
     <ClCompile Include="imGui\imgui_draw.cpp" />
     <ClCompile Include="imGui\imgui_impl_glfw.cpp" />
     <ClCompile Include="imGui\imgui_impl_opengl2.cpp" />
     <ClCompile Include="imGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imGui\imgui_widgets.cpp" />
+    <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\CS460_project.cpp" />
+    <ClCompile Include="Source\Light.cpp" />
+    <ClCompile Include="Source\Object.cpp" />
+    <ClCompile Include="Source\ObjectManager.cpp" />
+    <ClCompile Include="Source\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imGui\imconfig.h" />
@@ -102,6 +107,22 @@
     <ClInclude Include="imGui\imstb_rectpack.h" />
     <ClInclude Include="imGui\imstb_textedit.h" />
     <ClInclude Include="imGui\imstb_truetype.h" />
+    <ClInclude Include="Include\Camera.h" />
+    <ClInclude Include="Include\Common.h" />
+    <ClInclude Include="Include\Light.h" />
+    <ClInclude Include="Include\Object.h" />
+    <ClInclude Include="Include\ObjectManager.h" />
+    <ClInclude Include="Include\ShaderManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\deferred.frag" />
+    <None Include="Shaders\deferred.vert" />
+    <None Include="Shaders\deferredLighting.frag" />
+    <None Include="Shaders\deferredLighting.vert" />
+    <None Include="Shaders\normal.frag" />
+    <None Include="Shaders\normal.vert" />
+    <None Include="Shaders\phong.frag" />
+    <None Include="Shaders\phong.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

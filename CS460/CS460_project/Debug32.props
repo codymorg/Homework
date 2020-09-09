@@ -5,6 +5,7 @@
   <PropertyGroup>
     <LibraryPath>$(SolutionDir)Common\glew\x32\lib\Release\Win32;$(SolutionDir)Common\glfw\x32\lib-vc2019;$(SolutionDir)Common\glfw\x32\lib-mingw;$(SolutionDir)Common\glew\x32\bin\Release\Win32;$(SolutionDir)Common\assimp\debug\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)Source;$(SolutionDir)Source\imGui;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)/Include;$(ProjectDir)/imGui;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

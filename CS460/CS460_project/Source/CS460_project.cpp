@@ -1,8 +1,7 @@
 /******************************************************************************
-  Class   : CS460
-  Project : 0 - create 3d engine
+  Project : load, display and manipulate a 3D object
   Name    : Cody Morgan
-  Date    : 2 SEP 2020
+  Date    : 16 DEC 2019
 ******************************************************************************/
 
 #include <GL/glew.h>
@@ -20,10 +19,21 @@ using std::string;
 #include <vector>
 using std::vector;
 
-#include "imGui/imgui.h"
-#include "imGui/imgui_impl_glfw.h"
-#include "imGui/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
+#include "ObjectManager.h"
+#include "ShaderManager.h"
+#include "Camera.h"
+#include "Common.h"
+#include "Light.h"
+
+// managers and static variables
+static ObjectManager* objectMgr = nullptr;
+static ShaderManager* shaderMgr = nullptr;
+static Object* treeRoot = nullptr;
+static Camera* camera = nullptr;
 
 /////***** Window and OpenGL Management *****/////
 
@@ -43,7 +53,7 @@ bool WindowInit(int major, int minor, GLFWwindow** window)
   }
 
   // instance the window
-  *window = glfwCreateWindow(mode->width, mode->height, "CS460 Assignment 0 Cody Morgan", NULL, NULL);
+  *window = glfwCreateWindow(mode->width, mode->height, "CS350 Assignment 1 Cody Morgan", NULL, NULL);
   glfwWindowHint(GLFW_SAMPLES, 1); // change for anti-aliasing
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
@@ -143,6 +153,37 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 }
 
 
+
+void SceneSetup()
+{
+  Object* obj = objectMgr->addObject("model");
+  obj->setShader(ShaderType::Phong);
+  //obj->loadSphere(1, 50);
+  obj->loadModel("C:/Users/Cody/Desktop/fbx/Dragon.fbx");
+  obj->material.diffuse = vec3(0.1, 0.2, 0.3);
+  obj->material.ambient = vec3(0.1, 0.1, 0.1);
+
+  Object* obj2 = objectMgr->addLight("light");
+  obj2->translate(right * 3.0f);
+  obj2->scale(vec3(0.2f));
+  dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
+
+  Object* obj3 = objectMgr->addLight("light");
+  obj3->translate(left * 3.0f);
+  obj3->scale(vec3(0.2f));
+  dynamic_cast<Light*>(obj3)->lightData.ambient = vec4(1);
+}
+
+void SceneUpdate()
+{
+
+}
+
+void SceneShutdown()
+{
+  objectMgr->removeAllObjects();
+}
+
 /////***** GUI Management *****/////
 
 
@@ -174,7 +215,30 @@ void ProcessInput(GLFWwindow* window)
 {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
+
+  // camera movement
+  float speed = 0.1f;
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    camera->translate(forward * speed);
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    camera->translate(right * speed);
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    camera->translate(back * speed);
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    camera->translate(left * speed);
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    camera->translate(up * speed);
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    camera->translate(down * speed);
+  if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+    camera->rotate(1, up);
+  if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+    camera->rotate(-1, up);
+
+  if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    objectMgr->getAt(0)->rotate(10,vec3(0),vec3(1,0,0));
 }
+
 
 void UpdateGUI()
 {
@@ -240,15 +304,26 @@ int main()
   // setup GLFW and IMgui
   InitGUI(window);
 
+  // managers setup
+  objectMgr = ObjectManager::getObjectManager();
+  shaderMgr = ShaderManager::getShaderManager();
+
+  // scene setup
+  camera = new Camera(vec3(0, 0, -8), 0.0f, right);
+
+  SceneSetup();
   while (!glfwWindowShouldClose(window))
   {
-    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // scene loop
     double time = glfwGetTime();
     UpdateGUI();
     ProcessInput(window);
+
+    // sim loop
+    SceneUpdate();
+
+    // end of the loop
+    objectMgr->render(*camera);
     GUIendFrame(window, time);
   }
 
