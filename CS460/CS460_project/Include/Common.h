@@ -23,6 +23,8 @@ glm::vec3 down(0, -1, 0);
 glm::vec3 left(-1, 0, 0);
 glm::vec3 back(0, 0, -1);
 glm::vec3 forward(0, 0, 1);
+glm::vec3 zero(0, 0, 0);
+
 
 
 

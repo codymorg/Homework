@@ -32,7 +32,6 @@ using std::vector;
 // managers and static variables
 static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
-static Object* treeRoot = nullptr;
 static Camera* camera = nullptr;
 
 /////***** Window and OpenGL Management *****/////
@@ -159,7 +158,7 @@ void SceneSetup()
   Object* obj = objectMgr->addObject("model");
   obj->setShader(ShaderType::Phong);
   //obj->loadSphere(1, 50);
-  obj->loadModel("C:/Users/Cody/Desktop/fbx/Dragon.fbx");
+  obj->loadModel("C:/Users/Cody/Desktop/fbx/Dragon_Animated.fbx");
   obj->material.diffuse = vec3(0.1, 0.2, 0.3);
   obj->material.ambient = vec3(0.1, 0.1, 0.1);
   obj->rotate(-90, vec3(0), vec3(1, 0, 0));
@@ -196,8 +195,8 @@ void InitGUI(GLFWwindow* window)
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(MessageCallback, 0);
 #endif
-  //glEnable(GL_CULL_FACE);
-  //glCullFace(GL_BACK);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
   glEnable(GL_DEPTH_TEST);
 
   // context 
@@ -258,9 +257,16 @@ void UpdateGUI()
 
   if (ImGui::BeginTabBar("MyTabBar"))
   {
-    if (ImGui::BeginTabItem("Avocado"))
+    if (ImGui::BeginTabItem("Model Controls"))
     {
-      ImGui::Text("This is the Avocado tab!\nblah blah blah blah blah");
+      auto model = objectMgr->getFirstObjectByName("model");
+      auto currentScale = model->getWorldScale();
+
+      if(ImGui::SliderFloat("Scale", &currentScale.x,-10,10))
+      {
+        objectMgr->getFirstObjectByName("model")->scale(vec3(currentScale.x, currentScale.x, currentScale.x));
+      }
+
       ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem("Broccoli"))
@@ -276,6 +282,7 @@ void UpdateGUI()
     ImGui::EndTabBar();
   }
 
+  
   ImGui::End();
 }
 

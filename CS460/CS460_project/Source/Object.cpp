@@ -125,14 +125,23 @@ void Object::loadModel(string fileLocation)
   }
   else
   {
-    //vertices_.clear();
-    //indices_.clear();
+    cout << "loading file:" << fileLocation << "\n" 
+         << "meshes: " << scene->mNumMeshes << "\n"
+         << "animations: " <<  scene->mNumAnimations << "\n";
+
+    for(auto i = 0; i < scene->mNumAnimations; i++)
+    {
+      cout << scene->mAnimations[i]->mName.C_Str() << "\n"
+           << "duration: " << scene->mAnimations[i]->mDuration << "\n"
+           << "num channels: " << scene->mAnimations[i]->mNumChannels << "\n\n";
+    }
+
+    vertices_.clear();
+    indices_.clear();
+
     modelToWorld_ = glm::mat4();
 
     processNode(scene->mRootNode, scene, bounds_);
-
-    // keep a sorted list
-
 
     // scale down to unit size and put at the origin
     aiVector3D aiModelScale = (bounds_.mMax - bounds_.mMin);
@@ -142,7 +151,7 @@ void Object::loadModel(string fileLocation)
 
     // move to origin
     centroid = (bounds_.mMin * maxScale + bounds_.mMax * maxScale) / 2.0f;
-    //translate(-vec3(centroid.x, centroid.y, centroid.z));
+    translate(-vec3(centroid.x, centroid.y, centroid.z));
     scale(vec3(maxScale));
     initBuffers();
   }
@@ -154,35 +163,6 @@ void Object::clearObject()
   indices_.clear();
   //resetTransform();
 }
-
-void Object::loadFolder(std::string location)
-{
-  // get list of all folders in directory
-  std::vector<std::string> folders;
-  std::vector<std::string> files;
-
-  // it didnt like relative path for some reason
-  std::wstring path = std::filesystem::current_path().c_str();
-  path += L"\\Common\\PowerPlant4";
-
-  // get all the files
-  for (auto& entry : std::filesystem::recursive_directory_iterator(location))
-  {
-    if (entry.is_directory())
-      folders.push_back(entry.path().string());
-    else if (entry.is_regular_file())
-      files.push_back(entry.path().string());
-  }
-
-  // send everyone to loadmodel
-  for (auto file : files)
-  {
-    std::cout << file << "\n";
-    loadModel(file);
-  }
-  updateSorted();
-}
-
 
 void Object::loadBox(vec3 halfScale)
 {
@@ -299,10 +279,6 @@ void Object::loadSphere(float radius, int divisions)
   }
 
   initBuffers();
-
-  // keep a sorte list
-  updateSorted();
-
 }
 
 // world transform  
@@ -350,6 +326,7 @@ void Object::update()
 
   ObjectManager::getObjectManager()->updateUBO(this);
 }
+
 // draw this object using its own shader
 void Object::draw()
 {
@@ -493,17 +470,5 @@ void Object::genVertexNormals()
   }
 }
 
-void Object::updateSorted()
-{
-  for (size_t i = 0; i < vertices_.size(); i++)
-  {
-    sortedX.push_back(&vertices_[i]);
-    sortedY.push_back(&vertices_[i]);
-    sortedZ.push_back(&vertices_[i]);
-  }
-  sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
-  sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
-  sort(sortedZ.begin(), sortedZ.end(), [&](Vertex* l, Vertex* r) {return l->position.z < r->position.z; });
-}
 
 

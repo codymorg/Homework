@@ -39,7 +39,6 @@ public:
   // object shape
   void loadModel(std::string location);
   void clearObject();
-  void loadFolder(std::string location);
   void loadBox(glm::vec3 halfScale);
   void loadSphere(float radius, int divisions);
 
@@ -85,14 +84,9 @@ public:
     float     paddingIII = 0;
   }material;
 
-  std::vector<Vertex*> sortedX;
-  std::vector<Vertex*> sortedY;
-  std::vector<Vertex*> sortedZ;
   aiVector3D centroid;
 
 private:
-  void updateSorted();
-
   // object data
   glm::mat4   preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
   glm::mat4   modelToWorld_ = glm::mat4(1.0f);
