@@ -162,21 +162,18 @@ void SceneSetup()
   obj->loadModel("C:/Users/codym/source/repos/Homework/CS460/CS460_project/Common/models/Dragon.fbx");
   obj->material.diffuse = vec3(0.1, 0.2, 0.3);
   obj->material.ambient = vec3(0.1, 0.1, 0.1);
+  obj->rotate(-90, vec3(0), vec3(1, 0, 0));
+  obj->translate(vec3(0,0,-1));
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
   obj2->scale(vec3(0.2f));
   dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
-
-  Object* obj3 = objectMgr->addLight("light");
-  obj3->translate(left * 3.0f);
-  obj3->scale(vec3(0.2f));
-  dynamic_cast<Light*>(obj3)->lightData.ambient = vec4(1);
 }
 
 void SceneUpdate()
 {
-
+  objectMgr->getFirstObjectByName("light")->rotate(-1, left * 10.0f);
 }
 
 void SceneShutdown()
@@ -236,7 +233,13 @@ void ProcessInput(GLFWwindow* window)
     camera->rotate(-1, up);
 
   if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-    objectMgr->getAt(0)->rotate(10,vec3(0),vec3(1,0,0));
+    objectMgr->getAt(0)->rotate(1,vec3(0),vec3(1,0,0));
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    objectMgr->getAt(0)->rotate(-1, vec3(0), vec3(1, 0, 0));
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    objectMgr->getAt(0)->rotate(1, vec3(0), vec3(0, 0, 1));
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    objectMgr->getAt(0)->rotate(-1, vec3(0), vec3(0, 0, 1));
 }
 
 

@@ -350,6 +350,7 @@ void Object::update()
 
   ObjectManager::getObjectManager()->updateUBO(this);
 }
+
 // draw this object using its own shader
 void Object::draw()
 {
@@ -375,6 +376,8 @@ void Object::draw()
     glUseProgram(0);
   }
 }
+
+
 
 
 int Object::getShaderProgram()
