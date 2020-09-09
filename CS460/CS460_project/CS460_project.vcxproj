@@ -91,8 +91,8 @@
     <ClCompile Include="imGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imGui\imgui_widgets.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
-    <ClCompile Include="Source\CS460_project.cpp" />
     <ClCompile Include="Source\Light.cpp" />
+    <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Object.cpp" />
     <ClCompile Include="Source\ObjectManager.cpp" />
     <ClCompile Include="Source\ShaderManager.cpp" />

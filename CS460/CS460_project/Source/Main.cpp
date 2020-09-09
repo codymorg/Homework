@@ -162,6 +162,8 @@ void SceneSetup()
   obj->loadModel("C:/Users/Cody/Desktop/fbx/Dragon.fbx");
   obj->material.diffuse = vec3(0.1, 0.2, 0.3);
   obj->material.ambient = vec3(0.1, 0.1, 0.1);
+  obj->rotate(-90, vec3(0), vec3(1, 0, 0));
+  obj->translate(vec3(0, 0, -1));
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->translate(right * 3.0f);
@@ -176,7 +178,7 @@ void SceneSetup()
 
 void SceneUpdate()
 {
-
+  objectMgr->getFirstObjectByName("light")->rotate(-1, left * 10.0f);
 }
 
 void SceneShutdown()
@@ -235,8 +237,14 @@ void ProcessInput(GLFWwindow* window)
   if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
     camera->rotate(-1, up);
 
-  if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-    objectMgr->getAt(0)->rotate(10,vec3(0),vec3(1,0,0));
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    objectMgr->getAt(0)->rotate(1, vec3(0), vec3(1, 0, 0));
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    objectMgr->getAt(0)->rotate(-1, vec3(0), vec3(1, 0, 0));
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    objectMgr->getAt(0)->rotate(1, vec3(0), vec3(0, 0, 1));
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    objectMgr->getAt(0)->rotate(-1, vec3(0), vec3(0, 0, 1));
 }
 
 
