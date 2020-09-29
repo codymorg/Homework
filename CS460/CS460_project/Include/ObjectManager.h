@@ -12,12 +12,20 @@ typedef class Camera Camera;
 typedef class Light Light;
 typedef enum class ShaderType ShaderType;
 
-struct UBO
+struct LightUBO
 {
   unsigned       id = 0;
   const unsigned lightMax = 16;
   unsigned       lightCount = 0;
   unsigned       size = 0;
+};
+
+struct UBO
+{
+  unsigned id = 0;
+  unsigned byteSize = 0;
+  unsigned count = 0;
+  unsigned elementSize = 0;
 };
 
 class FBO
@@ -49,6 +57,7 @@ public:
   bool    isValid();
   Object* addObject(std::string ID = "anon_Obj");
   Object* addLight(std::string ID = "anon_Light");
+  Object* addLine(std::string ID = "anon_Line");
 
   template <class T>
   Object* addVolume(Object* parent, std::string ID = "root_Volume")
@@ -67,7 +76,10 @@ public:
   void updateUBO(Light* light);
   void updateUBO(Object* light);
 
+  unsigned generateGenericUBO(unsigned elementSize, unsigned count);
+  void updateGenericUBO(unsigned index, unsigned elementIndex, void* data);
   void genFBO();
+
 
   // getters
   const std::vector<const char*> getObjectNames();
@@ -94,8 +106,9 @@ private:
   void forwardRender(Camera& camera, bool clear = true);
 
   // uniform data namely lights
-  UBO ubo_;
+  LightUBO lightUbo_;
   FBO fbo_;
+  std::vector<UBO> ubos_;
 
 };
 

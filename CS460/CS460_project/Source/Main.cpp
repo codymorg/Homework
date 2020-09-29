@@ -19,6 +19,7 @@ using std::string;
 #include <vector>
 using std::vector;
 
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -28,11 +29,25 @@ using std::vector;
 #include "Camera.h"
 #include "Common.h"
 #include "Light.h"
+#include "Line.h"
+#include "Quaternion.h"
 
 // managers and static variables
 static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
 static Camera* camera = nullptr;
+
+static string currentBone = "No Bone Selected";
+static vec3 stepSize = vec3(0.01, 0.1, 0.9);
+
+// common vectors
+glm::vec3 up(0, 1, 0);
+glm::vec3 right(1, 0, 0);
+glm::vec3 down(0, -1, 0);
+glm::vec3 left(-1, 0, 0);
+glm::vec3 back(0, 0, -1);
+glm::vec3 forward(0, 0, 1);
+glm::vec3 zero(0, 0, 0);
 
 /////***** Window and OpenGL Management *****/////
 
@@ -155,24 +170,25 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 
 void SceneSetup()
 {
-  Object* obj = objectMgr->addObject("model");
+  Object* obj = objectMgr->addObject("Mr. Tiny Hands");
   obj->setShader(ShaderType::Phong);
-  //obj->loadSphere(1, 50);
-  obj->loadModel("C:/Users/Cody/Desktop/fbx/Dragon_Animated.fbx");
+  obj->loadModel("Common/models/tinyhands.fbx");
   obj->material.diffuse = vec3(0.1, 0.2, 0.3);
   obj->material.ambient = vec3(0.1, 0.1, 0.1);
-  obj->rotate(-90, vec3(0), vec3(1, 0, 0));
-  obj->translate(vec3(0, 0, -1));
+  obj->translate(vec3(0,0.1f,0));
+  obj->setScale(vec3(0.01f));
+  obj->skeleton.createBones(obj->getTransform());
 
   Object* obj2 = objectMgr->addLight("light");
+  obj2->setShader(ShaderType::Normal);
   obj2->translate(right * 3.0f);
   obj2->scale(vec3(0.2f));
   dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
 
-  Object* obj3 = objectMgr->addLight("light");
-  obj3->translate(left * 3.0f);
-  obj3->scale(vec3(0.2f));
-  dynamic_cast<Light*>(obj3)->lightData.ambient = vec4(1);
+  Object* floor = objectMgr->addObject("floor");
+  floor->loadBox(vec3(1,0.1,1),false);
+
+  objectMgr->selectedObject = 0; // set to model
 }
 
 void SceneUpdate()
@@ -212,6 +228,10 @@ void InitGUI(GLFWwindow* window)
   ImGui::StyleColorsDark();
 }
 
+static bool tWasDown = false; // transform
+static bool bWasDown = false; // bone to world
+static bool kWasDown = false; // skin
+static bool oWasDown = false; // offset
 void ProcessInput(GLFWwindow* window)
 {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -241,9 +261,9 @@ void ProcessInput(GLFWwindow* window)
   if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     objectMgr->getAt(0)->rotate(-1, vec3(0), vec3(1, 0, 0));
   if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-    objectMgr->getAt(0)->rotate(1, vec3(0), vec3(0, 0, 1));
+    objectMgr->getAt(0)->rotate(1, vec3(0), vec3(0, 1, 0));
   if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-    objectMgr->getAt(0)->rotate(-1, vec3(0), vec3(0, 0, 1));
+    objectMgr->getAt(0)->rotate(-1, vec3(0), vec3(0, 1, 0));
 }
 
 
@@ -254,27 +274,157 @@ void UpdateGUI()
   ImGui::NewFrame();
   ImGui::Begin("Object Controls");
   ImGui::Text("Application average %.1f FPS", ImGui::GetIO().Framerate);
+  auto currentObj = objectMgr->getSelected();
 
   if (ImGui::BeginTabBar("MyTabBar"))
   {
+    // Model TAB
     if (ImGui::BeginTabItem("Model Controls"))
     {
-      auto model = objectMgr->getFirstObjectByName("model");
-      auto currentScale = model->getWorldScale();
-
-      if(ImGui::SliderFloat("Scale", &currentScale.x,-10,10))
+      ImGui::Text(std::string("Currently Selected: " + currentObj->name).c_str());
+      
+      if (ImGui::BeginMenu("Select Object"))
       {
-        objectMgr->getFirstObjectByName("model")->scale(vec3(currentScale.x, currentScale.x, currentScale.x));
+        int i = -1;
+        for(auto b : objectMgr->getObjectNames())
+        {
+          i++;
+          // don't show bones
+          if(string(b).find("Line") != -1)
+            continue;
+          bool wasClicked = ImGui::MenuItem(b);
+          if (wasClicked)
+          {
+            objectMgr->selectedObject = i;
+          }
+        }
+        ImGui::EndMenu();
+      }
+
+      auto currentPos = currentObj->getWorldPosition();
+      if (ImGui::SliderFloat("X", &currentPos.x, currentPos.x - stepSize.y, currentPos.x + stepSize.y))
+      {
+        currentObj->translate(currentPos);
+      }
+      if (ImGui::SliderFloat("Y", &currentPos.y, currentPos.y - stepSize.y, currentPos.y + stepSize.y))
+      {
+        currentObj->translate(currentPos);
+      }
+      if (ImGui::SliderFloat("Z", &currentPos.z, currentPos.z - stepSize.y, currentPos.z + stepSize.y))
+      {
+        currentObj->translate(currentPos);
+      }
+
+      auto scale = currentObj->getWorldScale();
+      ImGui::Text(("Scale: [" + std::to_string(scale.x) + ", " + std::to_string(scale.y) + ", " + std::to_string(scale.z) + "]").c_str());
+      ImGui::SliderFloat("Step Size", &stepSize.y, stepSize.x, stepSize.z);
+      if(ImGui::Button("Scale Up"))
+      {
+        currentObj->scale(vec3(1+stepSize.y, 1+stepSize.y, 1+stepSize.y));
+      }
+      if (ImGui::Button("Scale Down"))
+      {
+        currentObj->scale(vec3(1-stepSize.y, 1-stepSize.y, 1-stepSize.y));
+      }
+
+      if (ImGui::Button("Recompie Shaders"))
+      {
+        shaderMgr->reCompile();
+      }
+
+      if(ImGui::Button("Toggle Wireframe"))
+      {
+        currentObj->wiremode = !currentObj->wiremode;
       }
 
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem("Broccoli"))
+    
+    // Bone TAB
+    if (ImGui::BeginTabItem("Bone Controls"))
     {
-      ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
+      auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
+      auto boneNames = model->skeleton.getBoneNames();
+      if (ImGui::BeginMenu(currentBone.c_str()))
+      {
+        ImGui::Text(currentBone.c_str());
+        for (auto b : boneNames)
+        {
+          bool wasClicked = ImGui::MenuItem(b.c_str());
+          if (wasClicked)
+          {
+            currentBone = b;
+          }
+        }
+        ImGui::EndMenu();
+      }
+
+      Bone* bone;
+      if (model->skeleton.getBone(currentBone, &bone))
+      {
+        auto currentPos = bone->getPosition();
+        if (ImGui::SliderFloat("X", &currentPos.x, currentPos.x - stepSize.y, currentPos.x + stepSize.y))
+        {
+          bone->setPosition(currentPos);
+        }
+        if (ImGui::SliderFloat("Y", &currentPos.y, currentPos.y - stepSize.y, currentPos.y + stepSize.y))
+        {
+          bone->setPosition(currentPos);
+        }
+        if (ImGui::SliderFloat("Z", &currentPos.z, currentPos.z - stepSize.y, currentPos.z + stepSize.y))
+        {
+          bone->setPosition(currentPos);
+        }
+
+        auto trans = bone->transform;
+        auto btw =   bone->boneToModel;
+        auto off = bone->offsetMatrix;
+        auto skin = bone->skinTransform;
+        glm::mat4x4 collection[4] = 
+        {
+          trans,
+          btw,
+          off,
+          skin
+        };
+        string mats ="Transform                                              Bone To Model\n";
+        for(int nextSet = 0; nextSet <= 2; nextSet+=2)
+        {
+          for(int matrow = 0; matrow < 4; matrow++)
+          {
+            for(int mat = 0; mat < 2; mat++)
+            {
+              mats+="[";
+              for(int col = 0; col < 4; col++)
+              {
+                float num = collection[mat + nextSet][col][matrow];
+                if(num >= 10)
+                  mats+=" ";
+                else if(num < 10 && num >= 0)
+                  mats+="  ";
+                else if(num < 0 && num > -9)
+                  mats +=" ";
+              
+
+                mats += std::to_string(num) + " ";
+              }
+              mats += "] ";
+
+            }
+            mats+="\n";
+          }
+          
+          if(nextSet == 0)
+            mats+="\n\nOffset                                         Skin\n";
+        }
+        ImGui::Text(mats.c_str());
+      }
+
       ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem("Cucumber"))
+
+    // Animation TAB
+    if (ImGui::BeginTabItem("Animation Controls"))
     {
       ImGui::Text("This is the Cucumber tab!\nblah blah blah blah blah");
       ImGui::EndTabItem();
@@ -311,6 +461,8 @@ void GUIendFrame(GLFWwindow* window, double time)
 
 int main()
 {
+  QuaternionTest(100);
+
   // make a window
   GLFWwindow* window = nullptr;
   if (WindowInit(4, 0, &window) == false)
@@ -324,7 +476,7 @@ int main()
   shaderMgr = ShaderManager::getShaderManager();
 
   // scene setup
-  camera = new Camera(vec3(0, 0, -8), 0.0f, right);
+  camera = new Camera(vec3(0, -1, -8), 0.0f, right);
 
   SceneSetup();
   while (!glfwWindowShouldClose(window))

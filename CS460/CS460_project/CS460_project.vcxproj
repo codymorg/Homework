@@ -90,11 +90,17 @@
     <ClCompile Include="imGui\imgui_impl_opengl2.cpp" />
     <ClCompile Include="imGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imGui\imgui_widgets.cpp" />
+    <ClCompile Include="Include\Common.cpp" />
+    <ClCompile Include="Source\Animation.cpp" />
+    <ClCompile Include="Source\Bone.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\Light.cpp" />
+    <ClCompile Include="Source\Line.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Object.cpp" />
     <ClCompile Include="Source\ObjectManager.cpp" />
+    <ClCompile Include="Source\Quaternion.cpp" />
+    <ClCompile Include="Source\ReadAssimp.cpp" />
     <ClCompile Include="Source\ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -107,11 +113,16 @@
     <ClInclude Include="imGui\imstb_rectpack.h" />
     <ClInclude Include="imGui\imstb_textedit.h" />
     <ClInclude Include="imGui\imstb_truetype.h" />
+    <ClInclude Include="Include\Animation.h" />
+    <ClInclude Include="Include\Bone.h" />
     <ClInclude Include="Include\Camera.h" />
     <ClInclude Include="Include\Common.h" />
     <ClInclude Include="Include\Light.h" />
+    <ClInclude Include="Include\Line.h" />
     <ClInclude Include="Include\Object.h" />
     <ClInclude Include="Include\ObjectManager.h" />
+    <ClInclude Include="Include\Quaternion.h" />
+    <ClInclude Include="Include\ReadAssimp.h" />
     <ClInclude Include="Include\ShaderManager.h" />
   </ItemGroup>
   <ItemGroup>
