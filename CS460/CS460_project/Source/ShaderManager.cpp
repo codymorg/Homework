@@ -230,7 +230,7 @@ void ShaderManager::updateShaders(Camera& camera)
   }
 }
 
-void ShaderManager::reCompile(ShaderType shaderType)
+void ShaderManager::reCompile()
 {
   for (int i = 0; i < int(ShaderType::TypeCount); i++)
   {

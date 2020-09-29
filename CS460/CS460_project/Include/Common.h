@@ -4,26 +4,34 @@
   Date    : 16 DEC 2019
 ******************************************************************************/
 
-#pragma once
 #ifndef Common_H
 #define Common_H
+#pragma once
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 #include <string>
 #include <vector>
+#include <iostream>
+#include "assimp/matrix4x4.h"
 
+glm::mat4x4 ConvertaiMatToglm(const aiMatrix4x4& mat);
+glm::vec3 ConvertaiVecToGlm(const aiVector3D ai);
+void PrintMat(const glm::mat4x4& mat, std::string inden = "");
 
-// common vectors
-glm::vec3 up(0, 1, 0);
-glm::vec3 right(1, 0, 0);
-glm::vec3 down(0, -1, 0);
-glm::vec3 left(-1, 0, 0);
-glm::vec3 back(0, 0, -1);
-glm::vec3 forward(0, 0, 1);
-
+template <class vec>
+void PrintVec(vec v)
+{
+std::cout << "[ ";
+  for(auto i = 0; i < v.length(); i++)
+  {
+    std::cout << v[i] << " ";
+  }
+std::cout << " ]";
+}
 
 
 #endif

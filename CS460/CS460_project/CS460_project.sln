@@ -7,12 +7,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CS460_project", "CS460_proj
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B2C5488B-1E88-4BFB-B782-2103B506697C}.Debug|x64.ActiveCfg = Debug|Win32
 		{B2C5488B-1E88-4BFB-B782-2103B506697C}.Debug|x86.ActiveCfg = Debug|Win32
 		{B2C5488B-1E88-4BFB-B782-2103B506697C}.Debug|x86.Build.0 = Debug|Win32
+		{B2C5488B-1E88-4BFB-B782-2103B506697C}.Release|x64.ActiveCfg = Release|Win32
 		{B2C5488B-1E88-4BFB-B782-2103B506697C}.Release|x86.ActiveCfg = Release|Win32
 		{B2C5488B-1E88-4BFB-B782-2103B506697C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection

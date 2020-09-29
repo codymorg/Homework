@@ -92,7 +92,7 @@ public:
   Shader& addShader(const std::string& vertexShader, const std::string& fragShader, ShaderType shaderType);
   Shader getShader(ShaderType shaderType);
   void updateShaders(Camera& camera);
-  void reCompile(ShaderType shaderType);
+  void reCompile();
   unsigned getCurrentBound();
   std::vector<int> getAllShaders();
 

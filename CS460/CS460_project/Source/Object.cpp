@@ -4,6 +4,7 @@
   Date    : 16 DEC 2019
 ******************************************************************************/
 
+#include "Common.h"
 #include "Camera.h"
 #include "ShaderManager.h"
 #include "ObjectManager.h"
@@ -22,6 +23,7 @@ using std::min;
 using std::max;
 using std::sort;
 #include <iostream>
+#include <iomanip>
 using std::cout;
 #include <filesystem> // C++17
 
@@ -33,6 +35,8 @@ using std::cout;
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include "ReadAssimp.h"
+
 
 
 /////***** Vertex stuff *****/////
@@ -42,6 +46,33 @@ Vertex::Vertex(vec3 pos) : position(pos), normal(vec3(0))
 
 Vertex::Vertex(vec3 pos, vec3 norm) : position(pos), normal(norm)
 {}
+
+void Vertex::addBone(int index, float weight)
+{
+  if(boneCount > 3)
+  {
+    printf("Too many weights\n");
+    throw;
+  }
+  boneIndices[boneCount] = index;
+  boneWeights[boneCount] = weight;
+  boneCount++;
+
+}
+
+void Vertex::validateWeights()
+{
+  float sum = 0.0f;
+  for(int i = 0; i < boneCount; i++)
+  { 
+    sum += boneWeights[i];
+  }
+  if(abs(1-sum) >= 0.1f)
+  {
+    printf("Bad Weight in vertex\n");
+    throw;
+  }
+}
 
 
 /////***** Object stuff *****/////
@@ -64,11 +95,13 @@ void Object::processNode(aiNode* node, const aiScene* scene, aiAABB& maxBounding
   for (unsigned int i = 0; i < node->mNumMeshes; i++)
   {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
-    // find the max bounding box so we can scale our object down to unit size
-    aiAABB aabb = processMesh(mesh, scene);
-    maxBounding.mMin = std::min(maxBounding.mMin, aabb.mMin);
-    maxBounding.mMax = std::max(maxBounding.mMax, aabb.mMax);
+    if (mesh->HasBones())
+    {
+      // find the max bounding box so we can scale our object down to unit size
+      aiAABB aabb = processMesh(mesh, scene);
+      maxBounding.mMin = std::min(maxBounding.mMin, aabb.mMin);
+      maxBounding.mMax = std::max(maxBounding.mMax, aabb.mMax);
+    }
   }
 
   // then do the same for each of its children
@@ -78,10 +111,11 @@ void Object::processNode(aiNode* node, const aiScene* scene, aiAABB& maxBounding
   }
 }
 
+
 aiAABB Object::processMesh(aiMesh* mesh, const aiScene* scene)
 {
   int indexAdjust = vertices_.size();
-  for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+  for (auto i = 0; i < mesh->mNumVertices; i++)
   {
     aiVector3D pos = mesh->mVertices[i];
     aiVector3D aiNorm = mesh->mVertices[i];
@@ -95,19 +129,22 @@ aiAABB Object::processMesh(aiMesh* mesh, const aiScene* scene)
     vertices_.push_back(Vertex(glm::vec3(pos.x, pos.y, pos.z), norm));
   }
 
-  for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+  for (auto i = 0; i < mesh->mNumFaces; i++)
   {
     aiFace face = mesh->mFaces[i];
     for (unsigned int j = 0; j < face.mNumIndices; j++)
     {
       indices_.push_back(face.mIndices[j] + indexAdjust);
-
     }
   }
+
 
   return mesh->mAABB;
 }
 
+
+//load a fbx model
+// step 0 calls processMesh
 void Object::loadModel(string fileLocation)
 {
   Assimp::Importer importer;
@@ -116,7 +153,8 @@ void Object::loadModel(string fileLocation)
     aiProcess_GenSmoothNormals |
     aiProcess_JoinIdenticalVertices |
     aiProcess_OptimizeMeshes |
-    aiProcess_GenBoundingBoxes
+    aiProcess_GenBoundingBoxes |
+    aiProcess_LimitBoneWeights
   );
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -125,14 +163,14 @@ void Object::loadModel(string fileLocation)
   }
   else
   {
-    //vertices_.clear();
-    //indices_.clear();
+    ReadAssimpFile(fileLocation);
+
+    vertices_.clear();
+    indices_.clear();
     modelToWorld_ = glm::mat4();
 
     processNode(scene->mRootNode, scene, bounds_);
-
-    // keep a sorted list
-
+    skeleton = Skeleton(scene, vertices_);
 
     // scale down to unit size and put at the origin
     aiVector3D aiModelScale = (bounds_.mMax - bounds_.mMin);
@@ -142,7 +180,7 @@ void Object::loadModel(string fileLocation)
 
     // move to origin
     centroid = (bounds_.mMin * maxScale + bounds_.mMax * maxScale) / 2.0f;
-    //translate(-vec3(centroid.x, centroid.y, centroid.z));
+    translate(-vec3(centroid.x, centroid.y, centroid.z));
     scale(vec3(maxScale));
     initBuffers();
   }
@@ -155,36 +193,7 @@ void Object::clearObject()
   //resetTransform();
 }
 
-void Object::loadFolder(std::string location)
-{
-  // get list of all folders in directory
-  std::vector<std::string> folders;
-  std::vector<std::string> files;
-
-  // it didnt like relative path for some reason
-  std::wstring path = std::filesystem::current_path().c_str();
-  path += L"\\Common\\PowerPlant4";
-
-  // get all the files
-  for (auto& entry : std::filesystem::recursive_directory_iterator(location))
-  {
-    if (entry.is_directory())
-      folders.push_back(entry.path().string());
-    else if (entry.is_regular_file())
-      files.push_back(entry.path().string());
-  }
-
-  // send everyone to loadmodel
-  for (auto file : files)
-  {
-    std::cout << file << "\n";
-    loadModel(file);
-  }
-  updateSorted();
-}
-
-
-void Object::loadBox(vec3 halfScale)
+void Object::loadBox(vec3 halfScale, bool lines)
 {
   scale(halfScale);
   halfScale = vec3(1.0f);
@@ -204,31 +213,40 @@ void Object::loadBox(vec3 halfScale)
   bounds_.mMax = aiVector3D(halfScale.x, halfScale.y, halfScale.z);
   bounds_.mMin = aiVector3D(-halfScale.x, -halfScale.y, -halfScale.z);
 
-  indices_ =
+  if (lines)
   {
-    //0,1,2, // Front
-    //0,2,3,
-    //0,5,1, // Bottom
-    //0,4,5,
-    //1,5,6, // Right
-    //1,6,2,
-    //4,0,3, // Left
-    //4,3,7,
-    //4,7,6, // Back
-    //4,6,5,
-    //3,2,6, // Top
-    //3,6,7
-    //lines
-    0,1,2,3,0, 
-    4,7,3,2,   
-    6,7,4,     
-    5,6,5,     
-    1
-  };
+    indices_ =
+    {
+      //lines
+      0,1,2,3,0, 
+      4,7,3,2,   
+      6,7,4,     
+      5,6,5,     
+      1
+    };
+    renderMode = GL_LINE_STRIP;
+  }
+  else
+  {
+    indices_ =
+    {
+      0,1,2, // Front
+      0,2,3,
+      0,5,1, // Bottom
+      0,4,5,
+      1,5,6, // Right
+      1,6,2,
+      4,0,3, // Left
+      4,3,7,
+      4,7,6, // Back
+      4,6,5,
+      3,2,6, // Top
+      3,6,7
+    };
+    renderMode = GL_TRIANGLES;
+  }
 
   initBuffers();
-
-
 }
 
 void Object::loadSphere(float radius, int divisions)
@@ -299,19 +317,25 @@ void Object::loadSphere(float radius, int divisions)
   }
 
   initBuffers();
+}
 
-  // keep a sorte list
-  updateSorted();
+void Object::loadLine()
+{
+  this->renderMode = GL_LINES;
 
+  vertices_ = { Vertex(vec3(0,0,0)), Vertex(vec3(1,1,1)) };
+  indices_ = { 0, 1 };
+
+  initBuffers();
 }
 
 // world transform  
 void Object::translate(glm::vec3 trans)
 {
   //modelToWorld_ = glm::translate(modelToWorld_, trans);
-  modelToWorld_[3][0] += trans.x;
-  modelToWorld_[3][1] += trans.y;
-  modelToWorld_[3][2] += trans.z;
+  modelToWorld_[3][0] = trans.x;
+  modelToWorld_[3][1] = trans.y;
+  modelToWorld_[3][2] = trans.z;
 }
 
 void Object::rotate(float degrees, glm::vec3 center, glm::vec3 axis)
@@ -323,10 +347,14 @@ void Object::rotate(float degrees, glm::vec3 center, glm::vec3 axis)
 
 void Object::scale(glm::vec3 scale)
 {
-  //modelToWorld_ = glm::scale(modelToWorld_, scale);
-  modelToWorld_[0][0] = scale.x;
-  modelToWorld_[1][1] = scale.y;
-  modelToWorld_[2][2] = scale.z;
+  modelToWorld_ = glm::scale(modelToWorld_, scale);
+}
+
+void Object::setScale(glm::vec3 setToScale)
+{
+  modelToWorld_[0][0] = setToScale.x;
+  modelToWorld_[1][1] = setToScale.y;
+  modelToWorld_[2][2] = setToScale.z;
 }
 
 glm::vec3 Object::modelToWorld(vec3 point)
@@ -347,6 +375,14 @@ void Object::update()
   modelToWorldLoc_ = glGetUniformLocation(currentSP, "modelToWorld");
   if (modelToWorldLoc_ != -1)
     glUniformMatrix4fv(modelToWorldLoc_, 1, GL_FALSE, &(modelToWorld_[0][0]));
+
+  // animation stuff
+  if (skeleton.hasBones())
+  {
+    skeleton.animation.update();
+    skeleton.updateBonesAfterAnimation();
+    skeleton.update(modelToWorld_);
+  }
 
   ObjectManager::getObjectManager()->updateUBO(this);
 }
@@ -376,8 +412,6 @@ void Object::draw()
     glUseProgram(0);
   }
 }
-
-
 
 
 int Object::getShaderProgram()
@@ -415,6 +449,11 @@ const std::vector<Vertex>& Object::getVertices()
   return vertices_;
 }
 
+auto Object::getTransform() -> const glm::mat4x4&
+{
+  return modelToWorld_;
+}
+
 
 void Object::setShader(ShaderType type)
 {
@@ -424,6 +463,13 @@ void Object::setShader(ShaderType type)
   modelToWorldLoc_ = glGetUniformLocation(shader_.getProgram(), "modelToWorld");
 }
 
+void Object::setTransform(glm::mat4x4 trans)
+{
+  modelToWorld_ = trans;
+}
+
+// copy vertex info to the GPU
+// 2.1 send one weights and indices
 void Object::initBuffers()
 {
   // bind with default data
@@ -435,12 +481,24 @@ void Object::initBuffers()
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * sizeof(GLuint), indices_.data(), GL_DYNAMIC_DRAW);
 
   // send vert info
+  int start = 0;
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)start);
+  start += sizeof(Vertex::position);
 
   // send normal info
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(float) * 3));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)start);
+  start += sizeof(Vertex::normal);
+
+  // send bone indices
+  glEnableVertexAttribArray(2);
+  glVertexAttribIPointer(2, 4, GL_INT, sizeof(Vertex), (void*)start);
+  start += sizeof(Vertex::boneIndices) + sizeof(Vertex::padding_);
+
+  // send bone weights
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)start);
 
   // unbind
   glBindVertexArray(0);
@@ -495,18 +553,4 @@ void Object::genVertexNormals()
     vert.normal = glm::normalize(vert.normal);
   }
 }
-
-void Object::updateSorted()
-{
-  for (size_t i = 0; i < vertices_.size(); i++)
-  {
-    sortedX.push_back(&vertices_[i]);
-    sortedY.push_back(&vertices_[i]);
-    sortedZ.push_back(&vertices_[i]);
-  }
-  sort(sortedX.begin(), sortedX.end(), [&](Vertex* l, Vertex* r) {return l->position.x < r->position.x; });
-  sort(sortedY.begin(), sortedY.end(), [&](Vertex* l, Vertex* r) {return l->position.y < r->position.y; });
-  sort(sortedZ.begin(), sortedZ.end(), [&](Vertex* l, Vertex* r) {return l->position.z < r->position.z; });
-}
-
 

@@ -7,6 +7,7 @@
   using std::string;
 #include "Light.h"
 #include "Camera.h"
+#include "Line.h"
 
 // singleton
 ObjectManager* ObjectManager::objectManager_ = nullptr;
@@ -166,12 +167,13 @@ Object* ObjectManager::addObject(std::string ID)
   objects_.push_back(new Object(ID));
   selectedObject = objects_.size() - 1;
   isValid_ = true;
+  objects_.back()->setShader(ShaderType::Phong);
   return objects_.back();
 }
 
 Object* ObjectManager::addLight(std::string ID)
 {
-  if (ubo_.lightCount >= ubo_.lightMax)
+  if (lightUbo_.lightCount >= lightUbo_.lightMax)
   {
     printf("You have reached the max number of lights - no more created");
     return nullptr;
@@ -181,69 +183,123 @@ Object* ObjectManager::addLight(std::string ID)
     // add a light object to list of objects 
     Light* light = new Light(ID);
     Object* lightObj = dynamic_cast<Object*>(light);
-    lightObj->loadSphere(1,50);
     objects_.push_back(light);
 
     // update relevant light data
     selectedObject = objects_.size() - 1;
     isValid_ = true;
-    ubo_.lightCount++;
-    light->ID = ubo_.lightCount;
+    lightUbo_.lightCount++;
+    light->ID = lightUbo_.lightCount;
 
     return objects_.back();
   }
+}
+
+Object* ObjectManager::addLine(std::string ID)
+{
+  Line* line = new Line(ID);
+  Object* lineObj = dynamic_cast<Object*>(line);
+  isValid_ = true;
+
+  objects_.push_back(line);
+  objects_.back()->setShader(ShaderType::Phong);
+  return objects_.back();
 }
 
 
 void ObjectManager::genUBO()
 {
   // fill in information
-  ubo_.size = sizeof(Light::LightData) * ubo_.lightMax + sizeof(Object::MaterialData);
-  glGenBuffers(1, &ubo_.id);
+  lightUbo_.size = sizeof(Light::LightData) * lightUbo_.lightMax + sizeof(Object::MaterialData);
+  glGenBuffers(1, &lightUbo_.id);
 
   // bind this ubo
-  glBindBuffer(GL_UNIFORM_BUFFER, ubo_.id);
-  glBufferData(GL_UNIFORM_BUFFER, ubo_.size, nullptr, GL_STATIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, lightUbo_.id);
+  glBufferData(GL_UNIFORM_BUFFER, lightUbo_.size, nullptr, GL_STATIC_DRAW);
 
   // zeroize the buffer space
-  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY); // does this have to be every frame?
-  memset(buffer, 0, sizeof(Light::LightData) * ubo_.lightMax);
+  void* buffer = glMapNamedBuffer(lightUbo_.id, GL_WRITE_ONLY); // does this have to be every frame?
+  memset(buffer, 0, sizeof(Light::LightData) * lightUbo_.lightMax);
 
   // release buffer
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_.id);
-  glUnmapNamedBuffer(ubo_.id);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, lightUbo_.id);
+  glUnmapNamedBuffer(lightUbo_.id);
 }
 
 void ObjectManager::resetUBO()
 {
-  glDeleteBuffers(1, &ubo_.id);
+  glDeleteBuffers(1, &lightUbo_.id);
   genUBO();
 }
 
 void ObjectManager::updateUBO(Light* light)
 {
-  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
+  void* buffer = glMapNamedBuffer(lightUbo_.id, GL_WRITE_ONLY);
 
   // fill this light member
   Light::LightData* nextMember = static_cast<Light::LightData*>(buffer) + (light->ID - 1);
   memcpy(static_cast<void*>(nextMember), &light->lightData, sizeof(Light::LightData));
 
-  glUnmapNamedBuffer(ubo_.id);
+  glUnmapNamedBuffer(lightUbo_.id);
   //glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void ObjectManager::updateUBO(Object* object)
 {
-  void* buffer = glMapNamedBuffer(ubo_.id, GL_WRITE_ONLY);
+  void* buffer = glMapNamedBuffer(lightUbo_.id, GL_WRITE_ONLY);
 
   // get last light which coincides with the material
-  Light::LightData* lastLight = static_cast<Light::LightData*>(buffer) + ubo_.lightMax;
+  Light::LightData* lastLight = static_cast<Light::LightData*>(buffer) + lightUbo_.lightMax;
   void* material = static_cast<void*>(lastLight);
   memcpy(material, &object->material, sizeof(Object::MaterialData));
 
-  glUnmapNamedBuffer(ubo_.id);
-  //glBindBuffer(GL_UNIFORM_BUFFER, 0);
+  glUnmapNamedBuffer(lightUbo_.id);
+}
+
+// generate ubo for skin mats
+// 3rd after skin mats are generated (for the first time) 
+unsigned ObjectManager::generateGenericUBO(unsigned elementSize, unsigned count)
+{
+  UBO ubo;
+
+  // fill in information
+  ubo.elementSize = elementSize;
+  ubo.count = count;
+  ubo.byteSize = elementSize * count;
+  glGenBuffers(1, &ubo.id);
+
+  // bind this ubo
+  glBindBuffer(GL_UNIFORM_BUFFER, ubo.id);
+  glBufferData(GL_UNIFORM_BUFFER, ubo.byteSize, nullptr, GL_STATIC_DRAW);
+  glBindBufferBase(GL_UNIFORM_BUFFER, ubos_.size() + 1, ubo.id);
+
+  // zeroize the buffer space
+  void* buffer = glMapNamedBuffer(ubo.id, GL_WRITE_ONLY); // does this have to be every frame?
+  memset(buffer, 0, ubo.byteSize);
+
+  // release buffer
+  glUnmapNamedBuffer(ubo.id);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+  printf("generating %i blocks each sized %i bytes in UBO #%i\n",count, elementSize, ubo.id);
+
+  ubos_.push_back(ubo);
+  return ubos_.size() - 1;
+}
+
+// all skin matrices are put here
+// 5th copy skin mats to GPU
+void ObjectManager::updateGenericUBO(unsigned index, unsigned elementIndex, void* data)
+{
+  UBO& ubo = ubos_[index];
+  glBindBuffer(GL_UNIFORM_BUFFER, ubo.id);
+  void* buffer = glMapNamedBuffer(ubo.id, GL_WRITE_ONLY);
+
+  unsigned char* nextMember = static_cast<unsigned char*>(buffer) + (ubo.elementSize * elementIndex);
+  memcpy(static_cast<void*>(nextMember), data, ubo.elementSize);
+  
+  glUnmapNamedBuffer(ubo.id);
 }
 
 
