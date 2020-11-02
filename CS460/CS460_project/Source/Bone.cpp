@@ -260,7 +260,7 @@ void Skeleton::loadAnimations(const aiScene* scene)
 
 void Skeleton::updateBonesAfterAnimation()
 {
-  if(animation.playmode == AnimationManager::PlayMode::Stopped)
+  if(animation.getMode() == AnimationManager::PlayMode::Stopped)
     return;
 
   int i =0;
@@ -298,8 +298,8 @@ void Skeleton::createBones(glm::mat4x4 modelToWorld)
       }
 
       Line* line = dynamic_cast<Line*>(lineObj);
-      line->startMat = modelToWorld_ * parentBone->boneToModel;
-      line->endMat = childbone->transform;
+      line->setStart(modelToWorld_ * parentBone->boneToModel);
+      line->setEnd(childbone->transform);
     }
   }
 }

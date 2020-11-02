@@ -17,21 +17,19 @@ void AnimationManager::addAnimation(const std::string& animName,
   animationMap_[animName].keyFrameMap[boneName].tickMarks = ticks;
   animationMap_[animName].animationDuration = durationInTicks;
   animationMap_[animName].ticksPerSec = ticksPerSec;
-
-  //DEBUG
-  if(animationName_.empty())
-    animationName_ = "Armature|walk";
 }
 
 void AnimationManager::setActive(std::string animName, PlayMode mode)
 {
+  animationName_ = animName;
+  playmode_ = mode;
 }
 
-void AnimationManager::update()
+void AnimationManager::update(double dt)
 {
   // check to make sure key frame is current
-  setKeyFrame();
-  if(playmode == PlayMode::Stopped)
+  setKeyFrame(dt);
+  if(playmode_ == PlayMode::Stopped)
     return;
 
   // get current animation
@@ -50,8 +48,8 @@ void AnimationManager::update()
     auto endS = keyblock.second.S[keyframe + 1];
 
     // get current percentage
-    auto t = currentTick_ / keyblock.second.tickMarks[keyframe + 1];
-
+    auto t = (currentTick_ - keyblock.second.tickMarks[keyframe]) / (keyblock.second.tickMarks[keyframe + 1] - keyblock.second.tickMarks[keyframe]);
+    
     // lerp and slerp => data for this frame
     auto lerpV = vecToTranslationMat(lerp(startV, endV, t));
     auto slerped = startQ.slerp(endQ, t).getRotationMat();
@@ -62,16 +60,27 @@ void AnimationManager::update()
   }
 }
 
-void AnimationManager::setKeyFrame()
+std::vector<std::string> AnimationManager::getAnimationNames()
 {
-  if (playmode == PlayMode::Stopped)
+  std::vector<std::string> names;
+  for(auto nameKey : animationMap_)
+  {
+    names.push_back(nameKey.first);
+  }
+  return names;
+}
+
+void AnimationManager::setKeyFrame(double dt)
+{
+  if (playmode_ == PlayMode::Stopped)
     return;
 
   auto& currentAnimation = animationMap_[animationName_];
   bool endReached = false;
 
   // set frame to tick conversion
-  currentTick_ += currentAnimation.ticksPerSec / 60.0f;
+  currentTick_ += animationSpeed * currentAnimation.ticksPerSec * float(dt);
+
 
   // check tick hit times for every bone
   for(auto& keyblock : currentAnimation.keyFrameMap)
@@ -81,17 +90,15 @@ void AnimationManager::setKeyFrame()
     // if current tick is equal to the next frame - deal with it
     if(currentTick_ >= keyblock.second.tickMarks[currentKeyFrame + 1])
     {
-      // adjust for rounding error
       currentKeyFrame++;
-
       // if this is the last tick check the mode
       if(currentKeyFrame + 1 >= keyblock.second.tickMarks.size())
       {
         endReached =  true;
-        switch (playmode)
+        switch (playmode_)
         {
         case AnimationManager::PlayMode::PlayOnce:
-          playmode = PlayMode::Stopped;
+          playmode_ = PlayMode::Stopped;
         case AnimationManager::PlayMode::Loop:
           currentKeyFrame = 0;
           break;

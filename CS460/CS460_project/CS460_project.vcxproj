@@ -94,6 +94,7 @@
     <ClCompile Include="Source\Animation.cpp" />
     <ClCompile Include="Source\Bone.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\Curve.cpp" />
     <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\Line.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -117,6 +118,7 @@
     <ClInclude Include="Include\Bone.h" />
     <ClInclude Include="Include\Camera.h" />
     <ClInclude Include="Include\Common.h" />
+    <ClInclude Include="Include\Curve.h" />
     <ClInclude Include="Include\Light.h" />
     <ClInclude Include="Include\Line.h" />
     <ClInclude Include="Include\Object.h" />

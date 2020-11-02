@@ -4,15 +4,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <LibraryPath>$(SolutionDir)Common\glew\x32\lib\Release\Win32;$(SolutionDir)Common\glfw\x32\lib-vc2019;$(SolutionDir)Common\glfw\x32\lib-mingw;$(SolutionDir)Common\glew\x32\bin\Release\Win32;$(SolutionDir)Common\assimp\release\lib;$(LibraryPath)</LibraryPath>
-    <SourcePath>$(SolutionDir)Source;$(SourcePath)</SourcePath>
+    <SourcePath>$(SolutionDir)Source;$(SolutionDir)Include;$(SourcePath)</SourcePath>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Common\glew\x32\include;$(SolutionDir)Common\glfw\x32\include;$(SolutionDir)Common\glm;$(SolutionDir)Source;$(SolutionDir)Common\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Common\glew\x32\include;$(SolutionDir)Common\glfw\x32\include;$(SolutionDir)Common\glm;$(SolutionDir)Include;$(SolutionDir)Common\assimp\include;$(SolutionDir)imGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glew32.lib;openGL32.lib;glfw3.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

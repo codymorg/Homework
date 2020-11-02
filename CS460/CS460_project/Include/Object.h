@@ -53,10 +53,11 @@ public:
   void clearObject();
   void loadBox(glm::vec3 halfScale, bool lines = true);
   void loadSphere(float radius, int divisions);
-  void loadLine();
+  void loadLine(float width = 1.0f);
 
   // object manipulation
   void translate(glm::vec3 trans);
+  void setPosition(glm::vec3 trans);
   void rotate(float degrees, glm::vec3 center = glm::vec3(0), glm::vec3 axis = glm::vec3(0, 1, 0));
   void scale(glm::vec3 scale);
   void setScale(glm::vec3 setToScale);

@@ -14,14 +14,19 @@ void Line::draw()
 }
 void Line::update()
 {
-  // set first point
-  setTransform(startMat);
-
-  glm::vec3 pos(endMat[3][0], endMat[3][1], endMat[3][2]);
-
-  if(vertices_[1].position != pos)
+  if (isDirty_)
   {
-    vertices_[1].position = pos;
-    initBuffers();
+    isDirty_ = false;
+
+    // set first point
+    setTransform(startMat);
+
+    glm::vec3 pos(endMat[3][0], endMat[3][1], endMat[3][2]);
+
+    if(vertices_[1].position != pos)
+    {
+      vertices_[1].position = pos;
+      initBuffers();
+    }
   }
 }

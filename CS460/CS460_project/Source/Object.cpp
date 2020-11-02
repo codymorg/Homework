@@ -319,9 +319,10 @@ void Object::loadSphere(float radius, int divisions)
   initBuffers();
 }
 
-void Object::loadLine()
+void Object::loadLine(float width)
 {
   this->renderMode = GL_LINES;
+  glLineWidth(width);
 
   vertices_ = { Vertex(vec3(0,0,0)), Vertex(vec3(1,1,1)) };
   indices_ = { 0, 1 };
@@ -329,10 +330,14 @@ void Object::loadLine()
   initBuffers();
 }
 
-// world transform  
 void Object::translate(glm::vec3 trans)
 {
-  //modelToWorld_ = glm::translate(modelToWorld_, trans);
+  modelToWorld_ = glm::translate(modelToWorld_, trans);
+}
+
+// world transform  
+void Object::setPosition(glm::vec3 trans)
+{
   modelToWorld_[3][0] = trans.x;
   modelToWorld_[3][1] = trans.y;
   modelToWorld_[3][2] = trans.z;
@@ -344,6 +349,8 @@ void Object::rotate(float degrees, glm::vec3 center, glm::vec3 axis)
   modelToWorld_ = glm::rotate(modelToWorld_, glm::radians(degrees), axis);
   modelToWorld_ = glm::translate(modelToWorld_, -center);
 }
+
+
 
 void Object::scale(glm::vec3 scale)
 {
@@ -379,7 +386,8 @@ void Object::update()
   // animation stuff
   if (skeleton.hasBones())
   {
-    skeleton.animation.update();
+    double dt = ObjectManager::getObjectManager()->dt;
+    skeleton.animation.update(dt);
     skeleton.updateBonesAfterAnimation();
     skeleton.update(modelToWorld_);
   }
@@ -431,7 +439,7 @@ vec3 Object::getWorldPosition()
 
 glm::vec3 Object::getWorldScale()
 {
-  return glm::vec3(modelToWorld_[0][0], modelToWorld_[1][1], modelToWorld_[2][2]);
+  return glm::vec3(glm::length(modelToWorld_[0]), glm::length(modelToWorld_[1]), glm::length(modelToWorld_[2]));
 }
 
 glm::vec3 Object::getMinWorldPos()
