@@ -43,18 +43,23 @@ public:
                     float durationInTicks, 
                     float ticksPerSec);
   void setActive(std::string animName, PlayMode mode = PlayMode::Loop);
-  void update();
+  void update(double dt);
+  PlayMode getMode() { return playmode_; };
+  std::string getCurrentAnimationName() { return animationName_; };
+  std::vector<std::string> getAnimationNames();
 
-  PlayMode playmode = PlayMode::Loop;
   std::map<std::string, glm::mat4x4> boneTransforms;
 
+  float animationSpeed = 1.0;
+
 private:
+  PlayMode playmode_ = PlayMode::Stopped;
   std::string animationName_;
   float currentTick_ = 0;
 
   std::map<std::string, Animation> animationMap_; // [animation name][keyframe struct]
 
-  void setKeyFrame();
+  void setKeyFrame(double dt);
   glm::vec3 lerp(const glm::vec3& start, const glm::vec3& end, float percent);
   glm::mat4x4 vecToScaleMat(const glm::vec3 scale);
   glm::mat4x4 vecToTranslationMat(const glm::vec3 trans);

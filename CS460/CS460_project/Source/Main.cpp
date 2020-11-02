@@ -31,6 +31,7 @@ using std::vector;
 #include "Light.h"
 #include "Line.h"
 #include "Quaternion.h"
+#include "Curve.h"
 
 // managers and static variables
 static ObjectManager* objectMgr = nullptr;
@@ -39,6 +40,18 @@ static Camera* camera = nullptr;
 
 static string currentBone = "No Bone Selected";
 static vec3 stepSize = vec3(0.01, 0.1, 0.9);
+static bool spaceWasDown = false;
+static bool pause = false;
+static float velocity = 0.05;
+static float originalVelocity = 0.05;
+static float radius = 2.0;
+static float lastRotation = 0;
+static float t;
+static float easeIn = 0.1f;
+static float easeOut = 0.9f;
+static double dt = 0;
+static Curve curve;
+static float rotateBy;
 
 // common vectors
 glm::vec3 up(0, 1, 0);
@@ -175,25 +188,83 @@ void SceneSetup()
   obj->loadModel("Common/models/tinyhands.fbx");
   obj->material.diffuse = vec3(0.1, 0.2, 0.3);
   obj->material.ambient = vec3(0.1, 0.1, 0.1);
-  obj->translate(vec3(0,0.1f,0));
+  obj->setPosition(vec3(0,0.1f,0));
   obj->setScale(vec3(0.01f));
+  obj->rotate(90);
   obj->skeleton.createBones(obj->getTransform());
+  obj->skeleton.animation.setActive("Armature|walk");
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->setShader(ShaderType::Normal);
-  obj2->translate(right * 3.0f);
+  obj2->setPosition((right+up) * 3.0f);
   obj2->scale(vec3(0.2f));
   dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
 
   Object* floor = objectMgr->addObject("floor");
-  floor->loadBox(vec3(1,0.1,1),false);
+  floor->setShader(ShaderType::Phong);
+  floor->loadBox(vec3(5,0.1,5),false);
+  floor->setPosition(vec3(0,-0.15,0));
+  floor->material.diffuse = vec3(0.5);
+  floor->material.ambient = vec3(0.2);
+
+  // axis and origin markers
+  {
+    Object* origin = objectMgr->addObject("origin");
+    origin->loadSphere(1, 50);
+    origin->setScale(vec3(0.1));
+    origin->setPosition(vec3(0));
+    origin->setShader(ShaderType::Normal);
+
+    Object* xAx = objectMgr->addObject("X-axis");
+    xAx->loadSphere(1, 50);
+    xAx->setScale(vec3(0.1));
+    xAx->setPosition(vec3(5,0,0));
+    xAx->setShader(ShaderType::Normal);
+
+    Object* zAx = objectMgr->addObject("Z-axis");
+    zAx->loadSphere(1, 50);
+    zAx->setScale(vec3(0.1));
+    zAx->setPosition(vec3(0,0,-5));
+    zAx->setShader(ShaderType::Normal);
+  }
+
+  curve.setControlPoints(
+  {
+    vec3(-2.6, 0.0, -4.3),
+    vec3(1.1, 0.0, -2.1),
+    vec3(0.2, 0.0, -0.3),
+    vec3(2.3, 0.0,  4.3),
+    vec3(2.8, 0.0, -2.1),
+    vec3(-1.7, 0.0,  0.4),
+    vec3(-3.3, 0.0, -0.9),
+    vec3(-1.2, 0.0, -2.6),
+    vec3(0.9, 0.0, -2.6),
+    vec3(0.0, 0.0,  0.7),
+  });
+  obj->setPosition(curve.evaluate(9));
 
   objectMgr->selectedObject = 0; // set to model
 }
 
 void SceneUpdate()
 {
-  objectMgr->getFirstObjectByName("light")->rotate(-1, left * 10.0f);
+  if(!pause)
+    objectMgr->getFirstObjectByName("light")->rotate(-1, left * 10.0f);
+
+  if(velocity == 0)
+    return;
+
+  float d = velocity * dt;
+  auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
+  auto lastPos = model->getWorldPosition();
+  t = curve.adjustToNearestT(lastPos, d);
+
+  model->setPosition(curve.evaluate(t));
+
+  float thisRotation = curve.getRotation(t);
+  rotateBy = thisRotation - lastRotation;
+  model->rotate(rotateBy);
+  lastRotation = thisRotation;
 }
 
 void SceneShutdown()
@@ -228,10 +299,6 @@ void InitGUI(GLFWwindow* window)
   ImGui::StyleColorsDark();
 }
 
-static bool tWasDown = false; // transform
-static bool bWasDown = false; // bone to world
-static bool kWasDown = false; // skin
-static bool oWasDown = false; // offset
 void ProcessInput(GLFWwindow* window)
 {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -264,6 +331,17 @@ void ProcessInput(GLFWwindow* window)
     objectMgr->getAt(0)->rotate(1, vec3(0), vec3(0, 1, 0));
   if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
     objectMgr->getAt(0)->rotate(-1, vec3(0), vec3(0, 1, 0));
+
+
+  
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && spaceWasDown)
+  {
+    spaceWasDown = false;
+    pause = !pause;
+  }
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    spaceWasDown = true;
+
 }
 
 
@@ -275,6 +353,7 @@ void UpdateGUI()
   ImGui::Begin("Object Controls");
   ImGui::Text("Application average %.1f FPS", ImGui::GetIO().Framerate);
   auto currentObj = objectMgr->getSelected();
+  auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
 
   if (ImGui::BeginTabBar("MyTabBar"))
   {
@@ -283,36 +362,19 @@ void UpdateGUI()
     {
       ImGui::Text(std::string("Currently Selected: " + currentObj->name).c_str());
       
-      if (ImGui::BeginMenu("Select Object"))
-      {
-        int i = -1;
-        for(auto b : objectMgr->getObjectNames())
-        {
-          i++;
-          // don't show bones
-          if(string(b).find("Line") != -1)
-            continue;
-          bool wasClicked = ImGui::MenuItem(b);
-          if (wasClicked)
-          {
-            objectMgr->selectedObject = i;
-          }
-        }
-        ImGui::EndMenu();
-      }
 
       auto currentPos = currentObj->getWorldPosition();
       if (ImGui::SliderFloat("X", &currentPos.x, currentPos.x - stepSize.y, currentPos.x + stepSize.y))
       {
-        currentObj->translate(currentPos);
+        currentObj->setPosition(currentPos);
       }
       if (ImGui::SliderFloat("Y", &currentPos.y, currentPos.y - stepSize.y, currentPos.y + stepSize.y))
       {
-        currentObj->translate(currentPos);
+        currentObj->setPosition(currentPos);
       }
       if (ImGui::SliderFloat("Z", &currentPos.z, currentPos.z - stepSize.y, currentPos.z + stepSize.y))
       {
-        currentObj->translate(currentPos);
+        currentObj->setPosition(currentPos);
       }
 
       auto scale = currentObj->getWorldScale();
@@ -337,13 +399,30 @@ void UpdateGUI()
         currentObj->wiremode = !currentObj->wiremode;
       }
 
+      if (ImGui::BeginMenu("Select Object"))
+      {
+        int i = -1;
+        for (auto b : objectMgr->getObjectNames())
+        {
+          i++;
+          // don't show bones
+          if (string(b).find("Line") != -1)
+            continue;
+          bool wasClicked = ImGui::MenuItem(b);
+          if (wasClicked)
+          {
+            objectMgr->selectedObject = i;
+          }
+        }
+        ImGui::EndMenu();
+      }
+
       ImGui::EndTabItem();
     }
     
     // Bone TAB
     if (ImGui::BeginTabItem("Bone Controls"))
     {
-      auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
       auto boneNames = model->skeleton.getBoneNames();
       if (ImGui::BeginMenu(currentBone.c_str()))
       {
@@ -426,10 +505,64 @@ void UpdateGUI()
     // Animation TAB
     if (ImGui::BeginTabItem("Animation Controls"))
     {
-      ImGui::Text("This is the Cucumber tab!\nblah blah blah blah blah");
+      auto names = model->skeleton.animation.getAnimationNames();
+      auto currentName = model->skeleton.animation.getCurrentAnimationName();
+      ImGui::SliderFloat("Animation Speed", &model->skeleton.animation.animationSpeed, 0, 1);
+      ImGui::SliderFloat("Velocity", &velocity, 0, 0.1f, "%.4f");
+      
+      ImGui::SliderFloat("Ease In", &easeIn, 0, 1.0f);
+      ImGui::SliderFloat("Ease Out", &easeOut, 0, 1.0f);
+      
+      string mode = "Curve";
+      float range = curve.t_max - curve.t_min;
+      float t0 = curve.t_min;
+      float t1 = curve.dimensions() + (easeIn * range);
+      float t2 = curve.dimensions() + (easeOut * range);
+      float t3 = curve.t_max;
+      
+      if (t < t1)
+      {
+        mode = "EaseIn";
+        velocity = t * (originalVelocity / t1);
+        model->skeleton.animation.animationSpeed = velocity / originalVelocity;
+      }
+      else if (t > t2)
+      {
+        mode = "EaseOut";
+        velocity = (t3 - t) * (originalVelocity / (t3 - t2));
+        model->skeleton.animation.animationSpeed = velocity / originalVelocity;
+      }
+      else
+      {
+        velocity = originalVelocity;
+        if (std::abs(rotateBy) <= 2)
+        {
+          model->skeleton.animation.animationSpeed = std::max(0.8f, 1.0f - std::abs(rotateBy / 4));
+        }
+      }
+      ImGui::Text("[%s] t-value: %f", mode.c_str(), t);
+      ImGui::Text("\n\n");
+
+
+      if (ImGui::BeginMenu(currentName.empty() ? "Select an Animation..." : currentName.c_str()))
+      {
+        ImGui::Text("Animation List...");
+        for (auto b : names)
+        {
+          bool wasClicked = ImGui::MenuItem(b.c_str());
+          if (wasClicked)
+          {
+            model->skeleton.animation.setActive(b);
+          }
+        }
+        ImGui::EndMenu();
+      }
+
+
       ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
+    
   }
 
   
@@ -461,6 +594,7 @@ void GUIendFrame(GLFWwindow* window, double time)
 
 int main()
 {
+
   QuaternionTest(100);
 
   // make a window
@@ -476,18 +610,28 @@ int main()
   shaderMgr = ShaderManager::getShaderManager();
 
   // scene setup
-  camera = new Camera(vec3(0, -1, -8), 0.0f, right);
+  camera = new Camera(vec3(0,0,0), 45.0f, right);
+  camera->translate(vec3(0,0.5,-10));
+
 
   SceneSetup();
+  auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
+  double time = 0;
   while (!glfwWindowShouldClose(window))
   {
     // scene loop
-    double time = glfwGetTime();
-    UpdateGUI();
-    ProcessInput(window);
+    dt = (glfwGetTime() - time);
+    if(dt > 1)
+      dt = 1/40.0f;
+    objectMgr->dt = dt;
+
+    time = glfwGetTime();
 
     // sim loop
     SceneUpdate();
+
+    UpdateGUI();
+    ProcessInput(window);
 
     // end of the loop
     objectMgr->render(*camera);

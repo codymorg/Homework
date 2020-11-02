@@ -59,6 +59,8 @@ public:
   Object* addLight(std::string ID = "anon_Light");
   Object* addLine(std::string ID = "anon_Line");
 
+  double dt = 0;
+
   template <class T>
   Object* addVolume(Object* parent, std::string ID = "root_Volume")
   {
