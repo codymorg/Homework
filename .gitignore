@@ -41,7 +41,6 @@
 /CS260/assn1/Release/assn1.exe
 /CS260
 /CS300/Assn1/CS350_cody.morgan_1
-*.zip
 /CS261/Assn1/.vscode
 /CS261/Assn1/node_modules
 /CS330/lexical_permutation-files/Assn1/Debug
@@ -119,3 +118,8 @@
 /IslandMapper/IslandMapper/Release/IslandMapper.ipdb
 /IslandMapper/IslandMapper/Release/IslandMapper.iobj
 /Archive/2019.02/CS300/Assn1/CS300/Debug
+*.mtl
+/MAT361/largePrimeFactorization/.vs/largePrimeFactorization/v16
+/MAT361/largePrimeFactorization/Debug
+/MAT361/largePrimeFactorization/enc_temp_folder/fe82e1a854a98da54a8f880f606366
+*.user

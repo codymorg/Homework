@@ -120,7 +120,7 @@ void ObjectManager::deferredRender(Camera& camera)
 
 void ObjectManager::forwardRender(Camera& camera, bool clear)
 {
-  if (!clear)
+  if (clear)
   {
     // clear fbo 1
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
