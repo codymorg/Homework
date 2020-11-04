@@ -23,14 +23,16 @@ glm::vec3 ConvertaiVecToGlm(const aiVector3D ai);
 void PrintMat(const glm::mat4x4& mat, std::string inden = "");
 
 template <class vec>
-void PrintVec(vec v)
+void PrintVec(vec v, int newlines = 0, std::string label ="")
 {
-std::cout << "[ ";
+  std::cout << label <<"[ ";
   for(auto i = 0; i < v.length(); i++)
   {
     std::cout << v[i] << " ";
   }
-std::cout << " ]";
+  std::cout << " ]";
+  while(newlines-- > 0)
+    std::cout << "\n";
 }
 
 

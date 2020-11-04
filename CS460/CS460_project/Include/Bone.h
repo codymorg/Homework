@@ -16,18 +16,23 @@ public:
   bool isNamed(std::string isYourName);
   void printBone(bool printChildren = false, bool withMat = false, std::string level = "");
 
-  auto getPosition() const -> glm::vec3;
+  // model coord
+  auto getBonePosition() const -> glm::vec3; // relative to node parent
+  auto getModelPosition() const -> glm::vec3;
   bool hasWeight() { return hasWeight_; };
 
-  void setPosition(const glm::vec3& pos);
-  void giveWeight(){hasWeight_ = true;};
+  void setBonePosition(const glm::vec3& pos);
+  void giveWeight() { hasWeight_ = true; };
 
   std::string name;
   std::vector<Bone> children;
-  glm::mat4x4 offsetMatrix;
-  glm::mat4x4 transform;
-  glm::mat4x4 boneToModel;
-  glm::mat4x4 skinTransform;
+  Bone* parent = nullptr;
+
+  glm::mat4x4 offsetMatrix;  // converts from bone space to mesh
+  glm::mat4x4 transform;     // relative to node's parent         (N_L)
+  glm::mat4x4 boneToModel;   // converts bone to root             (N_W)
+  glm::mat4x4 skinTransform; // converts bone to model
+  glm::mat4x4 inverseK;      // ik accumulation                   (N_K)
 
 private:
   glm::mat4x4 originalTransform_;
@@ -51,6 +56,11 @@ public:
   void createBones(glm::mat4x4 modelToWorld);
   bool hasBones() { return !root_.isNamed("INVALID"); };
 
+  Bone* findEndEffector();
+  void resetIK();
+  void runIK(glm::vec3 goal, float percentComplete, int bail2);
+  void buildParents(Bone* bone = nullptr);
+
   AnimationManager animation;
   void updateBonesAfterAnimation();
 private:
@@ -62,7 +72,7 @@ private:
   std::vector<std::string> bonenames_;
   glm::mat4x4 modelToWorld_;
 
-  void loadBones(const aiNode* node, Bone* parent = nullptr, Bone* current = nullptr);
+  void loadBones(const aiNode* node, Bone* bone = nullptr, Bone* current = nullptr);
   void loadBoneOffsets(const aiScene* scene, const aiNode* node, std::vector<Vertex>& verts);
   void loadAnimations(const aiScene* scene);
 

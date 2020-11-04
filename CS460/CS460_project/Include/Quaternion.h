@@ -15,6 +15,7 @@ public:
   Quaternion(float yaw, float pitch, float roll);
   Quaternion(const glm::vec4& v);
   Quaternion(const aiQuaternion& quat);
+  Quaternion(glm::vec3 axis, float rad);
 
   Quaternion add(const Quaternion& q) const;
   Quaternion add(const glm::vec4& v) const;

@@ -171,7 +171,8 @@ void Object::loadModel(string fileLocation)
 
     processNode(scene->mRootNode, scene, bounds_);
     skeleton = Skeleton(scene, vertices_);
-
+    skeleton.buildParents();
+    
     // scale down to unit size and put at the origin
     aiVector3D aiModelScale = (bounds_.mMax - bounds_.mMin);
     vec3 modelScale = vec3(aiModelScale.x, aiModelScale.y, aiModelScale.z);
