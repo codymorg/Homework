@@ -112,14 +112,14 @@
     srand((unsigned)time(0));
 
     int runs = count;
-    glm::vec3 euler((float)rand() / RAND_MAX * 360.0f, (float)rand() / RAND_MAX * 360.0f, (float)rand() / RAND_MAX * 360.0f);
-    glm::quat master(euler);
-    Quaternion servant(euler.z, euler.y, euler.x);
     int test = 0;
 
     while(count--)
     {
       /////***** Fuzz testing *****/////
+      glm::vec3 euler((float)rand() / RAND_MAX * 360.0f, (float)rand() / RAND_MAX * 360.0f, (float)rand() / RAND_MAX * 360.0f);
+      glm::quat master(euler);
+      Quaternion servant(euler.z, euler.y, euler.x);
       test = 0;
       Verify(master, servant, test++, __LINE__, runs - count);
       euler = glm::vec3((float)rand() / RAND_MAX * 360.0f, (float)rand() / RAND_MAX * 360.0f, (float)rand() / RAND_MAX * 360.0f);
@@ -242,6 +242,13 @@
       master = glm::slerp(master, randMaster, r);
       servant = servant.slerp(randServant, r);
       Verify(master, servant, test++, __LINE__, runs - count);
+
+      r = (float)rand() / RAND_MAX * 360;
+      glm::vec3 master3V = glm::vec3(masterV);
+      master = glm::angleAxis(glm::radians(r), glm::normalize(master3V));
+      auto newQ = Quaternion(master3V, glm::radians(r));
+      Verify(master, newQ, test++, __LINE__, runs-count);
+
     }
     std::cout << "Quaternion passed all " << test << " tests " << runs << " times\n";
   } 
@@ -274,6 +281,15 @@ Quaternion::Quaternion(const aiQuaternion& quat)
   q_.x = quat.x;
   q_.y = quat.y;
   q_.z = quat.z;
+}
+
+Quaternion::Quaternion(glm::vec3 axis, float alpha)
+{
+  q_.w = glm::cos(alpha / 2);
+  glm::vec3 xyz = glm::sin(alpha / 2) * (axis / glm::length(axis));
+  q_.x = xyz.x;
+  q_.y = xyz.y;
+  q_.z = xyz.z;
 }
 
 Quaternion Quaternion::add(const Quaternion& q) const

@@ -105,10 +105,10 @@ public:
 
   aiVector3D centroid;
 
+  glm::mat4   modelToWorld_ = glm::mat4(1.0f);
 protected:
   // object data
   glm::mat4   preTransform_ = glm::mat4(1.0f); // used mostly for rotating 
-  glm::mat4   modelToWorld_ = glm::mat4(1.0f);
 
   // geometry data
   std::vector<Vertex> vertices_;

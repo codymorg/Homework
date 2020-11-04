@@ -38,10 +38,13 @@ static ObjectManager* objectMgr = nullptr;
 static ShaderManager* shaderMgr = nullptr;
 static Camera* camera = nullptr;
 
+//proj1
 static string currentBone = "No Bone Selected";
 static vec3 stepSize = vec3(0.01, 0.1, 0.9);
 static bool spaceWasDown = false;
 static bool pause = false;
+
+//proj2
 static float velocity = 0.05;
 static float originalVelocity = 0.05;
 static float radius = 2.0;
@@ -52,6 +55,15 @@ static float easeOut = 0.9f;
 static double dt = 0;
 static Curve curve;
 static float rotateBy;
+
+//proj3
+static float animationTime = 1.0f; // seconds
+static float ikAnimationTime = 0.0f;
+static bool allowAnimation = true;
+static float animationStep = 0.1;
+static int bonelimit = 3;
+
+static const int scene = 3;
 
 // common vectors
 glm::vec3 up(0, 1, 0);
@@ -80,7 +92,7 @@ bool WindowInit(int major, int minor, GLFWwindow** window)
   }
 
   // instance the window
-  *window = glfwCreateWindow(mode->width, mode->height, "CS350 Assignment 1 Cody Morgan", NULL, NULL);
+  *window = glfwCreateWindow(mode->width-10, mode->height, "CS350 Assignment 1 Cody Morgan", NULL, NULL);
   glfwWindowHint(GLFW_SAMPLES, 1); // change for anti-aliasing
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
@@ -179,31 +191,28 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
   glViewport(0, 0, display_w, display_h);
 }
 
-
-
-void SceneSetup()
+void BasicScene_Setup()
 {
   Object* obj = objectMgr->addObject("Mr. Tiny Hands");
   obj->setShader(ShaderType::Phong);
   obj->loadModel("Common/models/tinyhands.fbx");
   obj->material.diffuse = vec3(0.1, 0.2, 0.3);
   obj->material.ambient = vec3(0.1, 0.1, 0.1);
-  obj->setPosition(vec3(0,0.1f,0));
+  obj->setPosition(vec3(0, 0.1f, 0));
   obj->setScale(vec3(0.01f));
-  obj->rotate(90);
   obj->skeleton.createBones(obj->getTransform());
-  obj->skeleton.animation.setActive("Armature|walk");
+  obj->skeleton.update(obj->getTransform());
 
   Object* obj2 = objectMgr->addLight("light");
   obj2->setShader(ShaderType::Normal);
-  obj2->setPosition((right+up) * 3.0f);
+  obj2->setPosition((right + up) * 3.0f);
   obj2->scale(vec3(0.2f));
   dynamic_cast<Light*>(obj2)->lightData.ambient = vec4(1);
 
   Object* floor = objectMgr->addObject("floor");
   floor->setShader(ShaderType::Phong);
-  floor->loadBox(vec3(5,0.1,5),false);
-  floor->setPosition(vec3(0,-0.15,0));
+  floor->loadBox(vec3(5, 0.1, 5), false);
+  floor->setPosition(vec3(0, -0.15, 0));
   floor->material.diffuse = vec3(0.5);
   floor->material.ambient = vec3(0.2);
 
@@ -218,15 +227,27 @@ void SceneSetup()
     Object* xAx = objectMgr->addObject("X-axis");
     xAx->loadSphere(1, 50);
     xAx->setScale(vec3(0.1));
-    xAx->setPosition(vec3(5,0,0));
-    xAx->setShader(ShaderType::Normal);
+    xAx->setPosition(vec3(5, 0, 0));
+    xAx->setShader(ShaderType::Phong);
+    xAx->material.diffuse = vec3(1,0,0);
 
     Object* zAx = objectMgr->addObject("Z-axis");
     zAx->loadSphere(1, 50);
     zAx->setScale(vec3(0.1));
-    zAx->setPosition(vec3(0,0,-5));
-    zAx->setShader(ShaderType::Normal);
+    zAx->setPosition(vec3(0, 0, 5));
+    zAx->setShader(ShaderType::Phong);
+    zAx->material.diffuse = vec3(0,0,1);
   }
+}
+
+void Scene2_Setup()
+{
+  camera = new Camera(vec3(0, 0, 0), 45.0f, right);
+  camera->translate(vec3(0, 0.5, -10));
+
+  auto obj = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
+  obj->rotate(90);
+  obj->skeleton.animation.setActive("Armature|walk");
 
   curve.setControlPoints(
   {
@@ -246,14 +267,59 @@ void SceneSetup()
   objectMgr->selectedObject = 0; // set to model
 }
 
+void Scene3_Setup()
+{
+  camera = new Camera(vec3(0, 0, 0), 0, right);
+  camera->translate(vec3(0, -1, -5));
+
+  auto obj = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
+  obj->skeleton.animation.setActive("Armature|start", AnimationManager::PlayMode::PlayOnce);
+  obj->wiremode = true;
+
+  Object* goal = objectMgr->addObject("goal");
+  goal->loadSphere(1, 50);
+  goal->setScale(vec3(0.05));
+  goal->setPosition(vec3(0,1.5,1.5));
+  goal->setShader(ShaderType::Normal);  
+  
+  //Object* gPrime = objectMgr->addObject("gPrime");
+  //gPrime->loadSphere(1, 50);
+  //gPrime->setScale(vec3(0.05));
+  //gPrime->setPosition(vec3(0.5,1.5,0));
+  //gPrime->setShader(ShaderType::Normal);
+  //
+  //Object* ee = objectMgr->addObject("endEffector");
+  //ee->loadSphere(1, 50);
+  //ee->setScale(vec3(0.05));
+  //ee->setPosition(vec3(0, 0, 0));
+  //ee->setShader(ShaderType::Phong);
+  //ee->material.diffuse = vec3(0,0,0);  
+  //
+  //Object* e = objectMgr->addObject("E");
+  //e->loadSphere(1, 50);
+  //e->setScale(vec3(0.05));
+  //e->setPosition(vec3(0, 0, 0));
+  //e->setShader(ShaderType::Phong);
+  //e->material.diffuse = vec3(1,1,1);
+  //
+  //Object* O = objectMgr->addObject("O");
+  //O->loadSphere(1, 50);
+  //O->setScale(vec3(0.05));
+  //O->setPosition(vec3(0, 0, 0));
+  //O->setShader(ShaderType::Phong);
+  //O->material.diffuse = vec3(1, 1, 0);
+
+  objectMgr->selectedObject = 0; // set to model
+}
+
 void SceneUpdate()
 {
   if(!pause)
     objectMgr->getFirstObjectByName("light")->rotate(-1, left * 10.0f);
+}
 
-  if(velocity == 0)
-    return;
-
+void Scene2_Update()
+{
   float d = velocity * dt;
   auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
   auto lastPos = model->getWorldPosition();
@@ -265,6 +331,20 @@ void SceneUpdate()
   rotateBy = thisRotation - lastRotation;
   model->rotate(rotateBy);
   lastRotation = thisRotation;
+}
+
+void Scene3_Update()
+{
+  auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
+  ikAnimationTime = glm::clamp(ikAnimationTime + (float)dt, (float)dt, animationTime);
+  if(ikAnimationTime <= animationTime)
+  {
+    auto goal = objectMgr->getFirstObjectByName("goal");
+    model->skeleton.runIK(goal->getWorldPosition(), ikAnimationTime / animationTime, bonelimit);
+  }
+  //auto endef = model->skeleton.findEndEffector(zero);
+  //ObjectManager::getObjectManager()->getFirstObjectByName("endEffector")->setPosition(model->modelToWorld(endef->getModelPosition()));  ////DEBUG////
+
 }
 
 void SceneShutdown()
@@ -344,6 +424,35 @@ void ProcessInput(GLFWwindow* window)
 
 }
 
+int GetBoneParentsNames(const Bone* inbone, string* names)
+{
+  auto bone = inbone;
+  *names = "";
+  int count = 0;
+
+  while (bone && count < bonelimit)
+  {
+    *names += bone->name + "->";
+    bone = bone->parent;
+    count++;
+  }
+
+  return count;
+}
+
+int GetChainCount(const Bone* inbone)
+{
+  auto bone = inbone;
+  int count = 0;
+
+  while (bone)
+  {
+    bone = bone->parent;
+    count++;
+  }
+
+  return count;
+}
 
 void UpdateGUI()
 {
@@ -362,7 +471,6 @@ void UpdateGUI()
     {
       ImGui::Text(std::string("Currently Selected: " + currentObj->name).c_str());
       
-
       auto currentPos = currentObj->getWorldPosition();
       if (ImGui::SliderFloat("X", &currentPos.x, currentPos.x - stepSize.y, currentPos.x + stepSize.y))
       {
@@ -441,18 +549,18 @@ void UpdateGUI()
       Bone* bone;
       if (model->skeleton.getBone(currentBone, &bone))
       {
-        auto currentPos = bone->getPosition();
+        auto currentPos = bone->getBonePosition();
         if (ImGui::SliderFloat("X", &currentPos.x, currentPos.x - stepSize.y, currentPos.x + stepSize.y))
         {
-          bone->setPosition(currentPos);
+          bone->setBonePosition(currentPos);
         }
         if (ImGui::SliderFloat("Y", &currentPos.y, currentPos.y - stepSize.y, currentPos.y + stepSize.y))
         {
-          bone->setPosition(currentPos);
+          bone->setBonePosition(currentPos);
         }
         if (ImGui::SliderFloat("Z", &currentPos.z, currentPos.z - stepSize.y, currentPos.z + stepSize.y))
         {
-          bone->setPosition(currentPos);
+          bone->setBonePosition(currentPos);
         }
 
         auto trans = bone->transform;
@@ -561,13 +669,53 @@ void UpdateGUI()
 
       ImGui::EndTabItem();
     }
-    ImGui::EndTabBar();
     
+    // IK TAB
+    if (ImGui::BeginTabItem("IK Controls"))
+    {
+      auto goal = objectMgr->getFirstObjectByName("goal");
+      auto endeffector = model->skeleton.findEndEffector();
+
+      ImGui::SliderFloat("Animation Time", &animationTime, 0.5, 5);
+
+      auto currentPos = goal->getWorldPosition();
+      {
+        if (ImGui::SliderFloat("X", &currentPos.x, currentPos.x - stepSize.y, currentPos.x + stepSize.y))
+        {
+          goal->setPosition(currentPos);
+        }
+        if (ImGui::SliderFloat("Y", &currentPos.y, currentPos.y - stepSize.y, currentPos.y + stepSize.y))
+        {
+          goal->setPosition(currentPos);
+        }
+        if (ImGui::SliderFloat("Z", &currentPos.z, currentPos.z - stepSize.y, currentPos.z + stepSize.y))
+        {
+          goal->setPosition(currentPos);
+        }
+      }
+
+      string boneNames;
+      auto count = GetBoneParentsNames(model->skeleton.findEndEffector(), &boneNames);
+
+      ImGui::Text(boneNames.c_str());
+      ImGui::SliderInt("Depth limit", &bonelimit,0, GetChainCount(model->skeleton.findEndEffector()));
+      ImGui::SliderFloat("Animation t value", &ikAnimationTime, animationStep, animationTime);
+      if(ImGui::Button("Start Animation"))
+      {
+        ikAnimationTime = 0.0;
+        model->skeleton.resetIK();
+      }
+
+      ImGui::EndTabItem();
+    }
+    ImGui::EndTabBar();
   }
 
   
   ImGui::End();
 }
+
+
 
 void GUIendFrame(GLFWwindow* window, double time)
 {
@@ -594,7 +742,6 @@ void GUIendFrame(GLFWwindow* window, double time)
 
 int main()
 {
-
   QuaternionTest(100);
 
   // make a window
@@ -610,11 +757,9 @@ int main()
   shaderMgr = ShaderManager::getShaderManager();
 
   // scene setup
-  camera = new Camera(vec3(0,0,0), 45.0f, right);
-  camera->translate(vec3(0,0.5,-10));
+  BasicScene_Setup();
+  scene == 2 ? Scene2_Setup() : Scene3_Setup();
 
-
-  SceneSetup();
   auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
   double time = 0;
   while (!glfwWindowShouldClose(window))
@@ -629,6 +774,7 @@ int main()
 
     // sim loop
     SceneUpdate();
+    scene == 2 ? Scene2_Update() : Scene3_Update();
 
     UpdateGUI();
     ProcessInput(window);

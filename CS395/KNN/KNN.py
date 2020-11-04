@@ -5,15 +5,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 ## Settings ##
-DATA_LOCATION = "EvaluationData.csv" 
-DEPENDENT = "CPI"             
+DATA_LOCATION = "Breast_Cancer.csv" 
+DEPENDENT = "diagnosis"             
 SKIP_PLOT_GENERATION = True         
 
-IGNORE = ["COUNTRY ID", DEPENDENT]
+IGNORE = ["id", DEPENDENT]
 
-TRAINING_PERCENT = 1.0   # These should sum to 1.0
-VALIDATION_PERCENT = 0.0 # These should sum to 1.0
-TESTING_PERCENT = 0.0    # These should sum to 1.0
+TRAINING_PERCENT = 0.6   # These should sum to 1.0
+VALIDATION_PERCENT = 0.2 # These should sum to 1.0
+TESTING_PERCENT = 0.2    # These should sum to 1.0
 if abs(TRAINING_PERCENT + VALIDATION_PERCENT + TESTING_PERCENT - 1.0) > 0.01:
     raise Exception("Bad data splitting values")
     
@@ -142,9 +142,6 @@ def Distance(data):
         distance = sum#math.sqrt(sum)
         distances.append((depVar, distance))
 
-    for d in distances:
-        print(d[1])
-    input()
     distances.sort(key = lambda x:x[1])
 
     return distances                    #evaluate the distance bewtten datapoint and trainingdata set
@@ -348,21 +345,21 @@ originalAccuracy = PrintAccuracy()
 print("Attempting to improve accuracy by ignoreing various labels...\n")
 originalIgnore = IGNORE.copy()
 bestAccuracy = originalAccuracy
-#
-#for label in labels_g:
-#   if label not in IGNORE:
-#       print("Testing accuracy if ", label, " is ignored...")
-#       IGNORE.append(label)
-#       acc = PrintAccuracy()
-#
-#       if(acc > bestAccuracy):
-#           bestAccuracy = acc
-#           print("Adding to ignorelist: ",label)
-#           print(IGNORE,"\n")
-#       else:
-#           IGNORE.remove(label)
-#           print(IGNORE)
-#            
+
+for label in labels_g:
+   if label not in IGNORE:
+       print("Testing accuracy if ", label, " is ignored...")
+       IGNORE.append(label)
+       acc = PrintAccuracy()
+
+       if(acc > bestAccuracy):
+           bestAccuracy = acc
+           print("Adding to ignorelist: ",label)
+           print(IGNORE,"\n")
+       else:
+           IGNORE.remove(label)
+           print(IGNORE)
+            
 print(originalIgnore)
 print("Accuracy with original Ignore list: ", originalAccuracy,"\n")
 print(IGNORE,"\n")

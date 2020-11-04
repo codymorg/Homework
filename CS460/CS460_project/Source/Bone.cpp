@@ -12,6 +12,8 @@ Bone::Bone(std::string name) : name(name)
   boneToModel = glm::mat4x4(1.0f);
   skinTransform = glm::mat4x4(1.0f);
   originalTransform_ = glm::mat4x4(1.0f);
+  inverseK = glm::mat4x4(1.0f);
+  children.reserve(20);
 }
 
 void Bone::reset()
@@ -53,12 +55,18 @@ void Bone::printBone(bool printChildren, bool withMat, std::string level)
   }
 }
 
-glm::vec3 Bone::getPosition() const
+glm::vec3 Bone::getBonePosition() const
 {
   return glm::vec3(transform[3][0], transform[3][1], transform[3][2]);
 }
 
-void Bone::setPosition(const glm::vec3& pos)
+auto Bone::getModelPosition() const -> glm::vec3
+{
+  return  glm::vec3(boneToModel[3][0], boneToModel[3][1], boneToModel[3][2]);
+  //return glm::vec3(boneToModel * glm::vec4(getBonePosition(), 1));
+}
+
+void Bone::setBonePosition(const glm::vec3& pos)
 {
   transform[3][0] = pos.x;
   transform[3][1] = pos.y;
@@ -103,10 +111,10 @@ void Skeleton::update(const glm::mat4x4& modelToWorld, Bone* parent, int i)
 
   for (auto& child : parent->children)
   {
-    child.boneToModel = parent->boneToModel * child.transform;
+    child.boneToModel = parent->boneToModel * child.transform * child.inverseK;
+    child.skinTransform = child.boneToModel * child.offsetMatrix;
     if (child.hasWeight())
     {
-      child.skinTransform = child.boneToModel * child.offsetMatrix;
       ObjectManager::getObjectManager()->updateGenericUBO(boneUBO, index, (void*)(&child.skinTransform[0][0]));
 
       if(printUpdate_) 
@@ -158,26 +166,26 @@ bool Skeleton::getBone(std::string name, Bone** outBone, Bone* current)
   return false;
 }
 
-void Skeleton::loadBones(const aiNode* node, Bone* parent, Bone* current)
+void Skeleton::loadBones(const aiNode* node, Bone* bone, Bone* current)
 {
-  if (!parent)
+  if (!bone)
   {
-    parent = &root_;
+    bone = &root_;
   }
-  parent->name = node->mName.C_Str();
-  bonenames_.push_back(parent->name);
-  parent->transform = ConvertaiMatToglm(node->mTransformation);
+  bone->name = node->mName.C_Str();
+  bonenames_.push_back(bone->name);
+  bone->transform = ConvertaiMatToglm(node->mTransformation);
 
   // Recurse onto this node's children
-  current = parent;
+  current = bone;
   for (unsigned int i = 0; i < node->mNumChildren; ++i)
   {
-    parent = current;
-    parent->children.push_back(Bone());
-    parent = &parent->children.back();
-    loadBones(node->mChildren[i], parent, current);
+    bone = current;
+    bone->children.push_back(Bone());
+    bone = &bone->children.back();
+    loadBones(node->mChildren[i], bone, current);
   }
-  parent = current;
+  bone = current;
 }
 
 void Skeleton::loadBoneOffsets(const aiScene* scene, const aiNode* node, vector<Vertex>& verts)
@@ -269,7 +277,8 @@ void Skeleton::updateBonesAfterAnimation()
     Bone* bone;
     getBone(name, &bone);
 
-    bone->transform = animation.boneTransforms[name];
+    if(animation.boneTransforms.find(name) != animation.boneTransforms.end())
+      bone->transform = animation.boneTransforms[name];
   }
 }
 
@@ -302,5 +311,97 @@ void Skeleton::createBones(glm::mat4x4 modelToWorld)
       line->setEnd(childbone->transform);
     }
   }
+}
+
+void Skeleton::resetIK()
+{
+  for(auto name : bonenames_)
+  {
+    Bone* bone = nullptr;
+    getBone(name,&bone);
+    bone->inverseK = glm::mat4x4(1.0);
+  }
+}
+
+void Skeleton::runIK(glm::vec3 goal, float percentComplete, int bail2)
+{
+  // goal is in model space
+  goal = glm::vec3(glm::inverse(modelToWorld_) * glm::vec4(goal, 1));
+
+  // find end effector (ee)
+  auto endEffector = findEndEffector();
+  auto E = endEffector->getModelPosition(); // end effector world position
+
+  // calculate G`
+  auto Gprime = ((1 - percentComplete) * E) + (percentComplete * goal);
+  //ObjectManager::getObjectManager()->getFirstObjectByName("gPrime")->setPosition(glm::vec3(modelToWorld_ * glm::vec4(Gprime, 1)));  ////DEBUG////
+  //ObjectManager::getObjectManager()->getFirstObjectByName("E")->setPosition(glm::vec3(modelToWorld_ * glm::vec4(E, 1)));  ////white DEBUG////
+
+  // loop until delta < e or ee position - G` < e
+  float ep = 10.0f;
+  float delta = 2 * ep;
+  int bail = 3;
+  while(delta > ep && bail-- > 0)
+  {
+    // loop every bone in chain
+    auto N = endEffector->parent;
+    while(N && bail2-- > 0)
+    {
+      // origin of rotation
+      auto O = N->getModelPosition();
+      //ObjectManager::getObjectManager()->getFirstObjectByName("O")->setPosition(glm::vec3(modelToWorld_ * glm::vec4(O, 1)));  ////yellow DEBUG////
+
+      // current end effector (cee)
+      auto Eprime = endEffector->getModelPosition();
+
+      // ||B|| unit vector
+      auto B = glm::normalize(Eprime - O);
+
+      // ||C|| unit vector
+      auto C = glm::normalize(Gprime - O);
+
+      // angle of rotation
+      float dot = glm::dot(B, C);
+      if(glm::abs(dot) > 1)
+        return;
+      float a = glm::acos(dot);
+
+      // axis of rotation
+      auto A = glm::cross(B,C);
+      auto Aprime = glm::vec3(glm::inverse(N->boneToModel) * glm::vec4(A,0));
+
+      // accumulate rotation in node ik
+      Quaternion q(Aprime, a);
+
+      N->inverseK = N->inverseK * q.getRotationMat();
+
+      update(modelToWorld_);
+
+      N = N->parent;
+    }
+
+    auto newEnd = endEffector->getModelPosition();
+    delta = glm::distance(newEnd, Gprime);
+  }
+}
+
+void Skeleton::buildParents(Bone* bone)
+{
+  if(!bone)
+    bone = &root_;
+
+  for(auto& child : bone->children)
+  {
+    child.parent = bone;
+    buildParents(&child);
+  }
+}
+
+Bone* Skeleton::findEndEffector()
+{
+  Bone* endEffector = nullptr;
+  getBone("lowerarm.L_end", &endEffector);
+
+  return endEffector;
 }
 
