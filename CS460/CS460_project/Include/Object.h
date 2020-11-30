@@ -54,6 +54,7 @@ public:
   void loadBox(glm::vec3 halfScale, bool lines = true);
   void loadSphere(float radius, int divisions);
   void loadLine(float width = 1.0f);
+  void loadChain(int segments, float width = 1.0f);
 
   // object manipulation
   void translate(glm::vec3 trans);
