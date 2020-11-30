@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "Camera.h"
 #include "Line.h"
+#include "ParentedObject.h"
 
 // singleton
 ObjectManager* ObjectManager::objectManager_ = nullptr;
@@ -202,6 +203,17 @@ Object* ObjectManager::addLine(std::string ID)
   isValid_ = true;
 
   objects_.push_back(line);
+  objects_.back()->setShader(ShaderType::Phong);
+  return objects_.back();
+}
+
+Object* ObjectManager::addParented(int segments, float width, std::string ID)
+{
+  Parented* parented = new Parented(ID, segments, width);
+  Object* pObj = dynamic_cast<Object*>(parented);
+  isValid_ = true;
+
+  objects_.push_back(pObj);
   objects_.back()->setShader(ShaderType::Phong);
   return objects_.back();
 }

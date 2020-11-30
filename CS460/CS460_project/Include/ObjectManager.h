@@ -58,6 +58,7 @@ public:
   Object* addObject(std::string ID = "anon_Obj");
   Object* addLight(std::string ID = "anon_Light");
   Object* addLine(std::string ID = "anon_Line");
+  Object* addParented(int segments, float width, std::string ID = "anon_Physics");
 
   double dt = 0;
 

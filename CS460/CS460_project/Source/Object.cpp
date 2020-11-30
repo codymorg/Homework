@@ -331,6 +331,21 @@ void Object::loadLine(float width)
   initBuffers();
 }
 
+void Object::loadChain(int segments, float width)
+{
+  this->renderMode = GL_LINE_STRIP;
+  glLineWidth(width);
+  vertices_.reserve(segments);
+  indices_.reserve(segments);
+  for(auto i = 0; i < segments; i++)
+  {
+    vertices_.push_back(Vertex(vec3(i,0,0)));
+    indices_.push_back(i);
+  }
+
+  initBuffers();
+}
+
 void Object::translate(glm::vec3 trans)
 {
   modelToWorld_ = glm::translate(modelToWorld_, trans);

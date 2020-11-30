@@ -32,6 +32,7 @@ using std::vector;
 #include "Line.h"
 #include "Quaternion.h"
 #include "Curve.h"
+#include "ParentedObject.h"
 
 // managers and static variables
 static ObjectManager* objectMgr = nullptr;
@@ -63,7 +64,11 @@ static bool allowAnimation = true;
 static float animationStep = 0.1;
 static int bonelimit = 3;
 
-static const int scene = 3;
+//proj4
+static vec3 wind;
+vector<bool> windmode = {0,0,1,0};
+
+static const int scene = 4;
 
 // common vectors
 glm::vec3 up(0, 1, 0);
@@ -193,16 +198,6 @@ void Window_size_callback(GLFWwindow* window, int width, int height)
 
 void BasicScene_Setup()
 {
-  Object* obj = objectMgr->addObject("Mr. Tiny Hands");
-  obj->setShader(ShaderType::Phong);
-  obj->loadModel("Common/models/tinyhands.fbx");
-  obj->material.diffuse = vec3(0.1, 0.2, 0.3);
-  obj->material.ambient = vec3(0.1, 0.1, 0.1);
-  obj->setPosition(vec3(0, 0.1f, 0));
-  obj->setScale(vec3(0.01f));
-  obj->skeleton.createBones(obj->getTransform());
-  obj->skeleton.update(obj->getTransform());
-
   Object* obj2 = objectMgr->addLight("light");
   obj2->setShader(ShaderType::Normal);
   obj2->setPosition((right + up) * 3.0f);
@@ -242,12 +237,21 @@ void BasicScene_Setup()
 
 void Scene2_Setup()
 {
+  Object* obj = objectMgr->addObject("Mr. Tiny Hands");
+  obj->setShader(ShaderType::Phong);
+  obj->loadModel("Common/models/tinyhands.fbx");
+  obj->material.diffuse = vec3(0.1, 0.2, 0.3);
+  obj->material.ambient = vec3(0.1, 0.1, 0.1);
+  obj->setPosition(vec3(0, 0.1f, 0));
+  obj->setScale(vec3(0.01f));
+  obj->skeleton.createBones(obj->getTransform());
+  obj->skeleton.update(obj->getTransform());
+  obj->rotate(90);
+  obj->skeleton.animation.setActive("Armature|walk");
+
   camera = new Camera(vec3(0, 0, 0), 45.0f, right);
   camera->translate(vec3(0, 0.5, -10));
 
-  auto obj = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
-  obj->rotate(90);
-  obj->skeleton.animation.setActive("Armature|walk");
 
   curve.setControlPoints(
   {
@@ -269,12 +273,21 @@ void Scene2_Setup()
 
 void Scene3_Setup()
 {
+  Object* obj = objectMgr->addObject("Mr. Tiny Hands");
+  obj->setShader(ShaderType::Phong);
+  obj->loadModel("Common/models/tinyhands.fbx");
+  obj->material.diffuse = vec3(0.1, 0.2, 0.3);
+  obj->material.ambient = vec3(0.1, 0.1, 0.1);
+  obj->setPosition(vec3(0, 0.1f, 0));
+  obj->setScale(vec3(0.01f));
+  obj->skeleton.createBones(obj->getTransform());
+  obj->skeleton.update(obj->getTransform());
+  obj->skeleton.animation.setActive("Armature|start", AnimationManager::PlayMode::PlayOnce);
+  obj->wiremode = true;
+
   camera = new Camera(vec3(0, 0, 0), 0, right);
   camera->translate(vec3(0, -1, -5));
 
-  auto obj = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
-  obj->skeleton.animation.setActive("Armature|start", AnimationManager::PlayMode::PlayOnce);
-  obj->wiremode = true;
 
   Object* goal = objectMgr->addObject("goal");
   goal->loadSphere(1, 50);
@@ -312,6 +325,17 @@ void Scene3_Setup()
   objectMgr->selectedObject = 0; // set to model
 }
 
+void Scene4_Setup()
+{
+  camera = new Camera(vec3(0, 0, 0), 0, right);
+  camera->translate(vec3(0, -2, -5));
+
+  auto chain = objectMgr->addParented(6, 5.0, "windsock");
+  chain->translate(vec3(-1,2,0));
+  dynamic_cast<Parented*>(chain)->addAcceleration(vec3(0, -0.05, 0));
+  pause = true;
+}
+
 void SceneUpdate()
 {
   if(!pause)
@@ -344,6 +368,24 @@ void Scene3_Update()
   }
   //auto endef = model->skeleton.findEndEffector(zero);
   //ObjectManager::getObjectManager()->getFirstObjectByName("endEffector")->setPosition(model->modelToWorld(endef->getModelPosition()));  ////DEBUG////
+
+}
+
+void Scene4_Update()
+{
+  float r0 = (float)rand()/(RAND_MAX);
+  float r1 = (float)rand()/(RAND_MAX);
+  float r2 = (float)rand()/(RAND_MAX);
+  int r3 = ((rand() / (RAND_MAX)) % 5);
+
+  if(windmode[0]) wind = vec3((r0-0.25)/10,(r1-0.25)/10,r2/1000);
+  if(windmode[1]) wind = vec3((r0-0.25)/100,(r1-0.25)/100,r2/1000);
+  if(windmode[2]) wind = vec3(r0/10,r1/100,0);
+  if(!windmode[3])
+  {
+    dynamic_cast<Parented*>(objectMgr->getFirstObjectByName("windsock"))->addVelocity(wind);
+    dynamic_cast<Parented*>(objectMgr->getFirstObjectByName("windsock"))->addVelocity(-wind,r3);
+  }
 
 }
 
@@ -708,6 +750,44 @@ void UpdateGUI()
 
       ImGui::EndTabItem();
     }
+    
+    if(ImGui::BeginTabItem("Wind Controls"))
+    {
+
+      if(ImGui::RadioButton("Hurricane wind",windmode[0]))
+      {
+        windmode[0] = 1;
+        windmode[1] = 0;
+        windmode[2] = 0;
+        windmode[3] = 0;
+      }
+      if (ImGui::RadioButton("Turbulent wind", windmode[1]))
+      {
+        windmode[0] = 0;
+        windmode[1] = 1;
+        windmode[2] = 0;
+        windmode[3] = 0;
+
+      }
+      if (ImGui::RadioButton("Mild wind", windmode[2]))
+      {
+        windmode[0] = 0;
+        windmode[1] = 0;
+        windmode[2] = 1;
+        windmode[3] = 0;
+
+      }
+      if (ImGui::RadioButton("No wind", windmode[3]))
+      {
+        windmode[0] = 0;
+        windmode[1] = 0;
+        windmode[2] = 0;
+        windmode[3] = 1;
+
+      }
+
+      ImGui::EndTabItem();
+    }
     ImGui::EndTabBar();
   }
 
@@ -758,7 +838,18 @@ int main()
 
   // scene setup
   BasicScene_Setup();
-  scene == 2 ? Scene2_Setup() : Scene3_Setup();
+  switch(scene)
+  {
+    case 2:
+      Scene2_Setup();
+      break;
+    case 3:
+      Scene3_Setup();
+      break;
+    case 4:
+      Scene4_Setup();
+      break;
+  }
 
   auto model = objectMgr->getFirstObjectByName("Mr. Tiny Hands");
   double time = 0;
@@ -769,12 +860,22 @@ int main()
     if(dt > 1)
       dt = 1/40.0f;
     objectMgr->dt = dt;
-
     time = glfwGetTime();
 
     // sim loop
     SceneUpdate();
-    scene == 2 ? Scene2_Update() : Scene3_Update();
+    switch (scene)
+    {
+    case 2:
+      Scene2_Update();
+      break;
+    case 3:
+      Scene3_Update();
+      break;
+    case 4:
+      Scene4_Update();
+      break;
+    }
 
     UpdateGUI();
     ProcessInput(window);
