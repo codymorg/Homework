@@ -9,7 +9,7 @@ using std::cout;
 BigMap::BigMap(std::string file) : file_(file)
 {
   image_ = cimg_library::CImg<unsigned char>(file_.c_str()).normalize(0, 255).resize(-100, -100, 1, 3);
-  for (int i = file_.size(); i >= 0; i--)
+  for (int i = file_.size(); i >= 0; i--)  
   {
     if (file_[i] == '.')
       debugFile_ = file_.substr(0, i) + "_out.bmp";
