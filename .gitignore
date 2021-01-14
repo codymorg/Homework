@@ -140,3 +140,8 @@
 /2021.01/CS500/Release/raytrace.iobj
 /2021.01/CS500/Debug/vc142.idb
 *.hdr
+/DX11_framework/dx11/Debug/vc142.idb
+/DX11_framework/dx11/Debug/dx11.ilk
+/DX11_framework/dx11/.vs/dx11/v16/Browse.VC.opendb
+/DX11_framework/dx11/.vs/dx11/v16/Browse.VC.db-wal
+/DX11_framework/dx11/.vs/dx11/v16/Browse.VC.db-shm
