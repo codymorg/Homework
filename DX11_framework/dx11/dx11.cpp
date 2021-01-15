@@ -11,6 +11,8 @@ using std::cout;
 using std::string;
 using std::wstring;
 
+#include "Graphics.h"
+
 // the WindowProc function prototype
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -24,10 +26,11 @@ void openConsole()
   cout << "console window allocated\n";
 }
 
-void openWindow(HINSTANCE hInstance, string windowName, unsigned width, unsigned height, int nCmdShow)
+HWND openWindow(HINSTANCE hInstance, string windowName, int nCmdShow, unsigned width=0, unsigned height=0)
 {
   // the handle for the window, filled by a function
-  HWND hWnd;
+  HWND hWnd = GetDesktopWindow();
+
   // this struct holds information for the window class
   WNDCLASSEX wc;
 
@@ -48,6 +51,14 @@ void openWindow(HINSTANCE hInstance, string windowName, unsigned width, unsigned
 
   // create the window and use the result as the handle
   wstring wide(windowName.begin(), windowName.end());
+  if (width == 0 || height == 0)
+  {
+    RECT rect;
+    GetWindowRect(hWnd, &rect);
+    width = rect.right;
+    height = rect.bottom;
+  }
+
   hWnd = CreateWindowEx(NULL,
                         wc.lpszClassName,    // name of the window class
                         wide.c_str(),        // title of the window
@@ -63,20 +74,19 @@ void openWindow(HINSTANCE hInstance, string windowName, unsigned width, unsigned
 
   // display the window on the screen
   ShowWindow(hWnd, nCmdShow);
+
+  return hWnd;
 }
 
 // the entry point for any Windows program
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
   openConsole();
-  openWindow(hInstance, "DirectX 11 framework", 800, 800, nCmdShow);
+  auto hWnd = openWindow(hInstance, "DirectX 11 framework", nCmdShow);
 
-  // enter the main loop:
+  Engine engine(hWnd);
 
-  // this struct holds Windows event messages
   MSG msg;
-
-  // wait for the next message in the queue, store the result in 'msg'
   while (GetMessage(&msg, NULL, 0, 0))
   {
     // translate keystroke messages into the right format
@@ -84,6 +94,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     // send the message to the WindowProc function
     DispatchMessage(&msg);
+
+    engine.render();
   }
 
   // return this part of the WM_QUIT message to Windows
@@ -96,10 +108,12 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
   // sort through and find what code to run for the message given
   switch (message)
   {
-  case WM_DESTROY:
-    // close the application entirely
-    PostQuitMessage(0);
-    return 0;
+    case WM_DESTROY:
+      // close the application entirely
+      PostQuitMessage(0);
+      return 0;
+    case WM_SIZE:
+      cout << "resizing window\n";
   }
 
   // Handle any messages the switch statement didn't
