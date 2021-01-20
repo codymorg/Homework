@@ -12,6 +12,7 @@ using std::string;
 using std::wstring;
 
 #include "Graphics.h"
+#include "Vertex.h"
 
 // the WindowProc function prototype
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -85,6 +86,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   auto hWnd = openWindow(hInstance, "DirectX 11 framework", nCmdShow);
 
   Engine engine(hWnd);
+  engine.addVertexShader("vert.vs");
+  engine.addPixelShader("pix.ps");
+  engine.setActiveShaders();
+  std::vector<Vertex> verts = 
+  {
+    {0.0f, 0.5f, 0.0f, Color(1.0f, 0.0f, 0.0f, 1.0f)},
+    {0.45f, -0.5, 0.0f, Color(0.0f, 1.0f, 0.0f, 1.0f)},
+    {-0.45f, -0.5f, 0.0f, Color(0.0f, 0.0f, 1.0f, 1.0f)}
+  };
+
+  engine.mapVerts(verts);
 
   MSG msg;
   while (GetMessage(&msg, NULL, 0, 0))

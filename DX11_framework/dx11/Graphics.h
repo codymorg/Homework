@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "Vertex.h"
+
 class Engine
 {
 public:
@@ -15,6 +17,8 @@ public:
   void     render();
   unsigned addVertexShader(std::string location);
   unsigned addPixelShader(std::string location);
+  void     setActiveShaders();
+  void     mapVerts(std::vector<Vertex> verts);
 
 private:
   IDXGISwapChain*         swapchain_;  // the pointer to the swap chain interface
@@ -26,11 +30,14 @@ private:
   std::vector<std::string> pixelShaders_;
   ID3D11VertexShader*      pVS_;
   ID3D11PixelShader*       pPS_;
+  ID3D11Buffer*            vBuffer;
+  ID3D11InputLayout*       pLayout;
 
   void error(HRESULT error);
   void init(HWND hWnd);
   void setRenderTarget();
   void setViewport(unsigned viewWidth, unsigned viewHeight);
   void compileShader(std::string location, std::string shaderType);
-  void setActiveShaders();
+  void generateVertexBuffer();
+
 };
