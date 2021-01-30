@@ -1,0 +1,94 @@
+#ifndef RUMMIKUB_H
+#define RUMMIKUB_H
+#pragma once
+
+#include <fstream>
+#include <vector>
+#include <deque>
+#include <iostream>
+
+#define DENOMINATION_MAX 13
+
+enum Color { Red=0, Green, Blue, Yellow, ColorCount};
+
+
+struct Tile 
+{
+    int     denomination;
+    Color   color;
+};
+
+inline std::ostream& operator<<(std::ostream& os, Tile const& t) {
+    os << "{ "<< t.denomination << ",";
+    switch ( t.color ) {
+        case Red:      os << "R"; break;
+        case Green:    os << "G"; break;
+        case Blue:     os << "B"; break;
+        case Yellow:   os << "Y"; break;
+    }
+    os << " }";
+    return os;
+}
+
+class RummiKub 
+{
+public:
+  RummiKub(); // empty hand
+  void Add( Tile const& ); // add a tile to hand
+
+  void Solve(); // solve
+
+  // get solution - groups
+  std::vector< std::vector< Tile > > GetGroups() const;
+
+  // get solution - runs
+  std::vector< std::vector< Tile > > GetRuns() const;
+
+private:
+  // if both vectors are empty - no solution possible
+  bool solved = false;
+  std::vector<std::vector<Tile>> groups_;
+  std::vector<std::vector<Tile>> runs_;
+  std::deque<Tile> hand_;
+  unsigned handSize_ = 0;
+
+  int handMatrix_[ColorCount][DENOMINATION_MAX];
+
+  bool addToGroup(unsigned index, unsigned openSlot);
+  bool addToRun  (unsigned index, unsigned openSlot);
+  void newGroup  (unsigned index);
+  void newRun    (unsigned index);
+
+  void popSingles();
+  void popGroup();
+
+  void undoRunAdd  (unsigned openSlot);
+  void undoGroupAdd(unsigned openSlot);
+
+
+  bool validateSolution();
+  bool solve_rec(unsigned tileCount);
+
+  // DEBUG //
+  void printHand();
+  void printSolution();
+  const char* debugNames_[2] = {"add to Run","add to Group" };
+
+  typedef bool(RummiKub::*action)(unsigned, unsigned);
+  action actions[2] = 
+  {
+    &RummiKub::addToRun,
+    &RummiKub::addToGroup,
+  };
+  unsigned actionCount_ = sizeof(actions) / sizeof(action);
+
+  typedef void(RummiKub::*undoAction)(unsigned);
+  undoAction undo[2] =
+  {
+    &RummiKub::undoRunAdd,
+    &RummiKub::undoGroupAdd,
+  };
+
+};
+
+#endif

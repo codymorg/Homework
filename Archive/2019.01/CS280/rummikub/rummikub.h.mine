@@ -1,0 +1,86 @@
+#ifndef RUMMIKUB_H
+#define RUMMIKUB_H
+#pragma once
+
+#include <fstream>
+#include <vector>
+#include <deque>
+#include <iostream>
+
+enum Color { Red = 0, Green, Blue, Yellow };
+
+
+struct Tile
+{
+  int     denomination;
+  Color   color;
+};
+
+inline std::ostream& operator<<(std::ostream& os, Tile const& t) {
+  os << "{ " << t.denomination << ",";
+  switch (t.color) {
+  case Red:      os << "Diamond"; break;
+  case Green:    os << "Spades"; break;
+  case Blue:     os << "Hearts"; break;
+  case Yellow:   os << "Clubs"; break;
+  }
+  os << " }";
+  return os;
+}
+
+class RummiKub
+{
+public:
+  RummiKub(); // empty hand
+  void Add(Tile const&); // add a tile to hand
+
+  void Solve(); // solve
+
+  // get solution - groups
+  std::vector< std::vector< Tile > > GetGroups() const;
+
+  // get solution - runs
+  std::vector< std::vector< Tile > > GetRuns() const;
+
+  void printSolution();
+private:
+  // if both vectors are empty - no solution possible
+  std::vector<std::vector<Tile>> groups_;
+  std::vector<std::vector<Tile>> runs_;
+  std::deque<Tile> hand_;
+  size_t handSize_ = 0;
+
+  bool addToGroup(size_t index, size_t openSlot);
+  bool addToRun(size_t index, size_t openSlot);
+  void newGroup(size_t index);
+  void newRun(size_t index);
+
+  void undoRun(size_t openSlot);
+  void undoGroup(size_t openSlot);
+
+  bool validateSolution();
+  bool solve_rec();
+
+  typedef bool(RummiKub::*action)(size_t, size_t);
+  action actions[2] =
+  {
+    &RummiKub::addToRun,
+    &RummiKub::addToGroup,
+  };
+  size_t actionCount_ = sizeof(actions) / sizeof(action);
+
+  typedef void(RummiKub::*undoAction)(size_t);
+  undoAction undo[2] =
+  {
+    &RummiKub::undoRun,
+    &RummiKub::undoGroup,
+  };
+
+  // DEBUG //
+  void printHand();
+  const char* debugNames_[2] = { "add to Run","add to Group" };
+
+};
+
+
+#endif

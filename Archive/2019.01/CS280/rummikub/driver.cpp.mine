@@ -1,0 +1,76 @@
+#include "rummikub.h"
+#include <iostream>
+#include <map>
+#include <algorithm>
+#include <fstream>
+
+using std::ifstream;
+using std::cout;
+using std::cin;
+
+void test0() // solvable
+{
+  std::vector< Tile > tiles;
+  RummiKub rks;
+
+  ifstream stream;
+  stream.open("C:/Users/Cody/Documents/~Homework/SVN/19 Spring/CS280/rummikub/tiles.txt");
+  char input[10];
+  if (stream.is_open())
+  {
+    cout << "solving for these tiles:\n";
+    while (!stream.eof())
+    {
+      stream >> input;
+      Color color;
+      switch (input[1])
+      {
+      case 'd'://diamond
+        color = Color::Red;
+        break;
+      case 's'://spade
+        color = Color::Green;
+        break;
+      case 'h'://heart
+        color = Color::Blue;
+        break;
+      case 'c'://clubs
+        color = Color::Yellow;
+        break;
+      default:
+        cout << "invalid tile" << input[0] << " " <<input[1] << "\n";
+        break;
+      }
+      int denom = input[0] - 48;
+      Tile tile;
+      tile.denomination = denom;
+      tile.color = color;
+      tiles.push_back(tile);
+    }
+  }
+
+
+  cout << "\n\nsolving...\n\n\n";
+  tiles.pop_back();
+
+  for (size_t i = 0; i < tiles.size(); i++)
+  {
+    cout << tiles[i] << " ";
+  }
+  cout << "\n";
+  for (size_t i = 0; i < tiles.size(); i++)
+  {
+    rks.Add(tiles[i]);
+  }
+
+  rks.Solve();
+  rks.printSolution();
+}
+
+int main( int argc, char *argv[] )
+{
+
+    test0();
+
+    return 0;
+}

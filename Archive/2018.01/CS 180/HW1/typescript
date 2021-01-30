@@ -1,0 +1,1544 @@
+Script started on Thu 20 Sep 2018 09:27:25 AM PDT
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m data
+No command 'data' found, did you mean:
+ Command 'dat' from package 'liballegro4-dev' (universe)
+ Command 'date' from package 'coreutils' (main)
+data: command not found
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m date
+Thu Sep 20 09:27:31 PDT 2018
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m uptime
+ 09:27:35 up  2:26,  1 user,  load average: 0.52, 0.51, 0.42
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m echo FIRSTNAME[K[K[K[K[K[K[K[K[KCody Morgan
+Cody Morgan
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m pdw[K[Kwd
+/home/codymorg/CS180/HW1
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m whoami
+codymorg
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m uname -a
+Linux codymorg 4.10.0-38-generic #42~16.04.1-Ubuntu SMP Tue Oct 10 16:32:20 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m cat /proc/cpuinfo
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 60
+model name	: Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
+stepping	: 3
+cpu MHz		: 2394.466
+cache size	: 6144 KB
+physical id	: 0
+siblings	: 4
+core id		: 0
+cpu cores	: 4
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc pni pclmulqdq ssse3 cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx rdrand hypervisor lahf_lm abm fsgsbase avx2 invpcid
+bugs		:
+bogomips	: 4788.93
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 60
+model name	: Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
+stepping	: 3
+cpu MHz		: 2394.466
+cache size	: 6144 KB
+physical id	: 0
+siblings	: 4
+core id		: 1
+cpu cores	: 4
+apicid		: 1
+initial apicid	: 1
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc pni pclmulqdq ssse3 cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx rdrand hypervisor lahf_lm abm fsgsbase avx2 invpcid
+bugs		:
+bogomips	: 4788.93
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 60
+model name	: Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
+stepping	: 3
+cpu MHz		: 2394.466
+cache size	: 6144 KB
+physical id	: 0
+siblings	: 4
+core id		: 2
+cpu cores	: 4
+apicid		: 2
+initial apicid	: 2
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc pni pclmulqdq ssse3 cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx rdrand hypervisor lahf_lm abm fsgsbase avx2 invpcid
+bugs		:
+bogomips	: 4788.93
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 60
+model name	: Intel(R) Core(TM) i7-4700MQ CPU @ 2.40GHz
+stepping	: 3
+cpu MHz		: 2394.466
+cache size	: 6144 KB
+physical id	: 0
+siblings	: 4
+core id		: 3
+cpu cores	: 4
+apicid		: 3
+initial apicid	: 3
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc pni pclmulqdq ssse3 cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx rdrand hypervisor lahf_lm abm fsgsbase avx2 invpcid
+bugs		:
+bogomips	: 4788.93
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m cat /proc/cpuinfo[K[K[K[K[K[K[Kmeminfoi[K
+MemTotal:        4043932 kB
+MemFree:         1673592 kB
+MemAvailable:    2520440 kB
+Buffers:          203864 kB
+Cached:           820024 kB
+SwapCached:            0 kB
+Active:          1810324 kB
+Inactive:         332984 kB
+Active(anon):    1120624 kB
+Inactive(anon):    31804 kB
+Active(file):     689700 kB
+Inactive(file):   301180 kB
+Unevictable:          32 kB
+Mlocked:              32 kB
+SwapTotal:       4191228 kB
+SwapFree:        4191228 kB
+Dirty:                20 kB
+Writeback:             0 kB
+AnonPages:       1080444 kB
+Mapped:           356488 kB
+Shmem:             33012 kB
+Slab:             148764 kB
+SReclaimable:     118160 kB
+SUnreclaim:        30604 kB
+KernelStack:       10064 kB
+PageTables:        35196 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     6213192 kB
+Committed_AS:    4749908 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:           0 kB
+VmallocChunk:          0 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:    405504 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:      131008 kB
+DirectMap2M:     4063232 kB
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m clang --version
+clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+InstalledDir: /usr/bin
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m gcc --version
+gcc (Ubuntu 7.3.0-21ubuntu1~16.04) 7.3.0
+Copyright (C) 2017 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m clang -g -Werror -Wall -Wextra -ansi -pedantic s ample-driver.c cachelist.c PRNG.c -o cachelist
+clang: error: no such file or directory: 'sample-driver.c'
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m ./cachelist | tee output.txtclang -g -Werror -Wall -Wextra -ansi -pedantic saample-driver.c cachelist.c PRNG.c -o cachelist[A[20P./cachelist | tee output.txt
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cclang -g -Werror -Wall -Wextra -ansi -pedantic saample-driver.c cachelist.c PRNG.c -o cachelist[1P[1P[1P[1P[1P[1P[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdr[1P[A]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C
+
+[1mcachelist.c:376:2: [0m[0;1;31merror: [0m[1mno newline at end of file [-Werror,-Wnewline-eof][0m
+}
+[0;1;32m ^
+[0m1 error generated.
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m clang -g -Werror -Wall -Wextra -ansi -pedantic drriver.c cachelist.c PRNG.c -o cachelist
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m clang -g -Werror -Wall -Wextra -ansi -pedantic drriver.c cachelist.c PRNG.c -o cachelist[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Csa[7@mple-dr[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdr[7P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[A[K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cclang -g -Werror -Wall -Wextra -ansi -pedantic s ample-driver.c cachelist.c PRNG.c -o cachelist
+clang: error: no such file or directory: 'sample-driver.c'
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m ./cachelist | tee output.txtclang -g -Werror -Wall -Wextra -ansi -pedantic saample-driver.c cachelist.c PRNG.c -o cachelist[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdr[7P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C | tee output.txt[C[1@ [1@>[1@/[1P[1P[1@.[1@/[1@c[1@a[1@c[1@h[1@e[1@l[1@i[1@s[1@t
+./cachelist: file not recognized: File truncated
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m g[Kclang -g -Werror -Wall -Wextra -ansi -pedantic drriver.c cachelist.c PRNG.c -o cachelist ./cachelist | tee output.txt[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[C[1P output.txt[1P output.txt[1Poutput.txt[1Putput.txt[1Ptput.txt[1Pput.txt[1Put.txt[1Pt.txt[1P.txt[1Ptxt[1Pxt[1Pt[K[K
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m ./cachelist | tee.[K output.txt
+----- test_add_front ----------------------------------------
+==================
+   7: seven
+   6: six
+   5: five
+   4: four
+   3: three
+   2: two
+   1: one
+----- test_add_end ----------------------------------------
+==================
+   1: one
+   2: two
+   3: three
+   4: four
+   5: five
+   6: six
+   7: seven
+----- test_remove1 ----------------------------------------
+==================
+   1: one
+   2: two
+   3: three
+   4: four
+   5: five
+   6: six
+   7: seven
+==================
+   1: one
+   2: two
+   3: three
+   5: five
+   6: six
+   7: seven
+==================
+   1: one
+   2: two
+   3: three
+   6: six
+   7: seven
+==================
+   2: two
+   3: three
+   6: six
+   7: seven
+==================
+   2: two
+   3: three
+   6: six
+----- test_add_remove2 ----------------------------------------
+==================
+   1: one
+   2: two
+   3: three
+   4: four
+   5: five
+   6: six
+   7: seven
+==================
+   1: one
+   2: two
+   3: three
+   4: four
+   5: five
+   6: six
+   7: seven
+==================
+   1: one
+   2: two
+   3: three
+   5: five
+   6: six
+   7: seven
+==================
+   1: one
+   2: two
+   3: three
+   6: six
+   7: seven
+==================
+   2: two
+   3: three
+   6: six
+   7: seven
+==================
+   2: two
+   3: three
+   6: six
+==================
+   2: two
+   6: six
+==================
+   2: two
+==================
+==================
+----- test_insert_before1 ----------------------------------------
+==================
+   1: one
+   2: two
+   3: three
+   4: four
+==================
+   1: one
+   2: two
+ 101: fred
+   3: three
+   4: four
+==================
+ 102: barney
+   1: one
+   2: two
+ 101: fred
+   3: three
+   4: four
+==================
+ 102: barney
+   1: one
+   2: two
+ 101: fred
+   3: three
+ 103: wilma
+   4: four
+==================
+ 104: betty
+ 102: barney
+   1: one
+   2: two
+ 101: fred
+   3: three
+ 103: wilma
+   4: four
+==================
+ 104: betty
+ 102: barney
+   1: one
+   2: two
+ 101: fred
+   3: three
+ 103: wilma
+   4: four
+----- test_insert_after1 ----------------------------------------
+==================
+   1: one
+   2: two
+   3: three
+   4: four
+==================
+   1: one
+   2: two
+ 101: fred
+   3: three
+   4: four
+==================
+   1: one
+   2: two
+ 101: fred
+   3: three
+   4: four
+ 102: barney
+==================
+   1: one
+ 103: wilma
+   2: two
+ 101: fred
+   3: three
+   4: four
+ 102: barney
+==================
+   1: one
+ 103: wilma
+   2: two
+ 101: fred
+   3: three
+   4: four
+ 102: barney
+ 104: betty
+==================
+   1: one
+ 103: wilma
+   2: two
+ 101: fred
+   3: three
+   4: four
+ 102: barney
+ 104: betty
+----- test_find1 (no cache) ----------------------------------------
+==================
+   0: node
+   1: node
+   2: node
+   3: node
+   4: node
+   5: node
+   6: node
+   7: node
+   8: node
+   9: node
+Comparisons to find 0: 1
+Comparisons to find 1: 2
+Comparisons to find 2: 3
+Comparisons to find 3: 4
+Comparisons to find 4: 5
+Comparisons to find 5: 6
+Comparisons to find 6: 7
+Comparisons to find 7: 8
+Comparisons to find 8: 9
+Comparisons to find 9: 10
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+Comparisons to find 6: 7
+==================
+   0: node
+   1: node
+   2: node
+   3: node
+   4: node
+   5: node
+   6: node
+   7: node
+   8: node
+   9: node
+Total comparisons: 155
+----- test_find2 (cache) ----------------------------------------
+==================
+   0: node
+   1: node
+   2: node
+   3: node
+   4: node
+   5: node
+   6: node
+   7: node
+   8: node
+   9: node
+Comparisons to find 0: 1
+Comparisons to find 1: 2
+Comparisons to find 2: 3
+Comparisons to find 3: 4
+Comparisons to find 4: 5
+Comparisons to find 5: 6
+Comparisons to find 6: 7
+Comparisons to find 7: 8
+Comparisons to find 8: 9
+Comparisons to find 9: 10
+Comparisons to find 6: 2
+Comparisons to find 6: 1
+Comparisons to find 6: 1
+Comparisons to find 6: 1
+Comparisons to find 6: 1
+Comparisons to find 6: 1
+Comparisons to find 6: 1
+Comparisons to find 6: 1
+Comparisons to find 6: 1
+Comparisons to find 6: 1
+==================
+   6: node
+   7: node
+   9: node
+   8: node
+   5: node
+   4: node
+   3: node
+   2: node
+   1: node
+   0: node
+Total comparisons: 78
+----- test_find_stress1 (no cache) ----------------------------------------
+Adding... Done.
+Finding... Done.
+Total comparisons: 1311117500
+----- test_find_stress2 (with cache) ----------------------------------------
+Adding... Done.
+Finding... Done.
+Total comparisons: 15238690
+----- test_a_lot ----------------------------------------
+==================
+   4: node
+  14: node
+   2: node
+   7: node
+  18: node
+  13: node
+  12: node
+   8: node
+  14: node
+  12: node
+   8: node
+   1: node
+   2: node
+   5: node
+   5: node
+  11: node
+   5: node
+  10: node
+   4: node
+   5: node
+   6: node
+  13: node
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m diff output output-all.txt 
+diff: output: No such file or directory
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m diff output output-all.txt [1@.[1@t[1@x[1@t
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m valgrind -q --leak-check=full --show-reachable=y es --tool=memcheck ./cachelist > /dev/null
+
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m 
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m doxygen
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m cd latex
+]0;codymorg@codymorg ~/CS180/HW1/latex[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1/latex $[00m make
+rm -f *.ps *.dvi *.aux *.toc *.idx *.ind *.ilg *.log *.out *.brf *.blg *.bbl refman.pdf
+pdflatex refman
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./refman.tex
+LaTeX2e <2016/02/01>
+Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty) (./doxygen.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/xtab/xtab.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/mathptmx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/helvet.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/courier.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/sectsty/sectsty.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifvtex.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tocloft/tocloft.sty)
+Writing index file refman.idx
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/backref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty))
+
+Package hyperref Message: Driver: hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def)
+No file refman.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./files.tex
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd)
+
+LaTeX Warning: Reference `cachelist_8c' on page 1 undefined on input line 3.
+
+) (./cachelist_8c.tex (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd)
+
+Underfull \hbox (badness 10000) in paragraph at lines 9--13
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd)
+Underfull \hbox (badness 10000) detected at line 37
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 40
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 43
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 46
+[][][]
+[1]
+Underfull \hbox (badness 10000) detected at line 49
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 52
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 55
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 97
+[][][]
+[2]
+Underfull \hbox (badness 10000) detected at line 155
+[][][]
+[3]
+Underfull \hbox (badness 10000) detected at line 266
+[][][]
+[4] [5]
+Underfull \hbox (badness 10000) detected at line 413
+[][][]
+[6]
+Underfull \hbox (badness 10000) detected at line 496
+[][][]
+
+LaTeX Font Warning: Font shape `T1/pcr/bc/n' undefined
+(Font)              using `T1/pcr/m/n' instead on input line 549.
+
+
+Underfull \hbox (badness 10000) detected at line 561
+[][][]
+[7]) (./cachelist_8c_source.tex [8]
+Underfull \vbox (badness 10000) has occurred while \output is active [9]
+Underfull \vbox (badness 10000) has occurred while \output is active [10]
+Underfull \vbox (badness 10000) has occurred while \output is active [11])
+[12]
+No file refman.ind.
+(./refman.aux)
+
+Package rerunfilecheck Warning: File `refman.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information){/usr/share/texlive/texmf-d
+ist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr
+8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8ac.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/urw/helvetic/uhvro8a.pfb>
+Output written on refman.pdf (13 pages, 104116 bytes).
+Transcript written on refman.log.
+makeindex refman.idx
+This is makeindex, version 2.15 [TeX Live 2015] (kpathsea + Thai support).
+Scanning input file refman.idx....done (19 entries accepted, 0 rejected).
+Sorting entries....done (84 comparisons).
+Generating output file refman.ind....done (44 lines written, 0 warnings).
+Output written in refman.ind.
+Transcript written in refman.ilg.
+pdflatex refman
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./refman.tex
+LaTeX2e <2016/02/01>
+Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty) (./doxygen.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/xtab/xtab.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/mathptmx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/helvet.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/courier.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/sectsty/sectsty.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifvtex.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tocloft/tocloft.sty)
+Writing index file refman.idx
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/backref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty))
+
+Package hyperref Message: Driver: hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def) (./refman.aux)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./refman.out) (./refman.out) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.
+map}] (./refman.toc (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
+) (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd)) (./files.tex)
+(./cachelist_8c.tex (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd)
+Underfull \hbox (badness 10000) in paragraph at lines 9--13
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd) [1]
+Underfull \hbox (badness 10000) detected at line 37
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 40
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 43
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 46
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 49
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 52
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 55
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 97
+[][][]
+[2]
+Underfull \hbox (badness 10000) detected at line 155
+[][][]
+[3]
+Underfull \hbox (badness 10000) detected at line 266
+[][][]
+[4] [5]
+Underfull \hbox (badness 10000) detected at line 413
+[][][]
+[6]
+Underfull \hbox (badness 10000) detected at line 496
+[][][]
+
+LaTeX Font Warning: Font shape `T1/pcr/bc/n' undefined
+(Font)              using `T1/pcr/m/n' instead on input line 549.
+
+[7]
+Underfull \hbox (badness 10000) detected at line 561
+[][][]
+) (./cachelist_8c_source.tex [8]
+Underfull \vbox (badness 10000) has occurred while \output is active [9]
+Underfull \vbox (badness 10000) has occurred while \output is active [10]
+Underfull \vbox (badness 10000) has occurred while \output is active [11]
+Underfull \vbox (badness 10000) has occurred while \output is active [12])
+[13] (./refman.ind [14]) (./refman.aux)
+
+Package rerunfilecheck Warning: File `refman.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information){/usr/share/texlive/texmf-d
+ist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr
+8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8ac.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/urw/helvetic/uhvro8a.pfb>
+Output written on refman.pdf (15 pages, 107376 bytes).
+Transcript written on refman.log.
+latex_count=8 ; \
+while egrep -s 'Rerun (LaTeX|to get cross-references right)' refman.log && [ $latex_count -gt 0 ] ;\
+    do \
+      echo "Rerunning latex...." ;\
+      pdflatex refman ;\
+      latex_count=`expr $latex_count - 1` ;\
+    done
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+Rerunning latex....
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./refman.tex
+LaTeX2e <2016/02/01>
+Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty) (./doxygen.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/xtab/xtab.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/mathptmx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/helvet.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/courier.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/sectsty/sectsty.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifvtex.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tocloft/tocloft.sty)
+Writing index file refman.idx
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/backref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty))
+
+Package hyperref Message: Driver: hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def) (./refman.aux)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./refman.out) (./refman.out) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.
+map}] (./refman.toc (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
+) (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd)) (./files.tex)
+(./cachelist_8c.tex (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd)
+Underfull \hbox (badness 10000) in paragraph at lines 9--13
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd) [1]
+Underfull \hbox (badness 10000) detected at line 37
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 40
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 43
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 46
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 49
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 52
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 55
+[][][]
+[2]
+Underfull \hbox (badness 10000) detected at line 97
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 155
+[][][]
+[3] [4]
+Underfull \hbox (badness 10000) detected at line 266
+[][][]
+[5] [6]
+Underfull \hbox (badness 10000) detected at line 413
+[][][]
+[7]
+Underfull \hbox (badness 10000) detected at line 496
+[][][]
+
+LaTeX Font Warning: Font shape `T1/pcr/bc/n' undefined
+(Font)              using `T1/pcr/m/n' instead on input line 549.
+
+[8]
+Underfull \hbox (badness 10000) detected at line 561
+[][][]
+) (./cachelist_8c_source.tex [9]
+Underfull \vbox (badness 10000) has occurred while \output is active [10]
+Underfull \vbox (badness 10000) has occurred while \output is active [11]
+Underfull \vbox (badness 10000) has occurred while \output is active [12]
+Underfull \vbox (badness 10000) has occurred while \output is active [13])
+[14] (./refman.ind [15]) (./refman.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information){/usr/share/texlive/texmf-d
+ist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr
+8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8ac.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/urw/helvetic/uhvro8a.pfb>
+Output written on refman.pdf (16 pages, 107812 bytes).
+Transcript written on refman.log.
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+Rerunning latex....
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./refman.tex
+LaTeX2e <2016/02/01>
+Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty) (./doxygen.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/xtab/xtab.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/mathptmx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/helvet.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/courier.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/sectsty/sectsty.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifvtex.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tocloft/tocloft.sty)
+Writing index file refman.idx
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/backref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty))
+
+Package hyperref Message: Driver: hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def) (./refman.aux)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./refman.out) (./refman.out) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.
+map}] (./refman.toc (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
+) (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd)) (./files.tex)
+(./cachelist_8c.tex (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd)
+Underfull \hbox (badness 10000) in paragraph at lines 9--13
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd) [1]
+Underfull \hbox (badness 10000) detected at line 37
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 40
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 43
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 46
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 49
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 52
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 55
+[][][]
+[2]
+Underfull \hbox (badness 10000) detected at line 97
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 155
+[][][]
+[3] [4]
+Underfull \hbox (badness 10000) detected at line 266
+[][][]
+[5] [6]
+Underfull \hbox (badness 10000) detected at line 413
+[][][]
+[7]
+Underfull \hbox (badness 10000) detected at line 496
+[][][]
+
+LaTeX Font Warning: Font shape `T1/pcr/bc/n' undefined
+(Font)              using `T1/pcr/m/n' instead on input line 549.
+
+[8]
+Underfull \hbox (badness 10000) detected at line 561
+[][][]
+) (./cachelist_8c_source.tex [9]
+Underfull \vbox (badness 10000) has occurred while \output is active [10]
+Underfull \vbox (badness 10000) has occurred while \output is active [11]
+Underfull \vbox (badness 10000) has occurred while \output is active [12]
+Underfull \vbox (badness 10000) has occurred while \output is active [13])
+[14] (./refman.ind [15]) (./refman.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information){/usr/share/texlive/texmf-d
+ist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr
+8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8ac.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/urw/helvetic/uhvro8a.pfb>
+Output written on refman.pdf (16 pages, 107812 bytes).
+Transcript written on refman.log.
+makeindex refman.idx
+This is makeindex, version 2.15 [TeX Live 2015] (kpathsea + Thai support).
+Scanning input file refman.idx....done (19 entries accepted, 0 rejected).
+Sorting entries....done (84 comparisons).
+Generating output file refman.ind....done (44 lines written, 0 warnings).
+Output written in refman.ind.
+Transcript written in refman.ilg.
+pdflatex refman
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./refman.tex
+LaTeX2e <2016/02/01>
+Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty) (./doxygen.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/xtab/xtab.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/mathptmx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/helvet.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/courier.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/sectsty/sectsty.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifvtex.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tocloft/tocloft.sty)
+Writing index file refman.idx
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/backref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty))
+
+Package hyperref Message: Driver: hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def) (./refman.aux)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./refman.out) (./refman.out) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.
+map}] (./refman.toc (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
+) (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd)) (./files.tex)
+(./cachelist_8c.tex (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd)
+Underfull \hbox (badness 10000) in paragraph at lines 9--13
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd) [1]
+Underfull \hbox (badness 10000) detected at line 37
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 40
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 43
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 46
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 49
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 52
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 55
+[][][]
+[2]
+Underfull \hbox (badness 10000) detected at line 97
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 155
+[][][]
+[3] [4]
+Underfull \hbox (badness 10000) detected at line 266
+[][][]
+[5] [6]
+Underfull \hbox (badness 10000) detected at line 413
+[][][]
+[7]
+Underfull \hbox (badness 10000) detected at line 496
+[][][]
+
+LaTeX Font Warning: Font shape `T1/pcr/bc/n' undefined
+(Font)              using `T1/pcr/m/n' instead on input line 549.
+
+[8]
+Underfull \hbox (badness 10000) detected at line 561
+[][][]
+) (./cachelist_8c_source.tex [9]
+Underfull \vbox (badness 10000) has occurred while \output is active [10]
+Underfull \vbox (badness 10000) has occurred while \output is active [11]
+Underfull \vbox (badness 10000) has occurred while \output is active [12]
+Underfull \vbox (badness 10000) has occurred while \output is active [13])
+[14] (./refman.ind [15]) (./refman.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information){/usr/share/texlive/texmf-d
+ist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr
+8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8ac.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/urw/helvetic/uhvro8a.pfb>
+Output written on refman.pdf (16 pages, 107808 bytes).
+Transcript written on refman.log.
+]0;codymorg@codymorg ~/CS180/HW1/latex[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1/latex $[00m cd ..
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m ls -al latex/
+total 272
+drwxrwxr-x 2 codymorg codymorg   4096 Sep 20 09:37 [0m[01;34m.[0m
+drwxrwxr-x 5 codymorg codymorg   4096 Sep 20 09:37 [01;34m..[0m
+-rw-rw-r-- 1 codymorg codymorg  19915 Sep 20 09:37 cachelist_8c_source.tex
+-rw-rw-r-- 1 codymorg codymorg  20608 Sep 20 09:37 cachelist_8c.tex
+-rw-rw-r-- 1 codymorg codymorg  10548 Sep 20 09:37 doxygen.sty
+-rw-rw-r-- 1 codymorg codymorg    302 Sep 20 09:37 files.tex
+-rw-rw-r-- 1 codymorg codymorg    508 Sep 20 09:37 Makefile
+-rw-rw-r-- 1 codymorg codymorg   4210 Sep 20 09:37 refman.aux
+-rw-rw-r-- 1 codymorg codymorg   4418 Sep 20 09:37 refman.idx
+-rw-rw-r-- 1 codymorg codymorg    329 Sep 20 09:37 refman.ilg
+-rw-rw-r-- 1 codymorg codymorg   2450 Sep 20 09:37 refman.ind
+-rw-rw-r-- 1 codymorg codymorg  54015 Sep 20 09:37 refman.log
+-rw-rw-r-- 1 codymorg codymorg   1061 Sep 20 09:37 refman.out
+-rw-rw-r-- 1 codymorg codymorg 107808 Sep 20 09:37 refman.pdf
+-rw-rw-r-- 1 codymorg codymorg   3247 Sep 20 09:37 refman.tex
+-rw-rw-r-- 1 codymorg codymorg   1981 Sep 20 09:37 refman.toc
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m pdflatex refman.tex evince
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+! I can't find file `refman.tex'.
+<*> refman.tex 
+               evince
+(Press Enter to retry, or Control-D to exit)
+Please type another input file name: 
+! Emergency stop.
+<*> refman.tex 
+               evince
+!  ==> Fatal error occurred, no output PDF file produced!
+Transcript written on texput.log.
+]0;codymorg@codymorg ~/CS180/HW1[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1 $[00m pdflatex refman.tex evince[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kcd latex/
+]0;codymorg@codymorg ~/CS180/HW1/latex[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1/latex $[00m pdflatex refman.tex evince
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./refman.tex
+LaTeX2e <2016/02/01>
+Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/calc.sty) (./doxygen.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/xtab/xtab.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1enc.dfu)))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/mathptmx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/helvet.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/courier.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/sectsty/sectsty.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifvtex.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tocloft/tocloft.sty)
+Writing index file refman.idx
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/backref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty))
+
+Package hyperref Message: Driver: hpdftex.
+
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def) (./refman.aux)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./refman.out) (./refman.out) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.
+map}] (./refman.toc (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
+) (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd)) (./files.tex)
+(./cachelist_8c.tex (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd)
+Underfull \hbox (badness 10000) in paragraph at lines 9--13
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1phv.fd) [1]
+Underfull \hbox (badness 10000) detected at line 37
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 40
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 43
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 46
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 49
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 52
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 55
+[][][]
+[2]
+Underfull \hbox (badness 10000) detected at line 97
+[][][]
+
+Underfull \hbox (badness 10000) detected at line 155
+[][][]
+[3] [4]
+Underfull \hbox (badness 10000) detected at line 266
+[][][]
+[5] [6]
+Underfull \hbox (badness 10000) detected at line 413
+[][][]
+[7]
+Underfull \hbox (badness 10000) detected at line 496
+[][][]
+
+LaTeX Font Warning: Font shape `T1/pcr/bc/n' undefined
+(Font)              using `T1/pcr/m/n' instead on input line 549.
+
+[8]
+Underfull \hbox (badness 10000) detected at line 561
+[][][]
+) (./cachelist_8c_source.tex [9]
+Underfull \vbox (badness 10000) has occurred while \output is active [10]
+Underfull \vbox (badness 10000) has occurred while \output is active [11]
+Underfull \vbox (badness 10000) has occurred while \output is active [12]
+Underfull \vbox (badness 10000) has occurred while \output is active [13])
+[14] (./refman.ind [15]) (./refman.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information){/usr/share/texlive/texmf-d
+ist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr
+8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8ac.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/urw/helvetic/uhvro8a.pfb>
+Output written on refman.pdf (16 pages, 107808 bytes).
+Transcript written on refman.log.
+]0;codymorg@codymorg ~/CS180/HW1/latex[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1/latex $[00m d[Kls -l
+total 264
+-rw-rw-r-- 1 codymorg codymorg  19915 Sep 20 09:37 cachelist_8c_source.tex
+-rw-rw-r-- 1 codymorg codymorg  20608 Sep 20 09:37 cachelist_8c.tex
+-rw-rw-r-- 1 codymorg codymorg  10548 Sep 20 09:37 doxygen.sty
+-rw-rw-r-- 1 codymorg codymorg    302 Sep 20 09:37 files.tex
+-rw-rw-r-- 1 codymorg codymorg    508 Sep 20 09:37 Makefile
+-rw-rw-r-- 1 codymorg codymorg   4210 Sep 20 09:38 refman.aux
+-rw-rw-r-- 1 codymorg codymorg   4418 Sep 20 09:38 refman.idx
+-rw-rw-r-- 1 codymorg codymorg    329 Sep 20 09:37 refman.ilg
+-rw-rw-r-- 1 codymorg codymorg   2450 Sep 20 09:37 refman.ind
+-rw-rw-r-- 1 codymorg codymorg  54026 Sep 20 09:38 refman.log
+-rw-rw-r-- 1 codymorg codymorg   1061 Sep 20 09:38 refman.out
+-rw-rw-r-- 1 codymorg codymorg 107808 Sep 20 09:38 refman.pdf
+-rw-rw-r-- 1 codymorg codymorg   3247 Sep 20 09:37 refman.tex
+-rw-rw-r-- 1 codymorg codymorg   1981 Sep 20 09:38 refman.toc
+]0;codymorg@codymorg ~/CS180/HW1/latex[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1/latex $[00m evince refman.pdf 
+]0;codymorg@codymorg ~/CS180/HW1/latex[01;32mcodymorg@codymorg[00m [01;34m~/CS180/HW1/latex $[00m exit
+
+Script done on Thu 20 Sep 2018 09:39:12 AM PDT
