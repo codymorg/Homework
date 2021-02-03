@@ -6,22 +6,23 @@
 // Copyright 2012 DigiPen Institute of Technology
 ////////////////////////////////////////////////////////////////////////
 
+#include <chrono>
+#include <ctime>
 #include <fstream>
 #include <sstream>
-#include <vector>
 #include <string.h>
-#include <ctime>
+#include <vector>
 
 #ifdef _WIN32
-    // Includes for Windows
-    #include <windows.h>
-    #include <cstdlib>
-    #include <limits>
-    #include <crtdbg.h>
+// Includes for Windows
+#include <crtdbg.h>
+#include <cstdlib>
+#include <limits>
+#include <windows.h>
 #else
-    // Includes for Linux
-    #include <stdlib.h>
-    #include <time.h> 
+// Includes for Linux
+#include <stdlib.h>
+#include <time.h>
 #endif
 
 #include "geom.h"
@@ -31,94 +32,133 @@
 // scene->Command(...) with the results.
 void ReadScene(const std::string inName, Scene* scene)
 {
-    std::ifstream input(inName.c_str());
-    if (input.fail()) {
-        std::cerr << "File not found: "  << inName << std::endl;
-        fflush(stderr);
-        exit(-1); }
+  std::ifstream input(inName.c_str());
+  if (input.fail())
+  {
+    std::cerr << "File not found: " << inName << std::endl;
+    fflush(stderr);
+    exit(-1);
+  }
 
-    // For each line in file
-    for (std::string line; getline(input, line); ) {
-        std::vector<std::string> strings;
-        std::vector<float> floats;
-        
-        // Parse as parallel lists of strings and floats
-        std::stringstream lineStream(line);
-        for (std::string s; lineStream >> s; ) { // Parses space-separated strings until EOL
-            float f;
-            //std::stringstream(s) >> f; // Parses an initial float into f, or zero if illegal
-            if (!(std::stringstream(s) >> f)) f = nan(""); // An alternate that produced NANs
-            floats.push_back(f);
-            strings.push_back(s); }
+  // For each line in file
+  for (std::string line; getline(input, line);)
+  {
+    std::vector<std::string> strings;
+    std::vector<float>       floats;
 
-        if (strings.size() == 0) continue; // Skip blanks lines
-        if (strings[0][0] == '#') continue; // Skip comment lines
-        
-        // Pass the line's data to Command(...)
-        scene->Command(strings, floats);
+    // Parse as parallel lists of strings and floats
+    std::stringstream lineStream(line);
+    for (std::string s; lineStream >> s;)
+    { // Parses space-separated strings until EOL
+      float f;
+      // std::stringstream(s) >> f; // Parses an initial float into f, or zero if illegal
+      if (!(std::stringstream(s) >> f))
+        f = nan(""); // An alternate that produced NANs
+      floats.push_back(f);
+      strings.push_back(s);
     }
 
-    input.close();
+    if (strings.size() == 0)
+      continue; // Skip blanks lines
+    if (strings[0][0] == '#')
+      continue; // Skip comment lines
+
+    // Pass the line's data to Command(...)
+    scene->Command(strings, floats);
+  }
+
+  input.close();
 }
 
-// Write the image as a HDR(RGBE) image.  
+// Write the image as a HDR(RGBE) image.
 #include "rgbe.h"
 void WriteHdrImage(const std::string outName, const int width, const int height, Color* image)
 {
-    // Turn image from a 2D-bottom-up array of Vector3D to an top-down-array of floats
-    float* data = new float[width*height*3];
-    float* dp = data;
-    for (int y=height-1;  y>=0;  --y) {
-        for (int x=0;  x<width;  ++x) {
-            Color pixel = image[y*width + x];
-            *dp++ = pixel[0];
-            *dp++ = pixel[1];
-            *dp++ = pixel[2]; } }
+  // Turn image from a 2D-bottom-up array of Vector3D to an top-down-array of floats
+  float* data = new float[width * height * 3];
+  float* dp   = data;
+  for (int y = height - 1; y >= 0; --y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      Color pixel = image[y * width + x];
+      *dp++       = pixel[0];
+      *dp++       = pixel[1];
+      *dp++       = pixel[2];
+    }
+  }
 
-    // Write image to file in HDR (a.k.a RADIANCE) format
-    rgbe_header_info info;
-    char errbuf[100] = {0};
+  // Write image to file in HDR (a.k.a RADIANCE) format
+  rgbe_header_info info;
+  char             errbuf[100] = {0};
 
-    FILE* fp  =  fopen(outName.c_str(), "wb");
-    info.valid = false;
-    int r = RGBE_WriteHeader(fp, width, height, &info, errbuf);
-    if (r != RGBE_RETURN_SUCCESS)
-        printf("error: %s\n", errbuf);
+  FILE* fp   = fopen(outName.c_str(), "wb");
+  info.valid = false;
+  int r      = RGBE_WriteHeader(fp, width, height, &info, errbuf);
+  if (r != RGBE_RETURN_SUCCESS)
+    printf("error: %s\n", errbuf);
 
-    r = RGBE_WritePixels_RLE(fp, data, width,  height, errbuf);
-    if (r != RGBE_RETURN_SUCCESS)
-        printf("error: %s\n", errbuf);
-    fclose(fp);
-    
-    delete data;
+  r = RGBE_WritePixels_RLE(fp, data, width, height, errbuf);
+  if (r != RGBE_RETURN_SUCCESS)
+    printf("error: %s\n", errbuf);
+  fclose(fp);
+
+  delete data;
 }
 
 ////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-    Scene* scene = new Scene();
+  Scene* scene = new Scene();
 
-    // Read the command line argument
-    std::string inName =  (argc > 1) ? argv[1] : "testscene.scn";
-    std::string hdrName = inName;
+  // Read the command line argument
+  std::string inName  = (argc > 1) ? argv[1] : "testscene.scn";
+  std::string hdrName = inName;
 
-    hdrName.replace(hdrName.size()-3, hdrName.size(), "hdr");
+  hdrName.replace(hdrName.size() - 3, hdrName.size(), "hdr");
 
-    // Read the scene, calling scene.Command for each line.
-    ReadScene(inName, scene);
+  // Read the scene, calling scene.Command for each line.
+  ReadScene(inName, scene);
 
-    scene->Finit();
+  std::cout << "\nscene created with objects:\n";
+  for (auto var : scene->shapes)
+  {
+    std::cout << "\t" << var->name() << "\n";
+  }
 
-    // Allocate and clear an image array
-    Color *image =  new Color[scene->width*scene->height];
-    for (int y=0;  y<scene->height;  y++)
-        for (int x=0;  x<scene->width;  x++)
-            image[y*scene->width + x] = Color(0,0,0);
+  scene->Finit();
 
-    // RayTrace the image
-    scene->TraceImage(image, 1);
+  // Allocate and clear an image array
+  Color* image = new Color[scene->width * scene->height];
+  for (int y = 0; y < scene->height; y++)
+    for (int x = 0; x < scene->width; x++)
+      image[y * scene->width + x] = Color(0, 0, 0);
 
-    // Write the image
-    WriteHdrImage(hdrName, scene->width, scene->height, image);
+  // RayTrace the image
+  Scene::ImageType makeImage = Scene::ImageType::TestOnly;
+  for (int i = 0; i < Scene::ImageType::All; i++)
+  {
+    printf("\n Rendering : %s\n", scene->imageTypeNames[i].c_str());
+    if (i == Scene::ImageType::TestOnly && makeImage == Scene::ImageType::TestOnly)
+    {
+      scene->TraceTestImage(image, 1);
+      WriteHdrImage(scene->imageTypeNames[i] + "_" + hdrName, scene->width, scene->height, image);
+    }
+    else if (i == makeImage || makeImage == Scene::ImageType::All)
+    {
+      auto begin = std::chrono::high_resolution_clock::now();
+      scene->TraceImage(image, Scene::ImageType(i), 1);
 
+      auto end    = std::chrono::high_resolution_clock::now();
+      auto ms     = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+      auto sec    = ms.count() / 1000;
+      auto remain = ms.count() - (sec * 1000);
+      std::cout << "\nTime: " << sec << "." << remain << "\n";
+
+      // Write the image
+      WriteHdrImage(scene->imageTypeNames[i] + "_" + hdrName, scene->width, scene->height, image);
+    }
+  }
+
+  delete scene;
 }

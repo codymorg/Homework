@@ -120,14 +120,20 @@ xcopy .\libs\assimp\32\assimp.dll .\Release /Y /D</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="geom.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Ray.cpp" />
     <ClCompile Include="raytrace.cpp" />
     <ClCompile Include="readAssimpFile.cpp" />
-    <ClCompile Include="realtime.cpp" />
     <ClCompile Include="rgbe.cpp" />
-    <ClInclude Include="realtime.h" />
+    <ClCompile Include="Shape.cpp" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="geom.h" />
+    <ClInclude Include="Shape.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

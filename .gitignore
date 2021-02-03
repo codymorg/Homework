@@ -24,6 +24,7 @@
 *.txt
 *.ninja
 *.bin
+*.ilk
 /CS300/Assn1/CS300/Common/glm/out/build/x64-Debug/CMakeFiles/feature_tests.cxx
 /CS300/Assn1/CS300/Common/glm/out/build/x64-Debug/CMakeFiles/feature_tests.c
 *.check_cache
