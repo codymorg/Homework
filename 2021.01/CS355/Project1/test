@@ -1,0 +1,8 @@
+for i in {0..7}
+do
+   echo "testing #$i"
+   diff "out$i" "my_out$i" --strip-trailing-cr -y --suppress-common-lines
+done
+  
+
+
