@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Provides the framework for a raytracer.
 ////////////////////////////////////////////////////////////////////////
+#define DEBUGPRINT 0
 
 #include <iostream>
 #include <vector>
@@ -49,7 +50,7 @@ void Scene::Finit()
 
 void Scene::triangleMesh(MeshData* mesh)
 {
-  Model* obj = new Model(mesh->fileName, mesh, shapes.size());
+  Model* obj = new Model(mesh->fileName, mesh, shapes, shapes.size());
   obj->addMaterial(myMaterial);
   shapes.push_back(obj);
 }
@@ -84,15 +85,16 @@ vec3 Scene::calculateLighting(const vec3& diffuse, const vec3& norm, const vec3&
 {
   vec3 total;
   vec3 E = glm::normalize(camera.pos_ - objPos);
-  for (auto light : shapes)
+  for (auto hit : shapes)
   {
-    if (light->mat_.isLight)
+    if (hit->mat_.isLight)
     {
-      vec3  L  = glm::normalize(light->pos_ - objPos);
+      vec3  L  = glm::normalize(hit->pos_ - objPos);
       vec3  H  = glm::normalize(L + E);
       float NL = std::max(glm::dot(norm, L), 0.0f);
       float HN = std::max(glm::dot(H, norm), 0.0f);
-      total += light->mat_.rgb() * (diffuse * NL / PI + object.mat_.rgba.a / (2*PI) * object.mat_.specular * glm::pow(HN, object.mat_.rgba.a));
+      total += hit->mat_.rgb() * (diffuse * NL / PI + object.mat_.rgba.a / (2 * PI) * object.mat_.specular *
+                                                        glm::pow(HN, object.mat_.rgba.a));
     }
   }
 
@@ -160,6 +162,8 @@ void Scene::Command(const std::vector<std::string>& strings, const std::vector<f
     Sphere* obj = new Sphere(f[1], f[2], f[3], f[4], shapes.size());
     obj->addMaterial(myMaterial);
     shapes.push_back(obj);
+    if (myMaterial.isLight)
+      lights.push_back(obj);
   }
 
   else if (c == "box")
@@ -169,6 +173,8 @@ void Scene::Command(const std::vector<std::string>& strings, const std::vector<f
     Box* obj = new Box(f[1], f[2], f[3], f[4], f[5], f[6], shapes.size());
     obj->addMaterial(myMaterial);
     shapes.push_back(obj);
+    if (myMaterial.isLight)
+      lights.push_back(obj);
   }
 
   else if (c == "cylinder")
@@ -178,6 +184,8 @@ void Scene::Command(const std::vector<std::string>& strings, const std::vector<f
     Cylinder* obj = new Cylinder(f[1], f[2], f[3], f[4], f[5], f[6], f[7], shapes.size());
     obj->addMaterial(myMaterial);
     shapes.push_back(obj);
+    if (myMaterial.isLight)
+      lights.push_back(obj);
   }
 
   else if (c == "mesh")
@@ -214,7 +222,9 @@ void Scene::TraceImage(Color* image, Scene::ImageType imageType, const int pass)
   float maxV    = 1;
   float maxDist = 14.257924f;
 
-#pragma omp parallel for schedule(dynamic, 1) // Magic: Multi-thread y loop
+  Color color(0, 0, 0);
+
+  //#pragma omp parallel for schedule(dynamic, 1) // Magic: Multi-thread y loop
   for (int y = 0; y < height; y++)
   {
     fprintf(stderr, "Rendering %4d / %4d\r ", y, height - 1);
@@ -232,16 +242,17 @@ void Scene::TraceImage(Color* image, Scene::ImageType imageType, const int pass)
       float shortest = INFINITY;
       vec3  shortColor;
 
+      int  i = 0;
+      bool isLight;
       for (auto shape : shapes)
       {
-        if (x == 389 && y == 193)
-          printf("%f %f\n", x, y);
-
-        vec3 norm;
-        auto dist = shape->intersect(ray, norm);
+        vec3   norm;
+        Shape* hit  = nullptr;
+        auto   dist = shape->intersect(ray, norm, hit);
         if (dist != Shape::NO_COLLISION && dist < shortest)
         {
           shortest = dist;
+          isLight  = shape->mat_.isLight;
           switch (imageType)
           {
           case Scene::DepthOnly:
@@ -267,7 +278,6 @@ void Scene::TraceImage(Color* image, Scene::ImageType imageType, const int pass)
       }
 
       // return closest
-      Color color(0, 0, 0);
       if (shortest != INFINITY)
         color = {shortColor.r, shortColor.g, shortColor.b};
 
@@ -296,4 +306,224 @@ void Scene::TraceTestImage(Color* image, const int pass)
     }
   }
   fprintf(stderr, "\n");
+}
+
+void Scene::TracePath(Color* image, Scene::ImageType imageType, const int pass)
+{
+
+  // transform coordinates
+  float       ry = camera.frustumRatio_;
+  float       rx = ry * width / height;
+  Quaternionf Q(camera.rot_.w, camera.rot_.x, camera.rot_.y, camera.rot_.z);
+  Vector3f    X = rx * Q._transformVector(Vector3f::UnitX());
+  Vector3f    Y = ry * Q._transformVector(Vector3f::UnitY());
+  Vector3f    Z = -1 * Q._transformVector(Vector3f::UnitZ());
+
+  float minV    = -1;
+  float maxV    = 1;
+  float maxDist = 14.257924f;
+
+#ifndef _DEBUG
+#pragma omp parallel for schedule(dynamic, 1) // Magic: Multi-thread y loop
+#endif
+  for (int y = 0; y < height; y++)
+  {
+    fprintf(stderr, "Rendering %4d / %4d\r ", y, height - 1);
+    for (int x = 0; x < width; x++)
+    {
+      vec3 c(0, 0, 0);
+      vec3 W(1, 1, 1);
+      for (int p = 0; p < pass; p++)
+      {
+
+        // intersect with every object
+        Ray                ray = CastRay(x, y, X, Y, Z);
+        IntersectionRecord P   = findIntersection(ray);
+
+#if DEBUGPRINT
+        printf("%i %i\n", x, y);
+        printf("\t-hit: %s is %s\n", P.hit->name().c_str(), (P.isLight ? "a light" : "not a light"));
+        Shape::PrintVec3("\t\tpos: ", P.point);
+        Shape::PrintVec3("\t\tray-o", ray.origin_);
+        Shape::PrintVec3("\t\tray-d", ray.dir_);
+#endif
+
+        // no intersection
+        if (P.shortest == INFINITY)
+          image[y * width + x] = Color(VecToEigen(c));
+
+        // found a light
+        else if (P.isLight)
+          image[y * width + x] = Color(VecToEigen(evalRadiance(P)));
+
+        // spawn new rays
+        else
+        {
+          while (russianRoulette())
+          {
+            auto N = P.norm;
+            // shadow ray
+            //{
+            //  auto L = SampleLight();
+            //  auto p = pdfLight(L) / geometryFactor(P, L);
+            //  auto w = p - L.point;
+            //  Ray  newRay(P.point, w);
+            //  IntersectionRecord I = findIntersection(newRay);
+            //  if (p > 0 && I.hit != nullptr)
+            //  {
+            //    auto f = evalScattering(P, w);
+            //    c += (0.5f* W * (f/p)* evalRadiance(L));
+            //  }
+            //}
+            // cast a new ray
+            auto w = sampleBRDF(N);
+            Ray  newRay(P.point, w);
+
+            // get new ray's intersection
+            IntersectionRecord Q = findIntersection(newRay);
+            if (!Q.hit)
+              break;
+
+            auto f = evalScattering(P, w);
+            auto p = pdfBrdf(N, w) * conservationEnergyValue;
+            if (p < epsilon)
+              break;
+
+            W *= f / p;
+
+#if DEBUGPRINT
+            printf("\thit: %s is %s\n", Q.hit->name().c_str(), (Q.isLight ? "a light" : "not a light"));
+            Shape::PrintVec3("\t\tpos: ", Q.point);
+            Shape::PrintVec3("\t\tray-o", newRay.origin_);
+            Shape::PrintVec3("\t\tray-d", newRay.dir_);
+#endif
+
+            if (Q.isLight)
+            {
+              c += /*0.5f**/W * evalRadiance(Q);
+              break;
+            }
+            else
+            {
+              P = Q;
+            }
+          }
+          Color color(VecToEigen(c));
+          image[y * width + x] += color;
+        }
+      }
+    }
+  }
+}
+
+Ray Scene::CastRay(int x, int y, Vector3f X, Vector3f Y, Vector3f Z)
+{
+  float    r0   = myrandom(RNGen);
+  float    r1   = myrandom(RNGen);
+  float    dx   = 2.0 * (x + r0) / width - 1.0;
+  float    dy   = 2.0 * (y + r1) / height - 1.0;
+  Vector3f dirE = dx * X + dy * Y + Z;
+  vec3     dir(dirE.x(), dirE.y(), dirE.z());
+
+  return Ray(camera.pos_, dir);
+}
+
+bool Scene::russianRoulette(float leq)
+{
+  float value = myrandom(RNGen);
+  return value <= leq;
+}
+
+glm::vec3 Scene::sampleBRDF(const glm::vec3& N)
+{
+  float p = myrandom(RNGen);
+  float q = myrandom(RNGen);
+
+  return sampleLobe(N, sqrt(p), 2 * PI * q);
+}
+
+glm::vec3 Scene::sampleLobe(const glm::vec3& N, float c, float phi)
+{
+  float s = sqrt(1 - c * c);
+  vec3  K(s * cos(phi), s * sin(phi), c);
+  auto  q = Quaternionf::FromTwoVectors(Vector3f::UnitZ(), VecToEigen(N));
+
+  return EigenToVec(q._transformVector(VecToEigen(K)));
+}
+
+vec3 Scene::evalScattering(const IntersectionRecord& ir, const glm::vec3& w)
+{
+  return std::abs(glm::dot(ir.norm, w)) * ir.hit->mat_.rgb() / PI;
+}
+
+float Scene::pdfBrdf(const glm::vec3& N, const glm::vec3& w)
+{
+  return std::abs(glm::dot(N, w)) / PI;
+}
+
+vec3 Scene::evalRadiance(const IntersectionRecord& ir)
+{
+  return ir.hit->mat_.rgb();
+}
+
+Scene::IntersectionRecord Scene::findIntersection(const Ray& ray)
+{
+  IntersectionRecord Q;
+  for (auto shape : shapes)
+  {
+    vec3   norm;
+    Shape* hit  = nullptr;
+    auto   dist = shape->intersect(ray, norm, hit);
+    if (dist != Shape::NO_COLLISION && dist < Q.shortest)
+    {
+      Q.shortest = dist;
+      Q.isLight  = shape->mat_.isLight;
+      Q.hit      = shape;
+      Q.norm     = norm;
+      Q.point    = ray.origin_ + dist * ray.dir_;
+    }
+  }
+
+  return Q;
+}
+
+Scene::IntersectionRecord Scene::SampleLight()
+{
+  std::uniform_real_distribution<> r0(0, lights.size());
+
+  int                       i     = r0(RNGen);
+  Shape*                    light = lights[i];
+  Scene::IntersectionRecord ir    = sampleSphere(light->pos_, dynamic_cast<Sphere*>(light)->radius);
+  ir.isLight                      = true;
+  ir.hit                          = light;
+
+  return ir;
+}
+
+Scene::IntersectionRecord Scene::sampleSphere(const glm::vec3& C, float R)
+{
+  float                     r1 = myrandom(RNGen);
+  float                     r2 = myrandom(RNGen);
+  float                     z  = 2 * r1 - 1;
+  float                     r  = std::sqrt(1 - z * z);
+  float                     a  = 2 * PI * r2;
+  Scene::IntersectionRecord ir;
+  ir.norm  = glm::vec3(r * cos(a), r * sin(a), z);
+  ir.point = C + R * ir.norm;
+
+  return ir;
+}
+
+float Scene::pdfLight(const IntersectionRecord& ir)
+{
+  auto  light = dynamic_cast<Sphere*>(ir.hit);
+  float sa    = 4 * PI * light->radius * light->radius;
+
+  return 1 / (sa * lights.size());
+}
+
+float Scene::geometryFactor(IntersectionRecord A, IntersectionRecord B)
+{
+  auto D = A.point - B.point;
+  return std::abs(glm::dot(A.norm, D) * glm::dot(B.norm, D) / std::pow(glm::dot(D, D), 2));
 }

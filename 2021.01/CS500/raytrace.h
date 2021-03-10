@@ -97,7 +97,7 @@ public:
   glm::vec3      ambientLight;
   MyMaterial     myMaterial;
   vector<Shape*> shapes;
-
+  vector<Shape*> lights;
 
   static void PrintVec3(std::string name, Vector3f vec, bool nl = true)
   {
@@ -114,7 +114,10 @@ public:
 
   void Finit();
 
-  glm::vec3 calculateLighting(const glm::vec3& diffuse, const glm::vec3& norm, const glm::vec3& objPos, const Shape& shape);
+  glm::vec3 calculateLighting(const glm::vec3& diffuse,
+                              const glm::vec3& norm,
+                              const glm::vec3& objPos,
+                              const Shape&     shape);
 
   // The scene reader-parser will call the Command method with the
   // contents of each line in the scene file.
@@ -132,4 +135,34 @@ public:
   void TraceImage(Color* image, Scene::ImageType imageType, const int pass);
 
   void TraceTestImage(Color* image, const int pass);
+
+  void TracePath(Color* image, Scene::ImageType imageType, const int pass);
+
+  struct IntersectionRecord
+  {
+    vec3   point;
+    vec3   norm;
+    Shape* hit = nullptr;
+    bool   isLight = false;
+    float  shortest = INFINITY;
+  };
+
+  const float epsilon                 = 0.000001f;
+  const float conservationEnergyValue = 0.8f;
+
+  Ray       CastRay(int x, int y, Vector3f X, Vector3f Y, Vector3f Z);
+  bool      russianRoulette(float leq = 0.8);
+  glm::vec3 sampleBRDF(const glm::vec3& N);
+  glm::vec3 sampleLobe(const glm::vec3& N, float c, float phi);
+  glm::vec3 evalScattering(const IntersectionRecord& ir, const glm::vec3& w);
+  float     pdfBrdf(const glm::vec3& N, const glm::vec3& w);
+  glm::vec3 evalRadiance(const IntersectionRecord& ir);
+  IntersectionRecord findIntersection(const Ray& ray);
+
+  // phase 2
+  IntersectionRecord SampleLight();
+  IntersectionRecord sampleSphere(const glm::vec3& C, float R);
+  float              pdfLight(const IntersectionRecord& ir);
+  float              geometryFactor(IntersectionRecord A, IntersectionRecord B);
+
 };

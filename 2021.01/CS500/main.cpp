@@ -72,7 +72,7 @@ void ReadScene(const std::string inName, Scene* scene)
 
 // Write the image as a HDR(RGBE) image.
 #include "rgbe.h"
-void WriteHdrImage(const std::string outName, const int width, const int height, Color* image)
+void WriteHdrImage(const std::string outName, const int width, const int height, Color* image, int pass)
 {
   // Turn image from a 2D-bottom-up array of Vector3D to an top-down-array of floats
   float* data = new float[width * height * 3];
@@ -81,7 +81,7 @@ void WriteHdrImage(const std::string outName, const int width, const int height,
   {
     for (int x = 0; x < width; ++x)
     {
-      Color pixel = image[y * width + x];
+      Color pixel = image[y * width + x] / pass;
       *dp++       = pixel[0];
       *dp++       = pixel[1];
       *dp++       = pixel[2];
@@ -135,28 +135,36 @@ int main(int argc, char** argv)
       image[y * scene->width + x] = Color(0, 0, 0);
 
   // RayTrace the image
-  Scene::ImageType makeImage = Scene::ImageType::TestOnly;
+  Scene::ImageType makeImage = Scene::ImageType::LitOnly;
+  int              pass      = 8;
+  int              passes    = 0;
   for (int i = 0; i < Scene::ImageType::All; i++)
   {
-    printf("\n Rendering : %s\n", scene->imageTypeNames[i].c_str());
-    if (i == Scene::ImageType::TestOnly && makeImage == Scene::ImageType::TestOnly)
+    printf("\n Image Type : %s\n", scene->imageTypeNames[i].c_str());
+    if (makeImage == Scene::ImageType::TestOnly)
     {
       scene->TraceTestImage(image, 1);
-      WriteHdrImage(scene->imageTypeNames[i] + "_" + hdrName, scene->width, scene->height, image);
+      WriteHdrImage(scene->imageTypeNames[i] + "_" + hdrName, scene->width, scene->height, image,1);
+      break;
     }
-    else if (i == makeImage || makeImage == Scene::ImageType::All)
+    else if ((i == makeImage || makeImage == Scene::ImageType::All) && i)
     {
-      auto begin = std::chrono::high_resolution_clock::now();
-      scene->TraceImage(image, Scene::ImageType(i), 1);
+      while (1)
+      {
+        auto begin = std::chrono::high_resolution_clock::now();
+        passes += pass;
+        scene->TracePath(image, Scene::ImageType(i),pass);
+        // scene->TraceImage(image, Scene::ImageType(i), 1);
 
-      auto end    = std::chrono::high_resolution_clock::now();
-      auto ms     = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-      auto sec    = ms.count() / 1000;
-      auto remain = ms.count() - (sec * 1000);
-      std::cout << "\nTime: " << sec << "." << remain << "\n";
+        auto end    = std::chrono::high_resolution_clock::now();
+        auto ms     = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+        auto sec    = ms.count() / 1000;
+        auto remain = ms.count() - (sec * 1000);
 
-      // Write the image
-      WriteHdrImage(scene->imageTypeNames[i] + "_" + hdrName, scene->width, scene->height, image);
+        // Write the image
+        WriteHdrImage(scene->imageTypeNames[i] + "_" + hdrName, scene->width, scene->height, image, passes);
+        std::cout << "\nTime: " << sec << "." << remain << "\n";
+      }
     }
   }
 
