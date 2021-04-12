@@ -1,0 +1,15 @@
+# Format Style Options - Created with Clang Power Tools
+---
+Language: Cpp
+BasedOnStyle: Microsoft
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackArguments: false
+BinPackParameters: false
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+IndentWidth: 2
+TabWidth: 2
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+PointerAlignment: Left
+...
