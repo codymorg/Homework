@@ -6,6 +6,10 @@
 typedef class Shape Shape;
 struct Intersection
 {
+  Intersection()
+  {
+    invalid();
+  }
   Intersection(float tt, Shape* obj, Vec3 norm, Vec3 point) : t(tt), object(obj), normal(norm), point(point)
   {
   }
@@ -43,7 +47,6 @@ public:
   MyMaterial  mat;
   string      name;
   Bbox        bbox;
-  const float EPSILON      = 0.00001f;
   const float NO_COLLISION = INFINITY;
 };
 

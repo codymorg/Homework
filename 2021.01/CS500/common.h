@@ -20,4 +20,7 @@ using std::cout;
 #include <vector>
 using std::vector;
 
-const float Radians = 3.14159265358979323846f / 180.0f; // Convert degrees to radians
+const float EPSILON = 0.0000001f;
+const float PI      = 3.14159f;
+const float Radians = PI / 180.0f; // Convert degrees to radians
+

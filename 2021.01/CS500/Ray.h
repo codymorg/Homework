@@ -3,6 +3,11 @@
 
 struct Ray
 {
+  Ray()
+  {
+    origin = {0,0,0};
+    dir    = origin;
+  }
   Ray(const Vec3& origin, const Vec3& direction) : origin(origin)
   {
     dir = direction.normalized();

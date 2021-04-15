@@ -1,5 +1,6 @@
 #include "Shape.h"
 
+
 /**************************** Shape ******************************************************/
 
 Shape::Shape(const string& ShapeName, Vec3 position) : name(ShapeName), pos(position)
@@ -114,7 +115,7 @@ float Box::intersect(const Ray& ray, Intersection& inter)
         if (dist < shortest)
         {
           shortest = dist;
-          inter.set(dist, this, norm, ray.origin + dist * ray.dir);
+          inter.set(dist, this, -norm, ray.origin + dist * ray.dir);
         }
       }
     }
@@ -168,9 +169,9 @@ float Cylinder::intersect(const Ray& ray, Intersection& inter)
       return NO_COLLISION;
 
     Vec3 norm = (p5 - p4).normalized();
-    inter.set(minDistToRay, this, norm, ray.origin + minDistToRay * ray.dir);
+    inter.set((p5 - ray.origin).norm(), this, norm, ray.origin + minDistToRay * ray.dir);
 
-    return (p5 - ray.origin).norm();
+    return inter.t;
   }
 
   return NO_COLLISION;

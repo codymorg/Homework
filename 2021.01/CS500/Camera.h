@@ -8,13 +8,13 @@ public:
   void setCamera(float px, float py, float pz, float frust, float rw, float rx, float ry, float rz)
   {
     pos           = {px, py, pz};
-    frustumRatio_ = frust;
+    frustumRatio = frust;
     rot           = {rw, rx, ry, rz};
   }
 
   Vec3  pos;
   Quat  rot;
-  float frustumRatio_ = 0;
+  float frustumRatio = 0;
 
 private:
 };
