@@ -72,8 +72,82 @@ void ReadScene(const std::string inName, Scene* scene)
 
 // Write the image as a HDR(RGBE) image.
 #include "rgbe.h"
-void WriteHdrImage(const std::string outName, const int width, const int height, Color* image, int pass)
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <math.h>
+#define PRINTCOLORS 1
+
+bool HasNan(const Color& color)
 {
+  return (isnan(color[0]) || isnan(color[1]) || isnan(color[2]));
+}
+ Color SampleSurrounding(int x, int y, int width, int height, Color* image)
+{
+  int R = x + 1 >= width ? -1 : x + 1;
+  int U = y + 1 >= height ? -1 : y + 1;
+  int L = x - 1;
+  int D = y - 1;
+
+  Color newColor;
+  int   i = 0;
+  if (U >= 0 && R >= 0 && !HasNan(image[U * width + R]))
+  {
+    newColor += image[U * width + R];
+    i++;
+  }
+  if (D >= 0 && R >= 0 && !HasNan(image[D * width + R]))
+  {
+    newColor += image[D * width + R];
+    i++;
+  }
+  if (U >= 0 && L >= 0 && !HasNan(image[U * width + L]))
+  {
+    newColor += image[U * width + L];
+    i++;
+  }
+  if (D >= 0 && L >= 0 && !HasNan(image[D * width + L]))
+  {
+    newColor += image[D * width + L];
+    i++;
+  }
+
+  if (U >= 0 && !HasNan(image[U * width + x]))
+  {
+    newColor += image[U * width + x];
+    i++;
+  }
+  if (D >= 0 && !HasNan(image[D * width + x]))
+  {
+    newColor += image[D * width + x];
+    i++;
+  }
+  if (R >= 0 && !HasNan(image[y * width + R]))
+  {
+    newColor += image[y * width + R];
+    i++;
+  }
+  if (L >= 0 && !HasNan(image[y * width + L]))
+  {
+    newColor += image[y * width + L];
+    i++;
+  }
+
+  Color pixel = {
+    newColor[0] / i,
+    newColor[1] / i,
+    newColor[2] / i,
+  };
+  image[y * width + x] = pixel;
+  return pixel;
+}
+
+void WriteHdrImage(const std::string outName, const int width, const int height, Color* image, int passes)
+{
+#if PRINTCOLORS
+  std::ofstream myfile;
+  myfile.open("colors.txt", std::ios::trunc);
+#endif
   // Turn image from a 2D-bottom-up array of Vector3D to an top-down-array of floats
   float* data = new float[width * height * 3];
   float* dp   = data;
@@ -81,12 +155,29 @@ void WriteHdrImage(const std::string outName, const int width, const int height,
   {
     for (int x = 0; x < width; ++x)
     {
-      Color pixel = image[y * width + x] / pass;
-      *dp++       = pixel[0];
-      *dp++       = pixel[1];
-      *dp++       = pixel[2];
+      Color pixel = image[y * width + x];
+      if (HasNan(pixel))
+      {
+        pixel = SampleSurrounding(x, y, width, height, image);
+        printf("nan detected, new color, [%f, %f, %f]\n", pixel[0] / passes, pixel[1] / passes, pixel[2] / passes);
+      }
+#if PRINTCOLORS
+      int w = 8;
+      myfile << "[" << std::fixed << std::setw(w) << std::setprecision(0) << pixel[0] << " " << std::fixed
+             << std::setw(w) << pixel[1] << " " << std::fixed << std::setw(w) << pixel[2] << "]";
+#endif
+      *dp++ = pixel[0] / passes;
+      *dp++ = pixel[1] / passes;
+      *dp++ = pixel[2] / passes;
     }
+#if PRINTCOLORS
+    myfile << "\n";
+#endif
   }
+
+#if PRINTCOLORS
+  myfile.close();
+#endif
 
   // Write image to file in HDR (a.k.a RADIANCE) format
   rgbe_header_info info;
@@ -104,6 +195,22 @@ void WriteHdrImage(const std::string outName, const int width, const int height,
   fclose(fp);
 
   delete data;
+}
+
+static void printBasicImages(Scene* scene)
+{
+  for (int i = 0; i < Scene::All; i++)
+  {
+    Color* image = new Color[scene->width * scene->height];
+    for (int y = 0; y < scene->height; y++)
+      for (int x = 0; x < scene->width; x++)
+        image[y * scene->width + x] = Color(0, 0, 0);
+
+    std::cout << scene->imageTypeNames[i] << "===================\n";
+    scene->TraceImage(image, (Scene::ImageType)i, 1);
+    WriteHdrImage(scene->imageTypeNames[i] + ".hdr", scene->width, scene->height, image, 1);
+    delete[] image;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -126,8 +233,6 @@ int main(int argc, char** argv)
     std::cout << "\t" << var->name() << "\n";
   }
 
-  scene->Finit();
-
   // Allocate and clear an image array
   Color* image = new Color[scene->width * scene->height];
   for (int y = 0; y < scene->height; y++)
@@ -136,37 +241,18 @@ int main(int argc, char** argv)
 
   // RayTrace the image
   Scene::ImageType makeImage = Scene::ImageType::LitOnly;
-  int              pass      = 8;
+  int              pass      = 100;
   int              passes    = 0;
-  for (int i = 0; i < Scene::ImageType::All; i++)
+  int              stop      = 1000;
+  printBasicImages(scene);
+  while (passes < stop)
   {
-    printf("\n Image Type : %s\n", scene->imageTypeNames[i].c_str());
-    if (makeImage == Scene::ImageType::TestOnly)
-    {
-      scene->TraceTestImage(image, 1);
-      WriteHdrImage(scene->imageTypeNames[i] + "_" + hdrName, scene->width, scene->height, image,1);
-      break;
-    }
-    else if ((i == makeImage || makeImage == Scene::ImageType::All) && i)
-    {
-      while (1)
-      {
-        auto begin = std::chrono::high_resolution_clock::now();
-        passes += pass;
-        scene->TracePath(image, Scene::ImageType(i),pass);
-        // scene->TraceImage(image, Scene::ImageType(i), 1);
+    passes += pass;
+    scene->TracePath(image, pass);
 
-        auto end    = std::chrono::high_resolution_clock::now();
-        auto ms     = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-        auto sec    = ms.count() / 1000;
-        auto remain = ms.count() - (sec * 1000);
-
-        // Write the image
-        WriteHdrImage(scene->imageTypeNames[i] + "_" + hdrName, scene->width, scene->height, image, passes);
-        std::cout << "\nTime: " << sec << "." << remain << "\n";
-      }
-    }
+    // Write the image
+    WriteHdrImage(hdrName, scene->width, scene->height, image, passes);
+    std::cout << "\n" << passes << " / " << stop << "\n";
   }
-
   delete scene;
 }

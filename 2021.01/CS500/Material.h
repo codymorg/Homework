@@ -18,9 +18,17 @@ public:
   {
     return {rgba.r, rgba.g, rgba.b};
   };
+  void setRGB(float r, float g, float b)
+  {
+    rgba = {r, g, b, 0};
+  }
+  float alpha() const 
+  {
+    return rgba.a;
+  }
   bool      isLight = false;
-  glm::vec4 rgba    = {1, 1, 1, 1};
   glm::vec3 specular;
 
 private:
+  glm::vec4 rgba    = {1, 1, 1, 1};
 };

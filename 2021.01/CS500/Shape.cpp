@@ -2,7 +2,9 @@
 #include "glm/glm/geometric.hpp"
 #include "glm/glm/mat3x3.hpp"
 #include "glm/glm/matrix.hpp"
+#include <Eigen/src/Geometry/Quaternion.h>
 #include <algorithm>
+using Eigen::Quaternionf;
 using glm::vec3;
 using std::max;
 using std::min;
@@ -158,48 +160,176 @@ bool Box::isInBox(const glm::vec3& point)
   return xmin && ymin && zmin && xmax && ymax && zmax;
 }
 
-float Cylinder::intersect(const Ray& ray, glm::vec3& norm, bool debug)
+struct Slab
 {
-  // L1 = ray = orig + t1*dir              // dir is normalized
-  // L2 = Cyl.pos + t2(Cyl.end - Cyl.pos)  // this vector is the length of the cylinder
-  // p3 = p1 + t1*v1
-  // v3 = v1 X v2
-  // p4 = p3 + t3*v3
-  // p4 = p2 + t2*v2
-  // p3 + t3*v3 = p2 + t2*v2
-  // p1 + t1*v1 + t3*v3 = p2 + t2*v2
-  // t1*v1 -t2*v2 + t3*v3 = p2 - p1
-  // by cramers -> (t1,t2,t3)
-  // |V3| < radius
-  // 0 <= t2 <= 1
+  Eigen::Vector3f _N;
+  float           _d0, _d1;
 
-  vec3                   v3 = glm::cross(ray.dir_, axis);
-  std::vector<glm::vec3> eq = {ray.dir_, -axis, v3, this->pos_ - ray.origin_};
-  vec3                   t;
-  if (cramers(eq, t))
+  Slab() = default;
+  Slab(Eigen::Vector3f N, float d0, float d1) : _N(N), _d0(d0), _d1(d1)
   {
-    // it must fall on the axis length defining the cylinder from origin to the tip of the axis
-    if (t.y > 1 || t.y < 0)
-      return NO_COLLISION;
+    _N.normalize();
+  };
+};
 
-    vec3  p3      = ray.origin_ + t.x * ray.dir_;
-    vec3  p4      = pos_ + t.y * axis;
-    float vec3Mag = glm::length(p4 - p3);
-
-    // we are interested in the distance from the camera to the edge of the cylinder
-    vec3  v5 = ray.origin_ - p3;
-    float t5 = glm::sqrt(glm::pow<float>(radius, 2) - glm::pow<float>(glm::length(p4 - p3), 2)) / glm::length(v5);
-    vec3  p5 = p3 + t5 * v5;
-    float minDistToRay = glm::length(p4 - p3);
-
-    if (minDistToRay > radius + EPSILON)
-      return NO_COLLISION;
-
-    norm = glm::normalize(p5 - p4);
-
-    return glm::length(p5 - ray.origin_);
+class Interval
+{
+public:
+  Interval()
+  {
+    t0 = 0;
+    t1 = INFINITY;
   }
 
+  Interval(float t, float tt, Eigen::Vector3f n, Eigen::Vector3f nn)
+  {
+    if (t < tt)
+    {
+      t0      = t;
+      t1      = tt;
+      normal0 = n;
+      normal1 = nn;
+    }
+    else
+    {
+      t0      = tt;
+      t1      = t;
+      normal0 = nn;
+      normal1 = n;
+    }
+  }
+
+  void empty()
+  {
+    t0      = 0;
+    t1      = -1;
+    normal0 = Eigen::Vector3f::Zero();
+    normal1 = Eigen::Vector3f::Zero();
+  }
+
+  bool isEmpty()const
+  {
+    return (t1 == -1 && t0 == 0);
+  }
+
+#define INTERSECTION_EPSILON 0.000001
+  void intersect(const Ray& ray, const Slab& slab)
+  {
+    auto rayDir  = VecToEigen(ray.dir_);
+    auto rayOrig = VecToEigen(ray.origin_);
+    // forms interval by intersecting ray with slab and intersects with this.
+    if (slab._N.dot(rayDir) < INTERSECTION_EPSILON ||
+        slab._N.dot(rayDir) > INTERSECTION_EPSILON) // both planes intersected.
+    {
+      float t0 = -(slab._d0 + slab._N.dot(rayOrig)) / slab._N.dot(rayDir);
+      float t1 = -(slab._d1 + slab._N.dot(rayOrig)) / slab._N.dot(rayDir);
+
+      if (t0 < INTERSECTION_EPSILON && t1 < INTERSECTION_EPSILON)
+      {
+        // this is an empty interval
+        empty();
+        return;
+      }
+
+      t0      = t0 < t1 ? t0 : t1;
+      t1      = t0 < t1 ? t1 : t0;
+      normal0 = t0 < t1 ? -slab._N : slab._N;
+      normal1 = t0 < t1 ? slab._N : -slab._N;
+
+      return;
+    }
+    else // ray is parallel to the slab
+    {
+      float sign0 = slab._N.dot(rayOrig) + slab._d0;
+      float sign1 = slab._N.dot(rayOrig) + slab._d1;
+
+      if (sign0 > 0 && sign1 < 0 || sign0 < 0 && sign1 > 0) // intersects indefinently
+      {
+        t0      = 0.0f;
+        t1      = INFINITY;
+        normal0 = slab._N;
+        normal1 = slab._N;
+        return;
+      }
+    }
+
+    // this is an empty interval
+    empty();
+  }
+  
+  void intersect(Interval const& other)
+  {
+    if (other.isEmpty())
+    {
+      return;
+    }
+
+    float tt0 = t0;
+    float tt1 = t1;
+
+    t0 = std::max(t0, other.t0);
+    t1 = std::min(t1, other.t1);
+
+    if (tt0 != t0)
+      normal0 = other.normal0;
+    if (tt1 != t1)
+      normal1 = other.normal1;
+  }
+  float           t0, t1;
+  Eigen::Vector3f normal0, normal1;
+};
+
+
+float Cylinder::intersect(const Ray& ray, glm::vec3& norm, bool debug)
+{
+  auto        _A = VecToEigen(axis);
+  Quaternionf q  = Quaternionf::FromTwoVectors(_A, Eigen::Vector3f::UnitZ());
+  auto        QQ = q._transformVector(VecToEigen(ray.origin_ - pos_)); // base qx, qy, qz
+  auto        DD = q._transformVector(VecToEigen(ray.dir_));
+
+  Interval aInterval;
+  Slab     slab = Slab(Eigen::Vector3f(0, 0, 1), 0, -_A.norm());
+  float a = DD[0] * DD[0] + DD[1] * DD[1];
+  float b = 2 * (DD[0] * QQ[0] + DD[1] * QQ[1]);
+  float c = QQ[0] * QQ[0] + QQ[1] * QQ[1] - radius * radius;
+
+  float descriminate = b * b - 4.0f * a * c;
+  if ((descriminate) < EPSILON)
+  {
+    return NO_COLLISION;
+  }
+
+  float t0 = (-b - sqrt(descriminate)) / (2 * a);
+  float t1 = (-b + sqrt(descriminate)) / (2 * a);
+
+  Eigen::Vector3f M0 = QQ + t0 * DD;
+  Eigen::Vector3f M1 = QQ + t1 * DD;
+  Interval cInterval;
+  cInterval.t0      = t0;
+  cInterval.t1      = t1;
+  cInterval.normal0 = Eigen::Vector3f(M0[0], M0[1], 0.0f).normalized();
+  cInterval.normal1 = Eigen::Vector3f(M1[0], M1[1], 0.0f).normalized();
+
+  aInterval.intersect(Ray(EigenToVec(QQ), EigenToVec(DD)), slab);
+  aInterval.intersect(cInterval);
+
+  if (aInterval.t0 < EPSILON)
+  {
+    return NO_COLLISION;
+  }
+
+  auto  hitPos = ray.origin_ + aInterval.t0 * ray.dir_;
+  float dist   = glm::length(axis);
+  if (glm::distance(hitPos, pos_) > dist || glm::dot(glm::normalize(axis),(hitPos - pos_)) < EPSILON)
+  {
+    return NO_COLLISION;
+  }
+
+  if (aInterval.t0 < aInterval.t1)
+  {
+    norm = EigenToVec(q.conjugate()._transformVector(aInterval.normal0).normalized());
+    return aInterval.t0;
+  }
   return NO_COLLISION;
 }
 
@@ -396,7 +526,7 @@ float Model::Minimizer::minimumOnVolume(const Bbox& box)
     {
       if (Shape::isInBounds(col, EigenToVec(L), EigenToVec(U)))
       {
-        dist =  std::min(dist,glm::distance(ray.origin_, col));
+        dist = std::min(dist, glm::distance(ray.origin_, col));
       }
     }
   }
