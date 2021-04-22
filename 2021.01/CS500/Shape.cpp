@@ -43,9 +43,24 @@ bool Shape::isInBounds(const glm::vec3& point, const glm::vec3& minPoint, const 
   return xmin && ymin && zmin && xmax && ymax && zmax;
 }
 
+glm::vec3 Sphere::getpos()
+{
+  if (motionBlur)
+  {
+    random_t = std::min(std::max(random_t, 0.0f), 1.0f);
+    float t  = 1 - std::pow(1 - random_t, 2);
+    t        = random_t;
+    auto P = std::pow(1 - t, 2.0f) * cp[0] + 2 * t * (1 - t) * cp[1] + std::pow(t, 2.0f) * cp[2];
+    return P;
+  }
+  else
+    return Shape::getpos();
+
+}
+
 float Sphere::intersect(const Ray& ray, glm::vec3& norm, bool debug)
 {
-  glm::vec3 m = ray.origin_ - pos_;
+  glm::vec3 m = ray.origin_ - getpos();
   float     b = glm::dot(m, ray.dir_);
   float     c = glm::dot(m, m) - radius * radius;
 
@@ -68,15 +83,15 @@ float Sphere::intersect(const Ray& ray, glm::vec3& norm, bool debug)
   glm::vec3 q = ray.origin_ + t * ray.dir_;
 
   // norma calc
-  norm = glm::normalize(q - pos_);
+  norm = glm::normalize(q - getpos());
 
   return glm::length(t * ray.dir_);
 }
 
 void Sphere::bounding_box()
 {
-  bbox = Bbox(Eigen::Vector3f(pos_.x - radius, pos_.y - radius, pos_.z - radius),
-              Eigen::Vector3f(pos_.x + radius, pos_.y + radius, pos_.z + radius));
+  bbox = Bbox(Eigen::Vector3f(getpos().x - radius, getpos().y - radius, getpos().z - radius),
+              Eigen::Vector3f(getpos().x + radius, getpos().y + radius, getpos().z + radius));
 }
 
 Box::Box(float x, float y, float z, float vx, float vy, float vz, int id)
@@ -95,14 +110,14 @@ void Box::initBox(float x, float y, float z, float vx, float vy, float vz)
 {
   // Front Away Left Right Top Bottom
   points = {
-    pos_,                                   // 000  AL  B  0
-    {pos_.x, pos_.y + vy, pos_.z},          // 010  A R B  1
-    {pos_.x + vx, pos_.y, pos_.z},          // 100 F L  B  2
-    {pos_.x + vx, pos_.y + vy, pos_.z},     // 110 F  R B  3
-    {pos_.x, pos_.y, pos_.z + vz},          // 001  AL T   4
-    {pos_.x, pos_.y + vy, pos_.z + vz},     // 011  A RT   5
-    {pos_.x + vx, pos_.y, pos_.z + vz},     // 101 F L T   6
-    {pos_.x + vx, pos_.y + vy, pos_.z + vz} // 111 F  RT   7
+    getpos(),                                   // 000  AL  B  0
+    {getpos().x, getpos().y + vy, getpos().z},          // 010  A R B  1
+    {getpos().x + vx, getpos().y, getpos().z},          // 100 F L  B  2
+    {getpos().x + vx, getpos().y + vy, getpos().z},     // 110 F  R B  3
+    {getpos().x, getpos().y, getpos().z + vz},          // 001  AL T   4
+    {getpos().x, getpos().y + vy, getpos().z + vz},     // 011  A RT   5
+    {getpos().x + vx, getpos().y, getpos().z + vz},     // 101 F L T   6
+    {getpos().x + vx, getpos().y + vy, getpos().z + vz} // 111 F  RT   7
   };
 
   normals = {glm::normalize(-glm::cross(points[2] - points[0], points[1] - points[0])),  // Bottom
@@ -143,19 +158,19 @@ float Box::intersect(const Ray& ray, glm::vec3& normal, bool debug)
 
 void Box::bounding_box()
 {
-  vec3 minPoint = vec3Min(pos_, pos_ + diagonal);
-  vec3 maxPoint = vec3Max(pos_, pos_ + diagonal);
+  vec3 minPoint = vec3Min(getpos(), getpos() + diagonal);
+  vec3 maxPoint = vec3Max(getpos(), getpos() + diagonal);
   bbox          = Bbox(VecToEigen(minPoint), VecToEigen(maxPoint));
 }
 
 bool Box::isInBox(const glm::vec3& point)
 {
-  bool xmin = point.x <= std::max(pos_.x + diagonal.x, pos_.x) + EPSILON;
-  bool ymin = point.y <= std::max(pos_.y + diagonal.y, pos_.y) + EPSILON;
-  bool zmin = point.z <= std::max(pos_.z + diagonal.z, pos_.z) + EPSILON;
-  bool xmax = point.x >= std::min(pos_.x + diagonal.x, pos_.x) - EPSILON;
-  bool ymax = point.y >= std::min(pos_.y + diagonal.y, pos_.y) - EPSILON;
-  bool zmax = point.z >= std::min(pos_.z + diagonal.z, pos_.z) - EPSILON;
+  bool xmin = point.x <= std::max(getpos().x + diagonal.x, getpos().x) + EPSILON;
+  bool ymin = point.y <= std::max(getpos().y + diagonal.y, getpos().y) + EPSILON;
+  bool zmin = point.z <= std::max(getpos().z + diagonal.z, getpos().z) + EPSILON;
+  bool xmax = point.x >= std::min(getpos().x + diagonal.x, getpos().x) - EPSILON;
+  bool ymax = point.y >= std::min(getpos().y + diagonal.y, getpos().y) - EPSILON;
+  bool zmax = point.z >= std::min(getpos().z + diagonal.z, getpos().z) - EPSILON;
 
   return xmin && ymin && zmin && xmax && ymax && zmax;
 }
@@ -284,7 +299,7 @@ float Cylinder::intersect(const Ray& ray, glm::vec3& norm, bool debug)
 {
   auto        _A = VecToEigen(axis);
   Quaternionf q  = Quaternionf::FromTwoVectors(_A, Eigen::Vector3f::UnitZ());
-  auto        QQ = q._transformVector(VecToEigen(ray.origin_ - pos_)); // base qx, qy, qz
+  auto        QQ = q._transformVector(VecToEigen(ray.origin_ - getpos())); // base qx, qy, qz
   auto        DD = q._transformVector(VecToEigen(ray.dir_));
 
   Interval aInterval;
@@ -320,7 +335,7 @@ float Cylinder::intersect(const Ray& ray, glm::vec3& norm, bool debug)
 
   auto  hitPos = ray.origin_ + aInterval.t0 * ray.dir_;
   float dist   = glm::length(axis);
-  if (glm::distance(hitPos, pos_) > dist || glm::dot(glm::normalize(axis),(hitPos - pos_)) < EPSILON)
+  if (glm::distance(hitPos, getpos()) > dist || glm::dot(glm::normalize(axis),(hitPos - getpos())) < EPSILON)
   {
     return NO_COLLISION;
   }
@@ -335,8 +350,8 @@ float Cylinder::intersect(const Ray& ray, glm::vec3& norm, bool debug)
 
 void Cylinder::bounding_box()
 {
-  vec3 minPoint = vec3Min(pos_, pos_ + axis);
-  vec3 maxPoint = vec3Max(pos_, pos_ + axis);
+  vec3 minPoint = vec3Min(getpos(), getpos() + axis);
+  vec3 maxPoint = vec3Max(getpos(), getpos() + axis);
   bbox          = Bbox(VecToEigen(minPoint), VecToEigen(maxPoint));
 }
 

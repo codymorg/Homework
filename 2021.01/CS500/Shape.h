@@ -36,16 +36,25 @@ public:
   static const int NO_COLLISION = -1;
   const float      EPSILON      = 0.00001f;
 
+  // Motion blur stuff
+  bool                   motionBlur = false;
+  float                  random_t = 0.0f;
+  std::vector<glm::vec3> cp;
+
   Shape(const std::string name) : name_(name){};
   Shape(const std::string& name, const glm::vec3& position) : name_(name), pos_(position){};
 
-  virtual float intersect(const Ray& ray, glm::vec3& norm, bool debug = false) = 0;
-  virtual void  bounding_box()                                 = 0;
-  static bool   planeIntersection(const Ray&       ray,
-                                  const glm::vec3& norm,
-                                  const glm::vec3  planarPoint,
-                                  glm::vec3&       collisionPoint);
-  static bool   isInBounds(const glm::vec3& point, const glm::vec3& minPoint, const glm::vec3& maxPoint);
+  virtual float     intersect(const Ray& ray, glm::vec3& norm, bool debug = false) = 0;
+  virtual glm::vec3 getpos()
+  {
+    return pos_;
+  };
+  virtual void bounding_box() = 0;
+  static bool  planeIntersection(const Ray&       ray,
+                                 const glm::vec3& norm,
+                                 const glm::vec3  planarPoint,
+                                 glm::vec3&       collisionPoint);
+  static bool  isInBounds(const glm::vec3& point, const glm::vec3& minPoint, const glm::vec3& maxPoint);
 
   static void PrintVec3(std::string name, glm::vec3 vec, bool nl = true)
   {
@@ -62,11 +71,11 @@ public:
     return name_;
   };
 
-  glm::vec3  pos_;
   MyMaterial mat_;
   Bbox       bbox;
 
 private:
+  glm::vec3   pos_;
   std::string name_;
 };
 
@@ -77,6 +86,8 @@ public:
   {
     bounding_box();
   };
+
+  glm::vec3 getpos() override;
 
   float intersect(const Ray& ray, glm::vec3& norm, bool debug = false);
   void  bounding_box();
@@ -160,9 +171,9 @@ public:
   std::pair<glm::vec3, glm::vec3> boundsOfTri(const glm::vec3& tri);
   std::pair<glm::vec3, glm::vec3> boundsOfTri(const glm::vec3& tri, const glm::vec3& tri2, const glm::vec3& tri3);
 
-  MeshData*                     meshData = nullptr;
-  std::vector<Box*>             hierarchy;
-  std::vector<std::vector<int>> triIndicies;
+  MeshData*                      meshData = nullptr;
+  std::vector<Box*>              hierarchy;
+  std::vector<std::vector<int>>  triIndicies;
   Eigen::KdBVH<float, 3, Shape*> Tree;
 
   class Minimizer

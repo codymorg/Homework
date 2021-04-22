@@ -138,7 +138,7 @@ vec3 Scene::calculateLighting(const vec3& diffuse, const vec3& norm, const vec3&
   {
     if (hit->mat_.isLight)
     {
-      vec3  L  = glm::normalize(hit->pos_ - objPos);
+      vec3  L  = glm::normalize(hit->getpos() - objPos);
       vec3  H  = glm::normalize(L + E);
       float NL = std::max(glm::dot(norm, L), 0.0f);
       float HN = std::max(glm::dot(H, norm), 0.0f);
@@ -209,10 +209,26 @@ void Scene::Command(const std::vector<std::string>& strings, const std::vector<f
     Sphere* obj = new Sphere(f[1], f[2], f[3], f[4], shapes.size());
     obj->addMaterial(myMaterial);
     shapes.push_back(obj);
+
     if (myMaterial.isLight)
       lights.push_back(obj);
   }
+  else if (c == "blur")
+  {
+    // syntax: sphere x y z   r
+    // Creates a Shape instance for a sphere defined by a center and radius
+    Sphere* obj = new Sphere(f[1], f[2], f[3], f[4], shapes.size());
+    obj->addMaterial(myMaterial);
+    vec3 start(2, 0, 0);
+    vec3 mid(0, 1, 0);
+    vec3 end(0, 0, 1.5);
+    obj->cp         = {start, mid, end};
+    obj->motionBlur = true;
+    shapes.push_back(obj);
 
+    if (myMaterial.isLight)
+      lights.push_back(obj);
+  }
   else if (c == "box")
   {
     // syntax: box bx by bz   dx dy dz
@@ -298,8 +314,9 @@ void Scene::TraceImage(Color* image, Scene::ImageType imageType, const int pass)
       for (auto shape : shapes)
       {
         vec3   norm;
-        Shape* hit  = nullptr;
-        auto   dist = shape->intersect(ray, norm, hit);
+        Shape* hit      = nullptr;
+        shape->random_t = myrandom(RNGen);
+        auto dist       = shape->intersect(ray, norm, hit);
         if (dist != Shape::NO_COLLISION && dist < shortest)
         {
           shortest = dist;
@@ -514,8 +531,10 @@ Scene::IntersectionRecord Scene::findIntersection(const Ray& ray)
   for (auto shape : shapes)
   {
     vec3   norm;
-    Shape* hit  = nullptr;
-    auto   dist = shape->intersect(ray, norm, hit);
+    Shape* hit = nullptr;
+    if (shape->motionBlur)
+      shape->random_t = myrandom(RNGen);
+    auto dist = shape->intersect(ray, norm, hit);
     if (dist != Shape::NO_COLLISION && dist < Q.shortest)
     {
       Q.shortest = dist;
@@ -535,7 +554,7 @@ Scene::IntersectionRecord Scene::SampleLight()
 
   int                       i     = r0(RNGen);
   Shape*                    light = lights[i];
-  Scene::IntersectionRecord ir    = sampleSphere(light->pos_, dynamic_cast<Sphere*>(light)->radius);
+  Scene::IntersectionRecord ir    = sampleSphere(light->getpos(), dynamic_cast<Sphere*>(light)->radius);
   ir.isLight                      = true;
   ir.hit                          = light;
 

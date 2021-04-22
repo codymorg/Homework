@@ -245,7 +245,7 @@ int main(int argc, char** argv)
   int              passes    = 0;
   int              stop      = 1000;
   printBasicImages(scene);
-  while (passes < stop)
+  while (!stop || passes < stop)
   {
     passes += pass;
     scene->TracePath(image, pass);
