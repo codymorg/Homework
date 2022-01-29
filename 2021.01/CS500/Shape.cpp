@@ -423,7 +423,7 @@ void Model::bounding_box()
 
 void Model::makeBoundingHierarchy(const vector<Shape*>& shapes)
 {
-  Tree = Eigen::KdBVH<float, 3, Shape*>(shapes.begin(), shapes.end());
+  Tree.init(shapes.begin(), shapes.end());
 }
 
 glm::vec3 Model::centroidOfTri(const vec3& tri)
